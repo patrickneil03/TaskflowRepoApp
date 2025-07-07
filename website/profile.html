@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" href="favicon.png" type="image/png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Profile</title>
+    <link rel="stylesheet" href="css/profile-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@5.2.10/dist/amazon-cognito-identity.min.js"></script>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1305.0.min.js"></script>
+</head>
+<body>
+    <!-- Updated Navbar with Dropdown -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="logo">Taskflow</div>
+            <div class="dropdown">
+                <button class="dropdown-toggle" id="dropdown-toggle">
+                    <i class="fas fa-user-circle"></i>
+                    <i class="fas fa-chevron-down dropdown-chevron"></i>
+                </button>
+                <div class="dropdown-menu" id="dropdown-menu">
+                    <a href="dashboard.html"><i class="fas fa-home"></i> Home</a>
+                    <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+                    <button class="dropdown-item" id="theme-toggle">
+                        <i class="fas fa-moon"></i> Dark Mode
+                    </button>
+                    <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="profile-page-wrapper">
+        <div class="profile-container">
+            <h2 class="section-title">Your Profile</h2>
+
+            <div class="profile-card main-info-card">
+                <div class="profile-top-section">
+                    <div class="profile-pic-wrapper">
+                        <img id="profilePic" src="images/default-profile.png" alt="Profile Picture">
+                    </div>
+
+                    <div class="profile-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Username:</span>
+                            <span id="username" class="detail-value">Loading...</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Email:</span>
+                            <span id="email" class="detail-value">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <input type="file" id="fileInput" accept="image/*" hidden>
+                    <label for="fileInput" class="custom-file-upload">
+    <i class="fas fa-camera"></i> Change Photo
+</label>
+<button id="uploadBtn" class="upload-btn primary-button">
+    <i class="fas fa-upload"></i> Upload
+</button>
+                </div>
+                <div id="uploadStatus" class="status-message" style="display: none;"></div>
+            </div>
+
+           
+        </div>
+    </div>
+
+    <script src="js/profile.js"></script>
+    <script src="js/dropdown.js"></script>
+    <script src="js/settings-profile.js"></script>
+</body>
+</html>

@@ -1,0 +1,643 @@
+/* --- Base Styles --- */
+body {
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f7fa;
+  color: #333;
+  line-height: 1.6;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* --- Dark Theme Base --- */
+body[data-theme="dark"] {
+  background-color: #2c3e50;
+  color: #ecf0f1;
+}
+
+/* --- Layout Containers --- */
+.dashboard-container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+body[data-theme="dark"] .dashboard-container {
+  background-color: #34495e;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+}
+
+.logo {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: white;
+    letter-spacing: -0.5px;
+}
+
+.todo-list-title {
+  text-align: center;
+  color: #2c3e50;
+  margin-bottom: 30px;
+  font-weight: 700;
+  font-size: 2.2rem;
+}
+
+body[data-theme="dark"] .todo-list-title {
+  color: #ecf0f1;
+}
+
+/* --- Error Message --- */
+.error-message {
+  background-color: #ffe6e6;
+  color: #cc0000;
+  padding: 12px 20px;
+  border: 1px solid #ffb3b3;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+/* --- Navbar --- */
+.navbar {
+  background-color: #007bff;
+  padding: 15px 30px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  color: white;
+}
+
+.navbar-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+
+body[data-theme="dark"] .navbar {
+  background-color: #1a242f;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* --- Dropdown --- */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-toggle {
+  background-color: transparent;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.dropdown-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  background-color: #ffffff;
+  min-width: 180px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  right: 0;
+  top: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 10px;
+  left: auto;
+}
+
+body[data-theme="dark"] .dropdown-menu {
+  background-color: #44607c;
+}
+
+.dropdown-menu a,
+.dropdown-menu button {
+  color: #333;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
+  border: none;
+  width: 100%;
+  text-align: left;
+  background: none;
+  cursor: pointer;
+}
+
+body[data-theme="dark"] .dropdown-menu a,
+body[data-theme="dark"] .dropdown-menu button {
+  color: #ecf0f1;
+}
+
+.dropdown-menu a:hover,
+.dropdown-menu button:hover {
+  background-color: #f0f0f0;
+}
+
+body[data-theme="dark"] .dropdown-menu a:hover,
+body[data-theme="dark"] .dropdown-menu button:hover {
+  background-color: #55708c;
+}
+
+.dropdown-menu .fas {
+  width: 20px;
+  color: #555;
+}
+
+body[data-theme="dark"] .dropdown-menu .fas {
+  color: #ccc;
+}
+
+.dropdown-menu.show {
+  display: block;
+}
+
+/* --- Add Todo Input --- */
+.todo-input-container {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 25px;
+  align-items: center;
+}
+
+#new-todo {
+  flex-grow: 1;
+  padding: 14px 18px;
+  border: 1px solid #dcdcdc;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  color: #333;
+  background-color: #ffffff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+#new-todo::placeholder {
+  color: #999;
+  opacity: 0.9;
+}
+
+#new-todo:hover {
+  border-color: #b0b0b0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+#new-todo:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.25);
+  background-color: #f8fbff;
+}
+
+body[data-theme="dark"] #new-todo {
+  background-color: #44607c;
+  border-color: #55708c;
+  color: #ecf0f1;
+}
+
+body[data-theme="dark"] #new-todo:focus {
+  background-color: #4f6e8d;
+  border-color: #0099ff;
+  box-shadow: 0 0 0 4px rgba(0, 153, 255, 0.35);
+}
+
+/* --- Scrollbar --- */
+#dashboard-todo-list-container {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: #007bff #f4f7fa;
+}
+
+#dashboard-todo-list-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+#dashboard-todo-list-container::-webkit-scrollbar-track {
+  background: #e0e0e0;
+  border-radius: 10px;
+}
+
+#dashboard-todo-list-container::-webkit-scrollbar-thumb {
+  background-color: #007bff;
+  border-radius: 10px;
+  border: 2px solid #e0e0e0;
+}
+
+body[data-theme="dark"] #dashboard-todo-list-container::-webkit-scrollbar-track {
+  background: #44607c;
+}
+
+body[data-theme="dark"] #dashboard-todo-list-container::-webkit-scrollbar-thumb {
+  background-color: #0099ff;
+  border-color: #44607c;
+}
+
+/* --- Todo Item & Layout --- */
+#todo-list {
+  list-style: none;
+  padding: 0;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.todo-item {
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  padding: 12px 18px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+body[data-theme="dark"] .todo-item {
+  background-color: #44607c;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.todo-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.todo-text-block {
+  margin-bottom: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.todo-text-block input[type="text"] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: none;
+  background-color: transparent;
+  font-size: 1rem;
+  color: #333;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+
+.task-meta {
+  margin-top: 6px;
+  font-size: 0.75em;
+  color: #777;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.task-created {
+  font-size: 1.0em;
+  color: #999;
+  white-space: nowrap;
+}
+
+.deadline-indicator {
+  font-size: 0.8em;
+  color: #666;
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+}
+
+.deadline-label {
+  font-size: 1.25em;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+}
+
+.deadline-indicator i {
+  margin-right: 5px;
+}
+
+.deadline-urgent {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.deadline-warning {
+  color: #ffc107;
+}
+
+/* Editable deadline date field */
+.deadline-editor-container {
+  display: none;
+  gap: 8px;
+  margin-top: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.deadline-editor-input {
+  padding: 6px 10px;
+  font-size: 0.9em;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.deadline-editor-container.visible {
+  max-height: 50px;
+  opacity: 1;
+  margin-top: 6px;
+}
+
+
+
+
+/* Edit deadline button (pencil icon) */
+.edit-deadline-btn {
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  font-size: 0.85em;
+  padding: 0;
+  margin-left: 6px;
+  transition: color 0.2s ease;
+}
+
+.edit-deadline-btn:hover {
+  color: #333;
+}
+
+/* Optional: fade label + icon row */
+.deadline-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8em;
+  color: #666;
+}
+
+
+/* --- Action Buttons --- */
+.todo-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+  margin-top: 8px;
+}
+
+/* --- Button Styles --- */
+.btn-small {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  margin-left: 8px;
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease, color 0.3s ease;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  color: white;
+  font-size: 0.8rem;
+  padding: 4px 10px;
+}
+
+.btn-small:hover {
+  transform: scale(1.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-update {
+  background-color: #28a745;
+}
+.btn-update:hover {
+  background-color: #218838;
+}
+
+.btn-delete {
+  background-color: #dc3545;
+}
+.btn-delete:hover {
+  background-color: #c82333;
+}
+
+.btn-recommend {
+  background-color: #ffc107;
+  color: #333;
+}
+.btn-recommend:hover {
+  background-color: #e0a800;
+}
+
+
+/* --- Dark Mode Button Colors --- */
+body[data-theme="dark"] .btn-small {
+  background-color: #55708c;
+  color: #ecf0f1;
+}
+
+body[data-theme="dark"] .btn-small:hover {
+  background-color: #66809c;
+}
+
+body[data-theme="dark"] .btn-update {
+  background-color: #2e8b57;
+}
+
+body[data-theme="dark"] .btn-update:hover {
+  background-color: #256d44;
+}
+
+body[data-theme="dark"] .btn-delete {
+  background-color: #c0392b;
+}
+
+body[data-theme="dark"] .btn-delete:hover {
+  background-color: #a52f23;
+}
+
+body[data-theme="dark"] .btn-recommend {
+  background-color: #f39c12;
+  color: #333;
+}
+
+body[data-theme="dark"] .btn-recommend:hover {
+  background-color: #e67e22;
+}
+
+/* --- Deadline Input --- */
+#deadline-input {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-right: 5px;
+}
+
+/* Restore "Add" and "Set Deadline" Button Styling */
+.btn-primary {
+  padding: 14px 22px;
+  border-radius: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary:active {
+  background-color: #004085;
+  transform: translateY(0);
+}
+
+/* Secondary button for deadline */
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 5px;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+}
+
+/* Container styling */
+.deadline-picker {
+  display: none;
+  position: absolute;
+  z-index: 100;
+  background: #fff;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Input full-width with bottom margin */
+.deadline-input {
+ 
+}
+
+/* Flex container for horizontal alignment */
+.button-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+
+/* CSS – move this into your <style> or styles.css */
+
+/* container hidden by default; flex-row when shown */
+.deadline-picker-container {
+  display: none;
+  position: absolute;
+  z-index: 100;
+  background: #fff;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  align-items: center;
+  gap: 8px;
+}
+
+/* utility to show it */
+.deadline-picker-container.show {
+  display: flex;
+}
+
+/* base styling for both buttons */
+.deadline-btn {
+  padding: 8px 16px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  /* make it super round: */
+  border-radius: 50px;
+}
+
+/* “OK” / Confirm */
+.deadline-btn-confirm {
+  background-color: #2563eb;
+  color: #fff;
+}
+
+/* “Cancel” */
+.deadline-btn-cancel {
+  background-color: transparent;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+
+
+.deadline-btn-confirm:hover {
+  background-color: #1e40af;
+  transform: translateY(-1px);
+}
+
+
+.deadline-btn-cancel:hover {
+  background-color: #f9fafb;
+  transform: translateY(-1px);
+}
+
+
+/* ---------------------------------------------------
+   Inline deadline editor: hidden by default as flex row
+   --------------------------------------------------- */
+.deadline-editor-container {
+  display: none;           /* hide until JS toggles .visible */
+  flex-direction: row;     /* line up child elements */
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;         /* your existing spacing */
+}
+
+/* when you want to show it */
+.deadline-editor-container.visible {
+  display: flex;
+}
+
+
+
+
+
+

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" href="favicon.png" type="image/png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyTodo Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="logo">Taskflow</div>
+            <div class="dropdown">
+                <button class="dropdown-toggle" id="dropdown-toggle">
+                    <i class="fas fa-user-circle"></i>
+					<i class="fas fa-chevron-down dropdown-chevron"></i>
+                </button>
+                <div class="dropdown-menu" id="dropdown-menu">
+                    <a href="#"><i class="fas fa-home"></i> Home</a>
+                    <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+                    <button class="theme-toggle" id="theme-toggle">
+                        <i class="fas fa-moon"></i> <span>Dark Mode</span>
+                    </button>
+                    <a href="javascript:logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <h1 class="todo-list-title">My Todo List</h1>
+        <div id="error-message" class="error-message" style="display: none;"></div>
+
+        <div class="todo-input-container">
+            <input type="text" id="new-todo" placeholder="Add a new todo...">
+            <button class="btn btn-primary" onclick="createTodo()">
+                <i class="fas fa-plus"></i> Add Todo
+            </button>
+			<button class="btn btn-secondary" id="deadline-toggle">
+				<i class="far fa-calendar-alt"></i> Set Deadline
+			</button>
+			<!-- Add this date picker container (hidden by default) -->
+  <!-- HTML -->
+<div id="deadline-picker-container"
+     class="deadline-picker-container">
+  <input type="datetime-local" id="deadline-input" class="deadline-input">
+  <button
+  type="button"
+  class="deadline-btn deadline-btn-confirm"
+  onclick="confirmDeadline()"
+>
+  OK
+</button>
+<button
+  type="button"
+  class="deadline-btn deadline-btn-cancel"
+  onclick="cancelDeadline()"
+>
+  Cancel
+</button>
+
+</div>
+
+
+        </div>
+
+        <div id="dashboard-todo-list-container">
+            <div id="todo-list" class="auth-form">
+                </div>
+        </div>
+    </div>
+
+    <script defer src="js/app.js"></script>
+    <script defer src="js/settings.js"></script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Your To-Do List</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%); /* Soft gradient background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+        .card {
+            background-color: #ffffff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); /* Softer shadow */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+        }
+        .button-primary {
+            background: linear-gradient(45deg, #6366f1, #8b5cf6); /* Vibrant button gradient */
+            transition: all 0.3s ease;
+        }
+        .button-primary:hover {
+            background: linear-gradient(45deg, #4f46e5, #7c3aed);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        }
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 640px) {
+            .card {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            .text-5xl {
+                font-size: 2.5rem; /* Adjust heading size for mobile */
+            }
+            .text-lg {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body class="selection:bg-indigo-300 selection:text-indigo-900">
+
+    <div class="card p-8 md:p-12 rounded-xl max-w-2xl w-full text-center">
+        <!-- Main Heading -->
+        <h1 class="text-indigo-700 text-4xl sm:text-5xl font-extrabold mb-4 leading-tight">
+            Welcome to <span class="text-purple-600">TaskFlow</span>
+        </h1>
+
+        <!-- Subtitle/Tagline -->
+        <p class="text-gray-600 text-lg sm:text-xl mb-8 leading-relaxed">
+            Your intuitive partner for mastering daily tasks and achieving your goals.
+        </p>
+
+        <!-- Feature List or Key Benefits -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div class="flex flex-col items-center p-4 bg-indigo-50/50 rounded-lg shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-indigo-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M10 12H7v4h3v-4z" />
+                </svg>
+                <h3 class="font-semibold text-gray-800 mb-1">Simple Interface</h3>
+                <p class="text-sm text-gray-500">Clean and easy to navigate.</p>
+            </div>
+            <div class="flex flex-col items-center p-4 bg-purple-50/50 rounded-lg shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-purple-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h3 class="font-semibold text-gray-800 mb-1">Time Management</h3>
+                <p class="text-sm text-gray-500">Prioritize and meet deadlines.</p>
+            </div>
+            <div class="flex flex-col items-center p-4 bg-blue-50/50 rounded-lg shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-blue-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <h3 class="font-semibold text-gray-800 mb-1">Stay Organized</h3>
+                <p class="text-sm text-gray-500">Never miss a beat.</p>
+            </div>
+        </div>
+
+        <!-- Call to Action Button -->
+        <a href="https://zeref-todolist-auth.auth.ap-southeast-1.amazoncognito.com/login?client_id=5k18fu9gla3nf1ajmgb0nu0822&response_type=code&scope=email+openid+profile&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fdashboard.html" class="button-primary inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-full text-white shadow-lg md:py-4 md:text-lg md:px-10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            Get Started Now
+            <svg xmlns="http://www.w3.org/2000/svg" class="ml-3 -mr-1 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+        </a>
+
+        <!-- Small Footer or Privacy Link (Optional) -->
+        <p class="mt-8 text-gray-400 text-sm">
+            &copy; 2025 TaskFlow. All rights reserved.
+        </p>
+    </div>
+
+</body>
+</html>
