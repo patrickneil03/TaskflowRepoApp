@@ -19,7 +19,6 @@ override.tf.json
 *_override.tf.json
 
 # Sensitive variables (keep examples committed)
-terraform.tfvars
 *.auto.tfvars
 !terraform.tfvars.example
 !*.auto.tfvars.example
