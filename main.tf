@@ -52,6 +52,9 @@ module "iam" {
   account_id = data.aws_caller_identity.current.account_id
   s3_bucket_name_profile = module.s3.s3_bucket_name_profile
   s3_profile_folder = module.s3.s3_profile_folder
+  s3_bucket_arn_artifact = module.s3.s3_bucket_arn_artifact
+  s3_bucket_arn_my_bucket = module.s3.s3_bucket_arn_my_bucket
+ 
 }
 
 module "lambda" {
@@ -112,4 +115,16 @@ module "cloudwatch" {
 module "ses" {
   source = "./modules/ses"
   
+}
+
+module "codepipeline" {
+  source = "./modules/codepipeline"
+  github_owner = var.github_owner
+  github_repo = var.github_repo
+  github_branch = var.github_branch
+  github_oauth_token = var.github_oauth_token
+  cp_role_arn = module.iam.cp_role_arn
+  s3_bucket_arn_artifact = module.s3.s3_bucket_arn_artifact
+  s3_bucket_name_artifact = module.s3.s3_bucket_name_artifact
+  s3_bucket_my_bucket = module.s3.s3_bucket_my_bucket
 }

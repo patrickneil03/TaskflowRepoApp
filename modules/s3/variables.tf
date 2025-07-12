@@ -15,3 +15,11 @@ variable "s3_bucket_name_profile" {
   type        = string
   default     = "profiletodo"
 }
+
+
+variable "environment" {
+  description = "The environment for which the S3 bucket is being created (e.g., Dev, Prod)"
+  type        = string
+  default     = "Dev"
+  
+}

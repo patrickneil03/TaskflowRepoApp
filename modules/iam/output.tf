@@ -24,3 +24,10 @@ output "eventbridge_invoke_lambda_role_arn" {
   description = "value of the EventBridge Invoke Lambda Role ARN"
   
 }
+
+
+output "cp_role_arn" {
+  value = aws_iam_role.cp_role.arn
+  description = "value of the CodePipeline Role ARN"
+  
+}

@@ -37,3 +37,27 @@ variable "facebook_app_id" {
   description = "The app ID for Facebook authentication"
   type        = string
 }
+
+
+variable "github_owner" {
+  description = "The owner of the GitHub repository"
+  type        = string 
+}
+
+variable "github_repo" {
+  description = "The name of the GitHub repository"
+  type        = string
+  
+}
+
+variable "github_branch" {
+  description = "The branch of the GitHub repository to use"
+  type        = string 
+}
+
+variable "github_oauth_token" {
+  description = "GitHub OAuth token for accessing the repository"
+  type        = string
+  sensitive   = true
+  
+}

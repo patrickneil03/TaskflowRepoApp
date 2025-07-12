@@ -35,3 +35,24 @@ variable "s3_profile_folder" {
   default     = "profile-pictures/"  # Change this to your desired S3 folder name
   
 }
+
+variable "s3_bucket_arn_my_bucket" {
+  description = "The ARN of the S3 bucket for the Taskflow website"
+  type        = string
+  
+}
+
+variable "s3_bucket_my_bucket" {
+  description = "The name of the S3 bucket for the TodoList website"
+  type        = string
+  default     = "baylentodolist"  # Change this to your desired S3 bucket name
+  
+}
+
+
+variable "s3_bucket_arn_artifact" {
+  description = "The ARN of the S3 bucket for artifacts"
+  type        = string
+  
+}
+

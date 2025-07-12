@@ -1,0 +1,49 @@
+variable "environment" {
+  description = "The DEV environment for CodePipeline"
+  type        = string
+  default     = "Dev"
+  
+}
+
+variable "github_owner" {
+  type = string
+  default = "patrickneil03"
+}
+
+variable "github_repo" {
+  type = string
+}
+
+variable "github_branch" {
+  type    = string
+  default = "main"
+}
+
+variable "github_oauth_token" {
+  type      = string
+  sensitive = true
+}
+
+variable "cp_role_arn" {
+  description = "The ARN of the CodePipeline role"
+  type        = string
+}
+
+variable "s3_bucket_arn_artifact" {
+  description = "The ARN of the S3 bucket for artifacts"
+  type        = string
+  
+}
+
+
+variable "s3_bucket_name_artifact" {
+  description = "The name of the S3 bucket for artifacts"
+  type        = string
+  
+}
+
+variable "s3_bucket_my_bucket" {
+  description = "The name of the S3 bucket for taskflow static website"
+  type        = string
+  
+}

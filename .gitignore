@@ -1,16 +1,53 @@
-# Terraform
+# ─── Terraform ──────────────────────────────────────────────
+# Local .terraform directories
 .terraform/
+
+# State files and backups
 *.tfstate
 *.tfstate.backup
+
+# Crash logs
+crash.log
+
+# Terraform plan outputs
+*.tfplan
+
+# Override files (manual edits)
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Sensitive variables (keep examples committed)
+terraform.tfvars
 *.auto.tfvars
+!terraform.tfvars.example
+!*.auto.tfvars.example
 
+# CLI configuration
+.terraformrc
+terraform.rc
 
-
-
-# Environment & Secrets
+# ─── Environment & Secrets ─────────────────────────────────
+# Env files
 .env
+.env.*
+
+# PEM keys
 *.pem
 
-# IDE & OS
+# ─── OS & Editor ────────────────────────────────────────────
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# VSCode
 .vscode/
-.DS_Stores
+
+# JetBrains IDEs
+.idea/
+
+# Vim swap files
+*.swp
