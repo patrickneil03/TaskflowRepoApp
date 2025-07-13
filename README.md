@@ -158,12 +158,10 @@ S3 profile picture upload preview
 
  Separate dev and prod environments using Terraform workspaces
 
-🙋 About Me
-I'm an aspiring Cloud Engineer passionate about AWS and DevOps.
+## 🙋 About Me
+
+I'm an aspiring **Cloud Engineer** passionate about AWS and DevOps.  
 This project is part of my hands-on learning journey and cloud portfolio.
 
 - 💼 [LinkedIn Profile](https://www.linkedin.com/in/patrick-neil-baylen-01b175159)
-
-📂 Other Projects
-
-🧠 AWS Certified Cloud Practitioner
+- 🧠 AWS Certified Cloud Practitioner
