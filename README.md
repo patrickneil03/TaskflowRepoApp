@@ -147,7 +147,7 @@ This project is part of my hands-on learning journey and cloud portfolio.
 I'm an aspiring **Cloud Engineer** passionate about AWS and DevOps.  
 This project is part of my hands-on learning journey and cloud portfolio.
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Patrick%20Baylen-blue?style=flat&logo=linkedin)](https://www.linkedin.com/in/patrick-neil-baylen-01b175159)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/patrick-neil-baylen-01b175159)
 
 
 🧠 AWS Certified Cloud Practitioner
