@@ -82,6 +82,27 @@ resource "aws_iam_policy" "codepipeline_policy" {
   })
 }
 
+resource "aws_iam_role_policy" "cp_build_invoker" {
+  name = "AllowCodeBuildStart"
+  role = aws_iam_role.cp_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = [
+          "codebuild:StartBuild",
+          "codebuild:BatchGetBuilds",
+          "codebuild:BatchGetProjects"
+        ]
+        Resource = var.codebuild_project_arn
+      }
+    ]
+  })
+}
+
+
 resource "aws_iam_role_policy_attachment" "cp_policy_attach" {
   role       = aws_iam_role.cp_role.name
   policy_arn = aws_iam_policy.codepipeline_policy.arn

@@ -54,6 +54,9 @@ module "iam" {
   s3_profile_folder = module.s3.s3_profile_folder
   s3_bucket_arn_artifact = module.s3.s3_bucket_arn_artifact
   s3_bucket_arn_my_bucket = module.s3.s3_bucket_arn_my_bucket
+  codebuild_project_arn = module.codebuild.codebuild_project_arn
+  codebuild_project_name = module.codebuild.codebuild_project_name
+  s3_bucket_name_artifact = module.s3.s3_bucket_name_artifact
  
 }
 

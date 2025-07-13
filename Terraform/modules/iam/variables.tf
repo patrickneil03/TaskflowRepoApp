@@ -49,10 +49,25 @@ variable "s3_bucket_my_bucket" {
   
 }
 
-
 variable "s3_bucket_arn_artifact" {
   description = "The ARN of the S3 bucket for artifacts"
   type        = string
   
 }
 
+variable "codebuild_project_arn" {
+  description = "The ARN of the CodeBuild project for syncing the frontend"
+  type        = string
+  
+}
+
+variable "codebuild_project_name" {
+  description = "The name of the CodeBuild project for syncing the frontend"
+  type        = string
+  
+}
+variable "s3_bucket_name_artifact" {
+  description = "The name of the S3 bucket for artifacts"
+  type        = string
+  
+}
