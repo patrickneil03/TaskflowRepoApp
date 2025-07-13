@@ -82,8 +82,9 @@ Amazon SES (send notification email)
 You can deploy this project in your own AWS account:
 
 ### 1. Clone the repo
-```bash
+
 git clone https://github.com/patrickneil03/TaskflowRepoApp.git
+
 
 2. Configure Terraform
 Update variables (bucket names, domain, region, etc.).
@@ -138,7 +139,7 @@ Hosting static frontends on S3 with CloudFront and Route 53
 
 Email automation via AWS SES
 
-🙋 About Me
+##🙋 About Me
 I'm an aspiring Cloud Engineer passionate about AWS and DevOps.
 This project is part of my hands-on learning journey and cloud portfolio.
 
