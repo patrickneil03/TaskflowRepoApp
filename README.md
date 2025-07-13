@@ -145,4 +145,6 @@ This project is part of my hands-on learning journey and cloud portfolio.
 
 [![LinkedIn](https://img.shields.io/badge/-Patrick%27s_LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/patrick-neil-baylen-01b175159)
 
+
+## Certificate
 🧠 AWS Certified Cloud Practitioner
