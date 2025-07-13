@@ -38,75 +38,68 @@ This project demonstrates a real-world, production-grade cloud application with:
 
 ## 🗂️ Architecture Diagram (Text Summary)
 
-```plaintext
 GitHub Repo (frontend source)
-      ⬇
+⬇
 CodePipeline (zips, uploads to artifacts S3)
-      ⬇
+⬇
 Artifacts S3 Bucket (source stage)
-      ⬇
+⬇
 CodeBuild (unzips + syncs with hosting S3 bucket)
-      ⬇
+⬇
 Static Website S3 (public)
-      ⬇
+⬇
 CloudFront ➡️ Users ➡️ Route 53 (custom domain + HTTPS via ACM)
 
 Users ➡️ Cognito ➡️ Token ➡️ API Gateway ➡️ Lambda ➡️ DynamoDB
-                                           ⬆
-                                       S3 (profile pictures)
+⬆
+S3 (profile pictures)
 
 ⏰ EventBridge (scheduled rule)
-      ⬇
+⬇
 Lambda (check tasks nearing deadline)
-      ⬇
+⬇
 Amazon SES (send notification email)
-✅ Features
-👤 User Auth – Sign up, login, verify email using Amazon Cognito
 
-📝 Task Management – Add, update, delete personal tasks
 
-⏰ Task Deadlines – Store due dates for reminders
+---
 
-📩 Email Reminders – EventBridge triggers Lambda to check deadlines and use SES to email users 24h before a task is due
+## ✅ Features
 
-📷 Profile Uploads – Store and access user images securely via S3
+- 👤 **User Auth** – Sign up, login, verify email using Amazon Cognito  
+- 📝 **Task Management** – Add, update, delete personal tasks  
+- ⏰ **Task Deadlines** – Store due dates for reminders  
+- 📩 **Email Reminders** – EventBridge + Lambda + SES send alerts before deadlines  
+- 📷 **Profile Uploads** – S3 storage with per-user access  
+- ♻️ **CI/CD** – GitHub push auto-syncs S3 static website  
+- 🔐 **Access Control** – IAM with least-privilege roles  
+- 🌐 **HTTPS** – Managed by AWS ACM on CloudFront  
+- 🧱 **Infrastructure** – 100% managed via Terraform  
 
-♻️ CI/CD – GitHub push triggers full frontend deployment to S3
+---
 
-🔐 Access Control – IAM roles and least-privilege inline policies
+## 🚀 Deployment
 
-🌐 HTTPS Enabled – CloudFront uses SSL certificates issued by AWS ACM
-
-🧱 Provisioning – All infra defined and deployed with Terraform
-
-🚀 Deployment
 You can deploy this project in your own AWS account:
 
-1. Clone the repo
-bash
-Copy
-Edit
-git clone https://github.com/your-username/todolist-app.git
-2. Configure Terraform
-Edit variables such as bucket name, domain name, region, etc.
+### 1. Clone the repo
+```bash
+git clone https://github.com/patrickneil03/TaskflowRepoApp.git
 
-3. Deploy Infrastructure (Recommended Practice)
-bash
-Copy
-Edit
+2. Configure Terraform
+Update variables (bucket names, domain, region, etc.).
+
+3. Deploy Infrastructure
 cd terraform/
 terraform init
-terraform plan   # Review changes before applying
-terraform apply  # Deploy infrastructure
+terraform plan   # Review planned changes
+terraform apply  # Provision infrastructure
+
 4. Push Frontend Code to GitHub
-Pushing to the main branch will trigger CodePipeline
+Push to the main branch
 
-Frontend files will auto-sync to the S3 static site
+CodePipeline triggers CodeBuild
 
-📦 Folder Structure
-bash
-Copy
-Edit
+Static files sync to the public S3 bucket
 project-root/
 ├── html/              # HTML files
 ├── css/               # CSS styles
@@ -116,47 +109,38 @@ project-root/
 ├── .gitignore
 ├── .gitattributes
 └── README.md
+
 🔐 Security
-IAM policies are scoped to least privilege
+IAM policies follow least privilege best practices
 
-S3 buckets use bucket policies for access control
+Cognito secures API access via tokens
 
-Lambda functions use execution roles
+Profile uploads are per-user private in S3
 
-Cognito authorizes API requests securely via Bearer tokens
+HTTPS via ACM protects all public traffic
 
-CloudFront traffic secured via HTTPS (ACM)
+Lambda roles are tightly scoped
 
 📚 Learning Highlights
-This project helped me practice and demonstrate skills in:
+This project helped me develop and demonstrate skills in:
 
-AWS Serverless architecture
+AWS serverless architecture
 
-Infrastructure as Code with Terraform
+Secure CI/CD pipelines with GitHub, CodePipeline, and CodeBuild
 
-CI/CD pipelines with GitHub + CodePipeline + CodeBuild
+Infrastructure as Code using Terraform
 
-Secure app design using IAM and Cognito
+Event-driven automation with EventBridge
 
-Building feature-rich, user-facing applications on the cloud
+IAM and Cognito for secure access control
 
-Event-driven workflows using EventBridge + Lambda + SES
+Hosting static frontends on S3 with CloudFront and Route 53
 
-SSL provisioning with AWS Certificate Manager
+Email automation via AWS SES
 
-📸 Screenshots (Optional)
-Homepage
-
-Task dashboard
-
-Cognito login/signup
-
-S3 profile picture upload preview
-
-📌 To-Do (Improvements)
- Add WAF for extra protection
-
- Separate dev and prod environments using Terraform workspaces
+🙋 About Me
+I'm an aspiring Cloud Engineer passionate about AWS and DevOps.
+This project is part of my hands-on learning journey and cloud portfolio.
 
 ## 🙋 About Me
 
@@ -165,4 +149,5 @@ This project is part of my hands-on learning journey and cloud portfolio.
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Patrick%20Baylen-blue?style=flat&logo=linkedin)](https://www.linkedin.com/in/patrick-neil-baylen-01b175159)
 
-- 🧠 AWS Certified Cloud Practitioner
+
+🧠 AWS Certified Cloud Practitioner
