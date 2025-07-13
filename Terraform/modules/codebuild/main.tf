@@ -25,16 +25,14 @@ version: 0.2
 phases:
   build:
     commands:
-      - echo "Syncing HTML and asset folders to S3 (deleting removed files)..."
+      - echo "🗺  Listing files in repo root for sanity check"
+      - ls -R .
+      - echo "🔄  Syncing repo → S3 (deleting any stale objects)…"
       - |
         aws s3 sync . s3://$TARGET_BUCKET \
           --delete \
-          --exclude "*" \
-          --include "*.html" \
-          --include "*.png" \
-          --include "js/**" \
-          --include "css/**" \
-          --include "images/**"
+          --exclude "Terraform/*" \
+          --exclude ".git/*"
 BUILD_SPEC
   }
 }
