@@ -151,21 +151,17 @@ Cognito login/signup
 
 S3 profile picture upload preview
 
-📌 To-Do (Improvements)
- Add CloudWatch monitoring for Lambda/API
+📌 Taskflow (Improvements)
 
  Add WAF for extra protection
 
  Separate dev and prod environments using Terraform workspaces
 
- Add unit testing for Lambda functions
 
 🙋 About Me
 I'm an aspiring Cloud Engineer passionate about AWS and DevOps.
 This project is part of my hands-on learning journey and cloud portfolio.
 
-💼 LinkedIn Profile
-
-📂 Other Projects
+- 💼 [LinkedIn Profile](www.linkedin.com/in/patrick-neil-baylen-01b175159)
 
 🧠 AWS Certified Cloud Practitioner
