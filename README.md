@@ -71,7 +71,7 @@ Amazon SES (send notification email)
 
 📷 Profile Uploads – Store and access user images securely via S3
 
-♻️ CI/CD – GitHub push triggers full frontend deployment to S3 using Terraform-defined CodePipeline + CodeBuild
+♻️ CI/CD – GitHub push triggers full frontend deployment to S3
 
 🔐 Access Control – IAM roles and least-privilege inline policies
 
@@ -90,13 +90,14 @@ git clone https://github.com/your-username/todolist-app.git
 2. Configure Terraform
 Edit variables such as bucket name, domain name, region, etc.
 
-3. Deploy Infrastructure
+3. Deploy Infrastructure (Recommended Practice)
 bash
 Copy
 Edit
 cd terraform/
 terraform init
-terraform apply
+terraform plan   # Review changes before applying
+terraform apply  # Deploy infrastructure
 4. Push Frontend Code to GitHub
 Pushing to the main branch will trigger CodePipeline
 
@@ -113,6 +114,7 @@ project-root/
 ├── img/               # Images, profile uploads
 ├── terraform/         # All Terraform .tf files
 ├── .gitignore
+├── .gitattributes
 └── README.md
 🔐 Security
 IAM policies are scoped to least privilege
@@ -151,17 +153,17 @@ Cognito login/signup
 
 S3 profile picture upload preview
 
-📌 Taskflow (Improvements)
-
+📌 To-Do (Improvements)
  Add WAF for extra protection
 
  Separate dev and prod environments using Terraform workspaces
-
 
 🙋 About Me
 I'm an aspiring Cloud Engineer passionate about AWS and DevOps.
 This project is part of my hands-on learning journey and cloud portfolio.
 
-[LinkedIn Profile](https://www.linkedin.com/in/patrick-neil-baylen-01b175159)
+- 💼 [LinkedIn Profile](https://www.linkedin.com/in/patrick-neil-baylen-01b175159)
+
+📂 Other Projects
 
 🧠 AWS Certified Cloud Practitioner
