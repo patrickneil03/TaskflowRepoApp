@@ -31,3 +31,9 @@ output "cp_role_arn" {
   description = "value of the CodePipeline Role ARN"
   
 }
+
+output "cb_role_arn" {
+  value = aws_iam_role.cb_role.arn
+  description = "value of the CodeBuild Role ARN"
+  
+}

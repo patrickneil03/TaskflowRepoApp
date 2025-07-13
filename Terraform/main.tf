@@ -127,4 +127,13 @@ module "codepipeline" {
   s3_bucket_arn_artifact = module.s3.s3_bucket_arn_artifact
   s3_bucket_name_artifact = module.s3.s3_bucket_name_artifact
   s3_bucket_my_bucket = module.s3.s3_bucket_my_bucket
+  codebuild_project_name = module.codebuild.codebuild_project_name
+}
+
+
+module "codebuild" {
+  source = "./modules/codebuild"
+  s3_bucket_my_bucket = module.s3.s3_bucket_my_bucket
+  cb_role_arn = module.iam.cb_role_arn
+  
 }

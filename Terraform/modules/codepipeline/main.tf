@@ -28,20 +28,19 @@ stage {
   }
 }
 
-  stage {
+ stage {
     name = "Deploy"
 
     action {
-      name            = "S3_Deploy"
-      category        = "Deploy"
-      owner           = "AWS"
-      provider        = "S3"
-      version         = "1"
-      input_artifacts = ["source_output"]
+      name             = "Sync_To_S3"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      version          = "1"
+      input_artifacts  = ["source_output"]
 
       configuration = {
-        BucketName = var.s3_bucket_my_bucket
-        Extract    = "true"
+        ProjectName = var.codebuild_project_name
       }
     }
   }

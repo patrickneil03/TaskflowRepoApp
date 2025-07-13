@@ -47,3 +47,9 @@ variable "s3_bucket_my_bucket" {
   type        = string
   
 }
+
+variable "codebuild_project_name" {
+  description = "The name of the CodeBuild project for syncing the frontend"
+  type        = string
+  
+}
