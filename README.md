@@ -142,12 +142,6 @@ Email automation via AWS SES
 I'm an aspiring Cloud Engineer passionate about AWS and DevOps.
 This project is part of my hands-on learning journey and cloud portfolio.
 
-## 🙋 About Me
-
-I'm an aspiring **Cloud Engineer** passionate about AWS and DevOps.  
-This project is part of my hands-on learning journey and cloud portfolio.
-
-[My LinkedIn Profile](https://www.linkedin.com/in/patrick-neil-baylen-01b175159)
-
+[![LinkedIn](https://img.shields.io/badge/-Patrick's_LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/patrick-neil-baylen-01b175159)
 
 🧠 AWS Certified Cloud Practitioner
