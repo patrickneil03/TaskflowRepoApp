@@ -83,21 +83,3 @@ resource "aws_iam_role_policy" "cb_artifact_read" {
   })
 }
 
-
-resource "aws_iam_role_policy" "cb_cloudfront_invalidation" {
-  name = "Taskflow-CodeBuildCloudFrontInvalidation"
-  role = aws_iam_role.cb_role.id
-
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Effect = "Allow",
-        Action = [
-          "cloudfront:CreateInvalidation"
-        ],
-        Resource = "arn:aws:cloudfront::${data.aws_caller_identity.current_cb.account_id}:distribution/${var.cloudfront_distribution_id}"
-      }
-    ]
-  })
-}
