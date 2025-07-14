@@ -93,7 +93,7 @@ Profile uploads are per-user private in S3
 
 HTTPS via ACM protects all public traffic
 
-Lambda roles are tightly scoped.
+Lambda roles are tightly scoped
 
 ## 📚 Learning Highlights
 This project helped me develop and demonstrate skills in:
