@@ -10,7 +10,7 @@ This project demonstrates a real-world, production-grade cloud application with:
 
 - Frontend hosting via **S3 + CloudFront + Route 53**
 - Backend APIs using **Lambda + API Gateway**
-- Secure user authentication with **Amazon Cognito**
+- Secure user authentication with **Amazon Cognito** hosted UI
 - CI/CD using **AWS CodePipeline** and **CodeBuild**
 - **Infrastructure as Code** using **Terraform**
 - Task deadline notifications powered by **Amazon EventBridge + Lambda + SES**
