@@ -38,7 +38,7 @@ This project demonstrates a real-world, production-grade cloud application with:
 
 ## 🗂️ Architecture Diagram
 
-![Architecture Diagram](images/Taskflow_Diagram.png)
+<img src="images/Taskflow_Diagram.png" alt="Architecture Diagram" width="600" height="400"/>
 
 ---
 
