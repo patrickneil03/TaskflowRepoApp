@@ -28,11 +28,14 @@ phases:
       - echo "🗺  Listing files in repo root for sanity check"
       - ls -R .
       - echo "🔄  Syncing repo → S3 (deleting any stale objects)…"
-      - |
-        aws s3 sync . s3://$TARGET_BUCKET \
+      - >
+        aws s3 sync . s3://$TARGET_BUCKET
           --delete \
           --exclude "Terraform/*" \
-          --exclude ".git/*"
+          --exclude ".git/*" \
+          --exclude "README.md" \
+          --exclude ".gitignore" \
+          --exclude ".gitattributes"
 BUILD_SPEC
   }
 }
