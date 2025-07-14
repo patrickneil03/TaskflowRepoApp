@@ -52,7 +52,8 @@ This project demonstrates a real-world, production-grade cloud application with:
 
 - 📷 **Profile Uploads** – Users upload profile pictures through a secure, token-validated flow. API Gateway (protected with Cognito authorizer) triggers a Lambda function which verifies the user's identity via JWT claims, decodes the base64 image, and uploads it to a private user-specific path in S3. A presigned URL is then generated for temporary, secure access — ensuring only the authenticated user can view or update their profile picture.
 
-- ♻️ **CI/CD** – GitHub pushes trigger CodePipeline, which pulls the repo, filters only frontend files (HTML, CSS, JS) via CodeBuild, and syncs them to the S3 bucket by comparing and removing outdated files—ensuring the S3-hosted site always matches the latest GitHub state.
+♻️ **CI/CD** – GitHub pushes trigger CodePipeline, which uses an S3 artifacts bucket to pass build data between stages. CodePipeline pulls the repo, then CodeBuild filters only the frontend files (HTML, CSS, JS), excluding Terraform and Git metadata. It syncs these files to the target S3 bucket by comparing and deleting outdated files—ensuring the static website always reflects the latest GitHub version.
+
  
 - 🔐 **Access Control** – IAM with least-privilege roles. Iam roles provided temporary credentials to AWS services.  
 - 🌐 **HTTPS** – Managed by AWS ACM on CloudFront  
