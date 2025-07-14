@@ -139,5 +139,5 @@ module "codebuild" {
   source = "./modules/codebuild"
   s3_bucket_my_bucket = module.s3.s3_bucket_my_bucket
   cb_role_arn = module.iam.cb_role_arn
-  
+  cloudfront_distribution_id = module.cloudfront.cloudfront_distribution_id
 }
