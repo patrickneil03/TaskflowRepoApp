@@ -20,7 +20,7 @@ resource "aws_codebuild_project" "frontend_sync" {
 
   source {
     type = "CODEPIPELINE"
-    buildspec = <<BUILD_SPEC
+buildspec = <<BUILD_SPEC
 version: 0.2
 
 env:
@@ -48,12 +48,13 @@ phases:
         --exclude ".gitignore"
         --exclude ".gitattributes"
 
-        - echo "🚀 Creating CloudFront invalidation"
+      - echo "🚀 Creating CloudFront invalidation"
       - >
         aws cloudfront create-invalidation
         --distribution-id $DISTRIBUTION_ID
         --paths "/*"
 BUILD_SPEC
+
 
   }
 
