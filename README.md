@@ -65,15 +65,16 @@ Amazon SES (send notification email)
 
 ## ✅ Features
 
-- 👤 **User Auth** – Sign up, login, verify email using Amazon Cognito  
-- 📝 **Task Management** – Add, update, delete personal tasks  
-- ⏰ **Task Deadlines** – Store due dates for reminders  
-- 📩 **Email Reminders** – EventBridge + Lambda + SES send alerts before deadlines  
+- 👤 **User Auth** – Sign up, login, verify email and forgot password using Amazon Cognito  
+- 📝 **Task Management** – Users can add, update, delete personal tasks  
+- ⏰ **Task Deadlines** – Users can set deadline for a specific task.  
+- 📩 **Email Reminders** – EventBridge + Lambda + SES send alerts to users before deadlines  
 - 📷 **Profile Uploads** – S3 storage with per-user access  
-- ♻️ **CI/CD** – GitHub push auto-syncs S3 static website  
-- 🔐 **Access Control** – IAM with least-privilege roles  
+- ♻️ **CI/CD** – GitHub pushes trigger CodePipeline, which pulls the repo, filters only frontend files (HTML, CSS, JS) via CodeBuild, and syncs them to the S3 bucket by comparing and removing outdated files—ensuring the S3-hosted site always matches the latest GitHub state.
+ 
+- 🔐 **Access Control** – IAM with least-privilege roles. Iam roles provided temporary credentials to AWS services.  
 - 🌐 **HTTPS** – Managed by AWS ACM on CloudFront  
-- 🧱 **Infrastructure** – 100% managed via Terraform  
+- 🧱 **Infrastructure** – 100% managed and provisioned via Terraform  
 
 ---
 
@@ -105,7 +106,7 @@ project-root/
 ├── html/              # HTML files
 ├── css/               # CSS styles
 ├── js/                # JavaScript logic
-├── img/               # Images, profile uploads
+├── img/               # Images
 ├── terraform/         # All Terraform .tf files
 ├── .gitignore
 ├── .gitattributes
