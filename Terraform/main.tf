@@ -57,6 +57,7 @@ module "iam" {
   codebuild_project_arn = module.codebuild.codebuild_project_arn
   codebuild_project_name = module.codebuild.codebuild_project_name
   s3_bucket_name_artifact = module.s3.s3_bucket_name_artifact
+  cloudfront_distribution_id = module.cloudfront.cloudfront_distribution_id
  
 }
 

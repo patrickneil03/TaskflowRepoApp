@@ -84,17 +84,6 @@ Push to the main branch
 
 CodePipeline triggers CodeBuild
 
-Static files sync to the public S3 bucket
-project-root/
-├── html/              # HTML files
-├── css/               # CSS styles
-├── js/                # JavaScript logic
-├── img/               # Images
-├── terraform/         # All Terraform .tf files
-├── .gitignore
-├── .gitattributes
-└── README.md
-
 ## 🔐 Security
 IAM policies follow least privilege best practices
 

@@ -33,6 +33,7 @@ phases:
           --delete \
           --exclude "Terraform/*" \
           --exclude ".git/*"
+          --exclude "README.md/*"
 BUILD_SPEC
   }
 }

@@ -71,3 +71,9 @@ variable "s3_bucket_name_artifact" {
   type        = string
   
 }
+
+variable "cloudfront_distribution_id" {
+  description = "The ID of the CloudFront distribution."
+  type        = string
+  
+}
