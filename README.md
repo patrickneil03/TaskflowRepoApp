@@ -38,28 +38,7 @@ This project demonstrates a real-world, production-grade cloud application with:
 
 ## 🗂️ Architecture Diagram (Text Summary)
 
-GitHub Repo (frontend source)
-⬇
-CodePipeline (zips, uploads to artifacts S3)
-⬇
-Artifacts S3 Bucket (source stage)
-⬇
-CodeBuild (unzips + syncs with hosting S3 bucket)
-⬇
-Static Website S3 (public)
-⬇
-CloudFront ➡️ Users ➡️ Route 53 (custom domain + HTTPS via ACM)
-
-Users ➡️ Cognito ➡️ Token ➡️ API Gateway ➡️ Lambda ➡️ DynamoDB
-⬆
-S3 (profile pictures)
-
-⏰ EventBridge (scheduled rule)
-⬇
-Lambda (check tasks nearing deadline)
-⬇
-Amazon SES (send notification email)
-
+![Architecture Diagram](images/Taskflow_Diagram.png)
 
 ---
 
