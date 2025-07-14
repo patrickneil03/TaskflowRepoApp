@@ -65,10 +65,12 @@ Amazon SES (send notification email)
 
 ## ✅ Features
 
-- 👤 **User Auth** – Sign up, login, verify email and forgot password using Amazon Cognito  
+- 👤 **User Auth** – Users can sign up, login, verify email and forgot password using Amazon Cognito hosted UI. 
 - 📝 **Task Management** – Users can add, update, delete personal tasks  
-- ⏰ **Task Deadlines** – Users can set deadline for a specific task.  
-- 📩 **Email Reminders** – EventBridge + Lambda + SES send alerts to users before deadlines  
+- ⏰ **Task Deadlines** – Users can set a deadline when adding a task and update it later if needed, enabling flexible task scheduling and time management.
+
+- 📩 **Email Reminders** – A scheduled Amazon EventBridge rule triggers a Lambda function every 12 hours. The function queries the DynamoDB table for tasks nearing their deadline. If found, it uses Amazon SES to send personalized email reminders to authenticated users whose email addresses have been verified in SES.
+
 - 📷 **Profile Uploads** – Users upload profile pictures through a secure, token-validated flow. API Gateway (protected with Cognito authorizer) triggers a Lambda function which verifies the user's identity via JWT claims, decodes the base64 image, and uploads it to a private user-specific path in S3. A presigned URL is then generated for temporary, secure access — ensuring only the authenticated user can view or update their profile picture.
 
 - ♻️ **CI/CD** – GitHub pushes trigger CodePipeline, which pulls the repo, filters only frontend files (HTML, CSS, JS) via CodeBuild, and syncs them to the S3 bucket by comparing and removing outdated files—ensuring the S3-hosted site always matches the latest GitHub state.
