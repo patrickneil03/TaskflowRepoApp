@@ -12,7 +12,7 @@ def lambda_handler(event, context):
     cors_headers = {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "OPTIONS, GET, POST",
-        "Access-Control-Allow-Headers": "Content-Type"
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
     }
     
     try:
@@ -39,54 +39,54 @@ def create_response(status_code, body, headers):
 def handle_upload(event, headers):
     try:
         raw_body = event.get("body")
-        print("Received raw body:", raw_body)
-        body = json.loads(event.get("body", "{}"))
+        body = json.loads(raw_body or "{}")
+
+        # ✅ Extract authenticated username from token
+        username_from_token = event["requestContext"]["authorizer"]["claims"]["cognito:username"]
+
+        # ✅ Compare against username sent in request
         username = body.get("username")
+        if username_from_token != username:
+            return create_response(403, {"error": "Unauthorized. Username mismatch."}, headers)
+
         image_base64 = body.get("image")
-        print("Parsed username:", username, "Parsed image snippet:", image_base64[:30] if image_base64 else None)
         
         # Validate input
         if not username or not image_base64:
             return create_response(400, {"error": "Missing required parameters"}, headers)
-            
-        # Validate base64 data
+
+        # Decode base64 image
         try:
             image_data = base64.b64decode(image_base64)
         except base64.binascii.Error:
             return create_response(400, {"error": "Invalid base64 encoding"}, headers)
-            
+
         key = f"profile-pictures/{username}/avatar.jpg"
-        
-        # Upload to S3 with proper error handling
-        try:
-            s3.put_object(
-                Bucket=BUCKET,
-                Key=key,
-                Body=image_data,
-                ContentType="image/jpeg",
-                ACL="private"
-            )
-        except s3.exceptions.ClientError as e:
-            print(f"S3 Upload Error: {str(e)}")
-            return create_response(500, {"error": "Failed to upload image"}, headers)
-            
-        # Generate presigned URL for immediate access
-        try:
-            url = s3.generate_presigned_url(
-                "get_object",
-                Params={"Bucket": BUCKET, "Key": key},
-                ExpiresIn=3600
-            )
-            return create_response(200, {"url": url}, headers)
-        except s3.exceptions.ClientError as e:
-            print(f"URL Generation Error: {str(e)}")
-            return create_response(500, {"error": "Failed to generate access URL"}, headers)
+
+        # Upload to S3
+        s3.put_object(
+            Bucket=BUCKET,
+            Key=key,
+            Body=image_data,
+            ContentType="image/jpeg",
+            ACL="private"
+        )
+
+        # Generate presigned URL
+        url = s3.generate_presigned_url(
+            "get_object",
+            Params={"Bucket": BUCKET, "Key": key},
+            ExpiresIn=3600
+        )
+
+        return create_response(200, {"url": url}, headers)
 
     except json.JSONDecodeError:
         return create_response(400, {"error": "Invalid JSON format"}, headers)
     except Exception as e:
         print(f"Upload Processing Error: {str(e)}")
         return create_response(500, {"error": "Internal server error"}, headers)
+
 
 def handle_get_presigned_url(event, headers):
     try:

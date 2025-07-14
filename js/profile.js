@@ -139,12 +139,14 @@ async function handleFileUpload(file) {
 
         // Send the payload to API Gateway
         fetch(apiUrl, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(requestBody)
-        })
+			method: "POST",
+			headers: {
+			"Content-Type": "application/json",
+			"Authorization": authToken  // 🔒 Pass ID token here
+			},
+			body: JSON.stringify(requestBody)
+		})
+
         .then(response => response.json())
         .then(data => {
             if (data.url) {
@@ -228,8 +230,13 @@ async function fetchProfilePicture() {
 
         const apiUrl = `https://y41x5c3mi6.execute-api.ap-southeast-1.amazonaws.com/prod/profileimagetos3?username=${encodeURIComponent(username)}`;
         
-        const response = await fetch(apiUrl);
-        console.log("Profile picture API response:", response.status);
+        const response = await fetch(apiUrl, {
+		method: "GET",
+		headers: {
+		"Authorization": authToken
+		}
+		});
+
 
         if (response.status === 404) {
             // Expected missing image case

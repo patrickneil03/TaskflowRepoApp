@@ -69,7 +69,7 @@ Amazon SES (send notification email)
 - 📝 **Task Management** – Users can add, update, delete personal tasks  
 - ⏰ **Task Deadlines** – Users can set deadline for a specific task.  
 - 📩 **Email Reminders** – EventBridge + Lambda + SES send alerts to users before deadlines  
-- 📷 **Profile Uploads** – Users upload profile pictures through a secure flow where API Gateway triggers a Lambda function. This function decodes base64 image data, uploads it to an S3 bucket in a user-specific path, and returns a presigned URL for access ensuring private, per-user storage.
+- 📷 **Profile Uploads** – Users upload profile pictures through a secure, token-validated flow. API Gateway (protected with Cognito authorizer) triggers a Lambda function which verifies the user's identity via JWT claims, decodes the base64 image, and uploads it to a private user-specific path in S3. A presigned URL is then generated for temporary, secure access — ensuring only the authenticated user can view or update their profile picture.
 
 - ♻️ **CI/CD** – GitHub pushes trigger CodePipeline, which pulls the repo, filters only frontend files (HTML, CSS, JS) via CodeBuild, and syncs them to the S3 bucket by comparing and removing outdated files—ensuring the S3-hosted site always matches the latest GitHub state.
  

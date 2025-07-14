@@ -8,7 +8,12 @@ resource "aws_api_gateway_method" "profileimagetos3_post" {
   rest_api_id   = aws_api_gateway_rest_api.zerefapi.id
   resource_id   = aws_api_gateway_resource.profileimagetos3.id
   http_method   = "POST"
-  authorization = "NONE"
+  authorization = "COGNITO_USER_POOLS"
+  authorizer_id = aws_api_gateway_authorizer.cognito_auth.id
+
+  request_parameters = {
+    "method.request.header.Authorization" = true
+  }
 }
 
 resource "aws_api_gateway_integration" "profileimagetos3_post" {
@@ -25,7 +30,12 @@ resource "aws_api_gateway_method" "profileimagetos3_get" {
   rest_api_id   = aws_api_gateway_rest_api.zerefapi.id
   resource_id   = aws_api_gateway_resource.profileimagetos3.id
   http_method   = "GET"
-  authorization = "NONE"
+  authorization = "COGNITO_USER_POOLS"
+  authorizer_id = aws_api_gateway_authorizer.cognito_auth.id
+
+  request_parameters = {
+    "method.request.header.Authorization" = true
+  }
 }
 
 resource "aws_api_gateway_integration" "profileimagetos3_get" {
