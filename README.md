@@ -36,7 +36,7 @@ This project demonstrates a real-world, production-grade cloud application with:
 
 ---
 
-## 🗂️ Architecture Diagram (Text Summary)
+## 🗂️ Architecture Diagram
 
 ![Architecture Diagram](images/Taskflow_Diagram.png)
 
