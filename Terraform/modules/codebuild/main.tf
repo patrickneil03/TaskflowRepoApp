@@ -32,7 +32,12 @@ phases:
         aws s3 sync . s3://$TARGET_BUCKET \
           --delete \
           --exclude "Terraform/*" \
-          --exclude ".git/*"
+          --exclude "Terraform" \
+          --exclude ".git/*" \
+          --exclude ".git" \
+          --exclude "README.md" \
+          --exclude ".gitignore" \
+          --exclude ".gitattributes"
 BUILD_SPEC
   }
 }
