@@ -115,7 +115,7 @@ project-root/
 ├── .gitattributes
 └── README.md
 
-🔐 Security
+## 🔐 Security
 IAM policies follow least privilege best practices
 
 Cognito secures API access via tokens
@@ -126,7 +126,7 @@ HTTPS via ACM protects all public traffic
 
 Lambda roles are tightly scoped
 
-📚 Learning Highlights
+## 📚 Learning Highlights
 This project helped me develop and demonstrate skills in:
 
 AWS serverless architecture
@@ -143,7 +143,7 @@ Hosting static frontends on S3 with CloudFront and Route 53
 
 Email automation via AWS SES
 
-##🙋 About Me
+## 🙋 About Me
 I'm an aspiring Cloud Engineer passionate about AWS and DevOps.
 This project is part of my hands-on learning journey and cloud portfolio.
 
