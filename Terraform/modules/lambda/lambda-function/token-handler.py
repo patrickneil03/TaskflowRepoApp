@@ -19,7 +19,7 @@ def lambda_handler(event, context):
             "grant_type": "authorization_code",
             "client_id": CLIENT_ID,
             "client_secret": CLIENT_SECRET,
-            "redirect_uri": "http://localhost:8000/dashboard.html",
+            "redirect_uri": "https://baylenwebsite.xyz/dashboard.html",
             "code": code,
         }
 

@@ -636,6 +636,69 @@ body[data-theme="dark"] .btn-recommend:hover {
   display: flex;
 }
 
+@media (max-width: 768px) {
+  .dashboard-container {
+    margin: 20px;
+    padding: 20px;
+  }
+
+  .todo-list-title {
+    font-size: 1.6rem;
+  }
+
+  .todo-input-container {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  #new-todo {
+    width: 100%;
+  }
+
+  .navbar-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .todo-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .todo-actions {
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .btn-small {
+    width: auto;
+    height: auto;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    padding: 8px 12px;
+  }
+
+  .btn-primary, .btn-secondary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .dropdown-menu {
+    min-width: 100%;
+    right: 0;
+    left: 0;
+  }
+
+  .task-meta {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+
+
 
 
 
