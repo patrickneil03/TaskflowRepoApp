@@ -171,7 +171,7 @@ async function handleFileUpload(file) {
 // Logout Handler
 document.getElementById("logoutBtn").addEventListener("click", () => {
   const clientId = "5k18fu9gla3nf1ajmgb0nu0822";
-    const logoutUri = "http://localhost:8000";
+    const logoutUri = "https://baylenwebsite.xyz";
     const cognitoDomain = "https://zeref-todolist-auth.auth.ap-southeast-1.amazoncognito.com";
     window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
 });

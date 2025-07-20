@@ -8,7 +8,7 @@ let selectedDeadline = null;
 // ==================================================
 const CLIENT_ID       = "5k18fu9gla3nf1ajmgb0nu0822";
 const COGNITO_DOMAIN  = "zeref-todolist-auth.auth.ap-southeast-1.amazoncognito.com";
-const REDIRECT_URI    = "http://localhost:8000/dashboard.html";
+const REDIRECT_URI    = "https://baylenwebsite.xyz/dashboard.html";
 const LOGIN_PAGE      = "index.html";
 const TOKEN_EXCHANGE_URL =
   "https://y41x5c3mi6.execute-api.ap-southeast-1.amazonaws.com/prod/token";
@@ -527,7 +527,7 @@ function logout() {
 
     // 3. Force full Cognito logout with federated signout
     const clientId = "5k18fu9gla3nf1ajmgb0nu0822";
-    const logoutUri = "http://localhost:8000";
+    const logoutUri = "https://baylenwebsite.xyz";
     const cognitoDomain = "https://zeref-todolist-auth.auth.ap-southeast-1.amazoncognito.com";
     
     // 4. Redirect with parameters that ensure complete logout
