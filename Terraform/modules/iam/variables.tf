@@ -77,3 +77,10 @@ variable "cloudfront_distribution_id" {
   type        = string
   
 }
+
+variable "codestar_connection_arn" {
+  description = "ARN of the CodeStar connection for GitHub"
+  type        = string
+  sensitive   = true
+  
+}

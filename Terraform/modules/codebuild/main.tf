@@ -26,20 +26,17 @@ version: 0.2
 env:
   variables:
     TARGET_BUCKET: "${var.s3_bucket_my_bucket}"
-    DISTRIBUTION_ID: "${var.cloudfront_distribution_id}"
+    CLOUDFRONT_DISTRIBUTION_ID: "${var.cloudfront_distribution_id}" # <-- Add this to your Terraform variables
 
 phases:
   build:
     commands:
-      - echo "🧹 Deleting all existing files in S3 bucket"
-      - aws s3 rm s3://$TARGET_BUCKET --recursive
-
       - echo "🗺️ Listing local files"
       - ls -R .
 
       - echo "🔄 Syncing only frontend files (excluding Terraform, Git, README)"
       - >
-        aws s3 sync . s3://$TARGET_BUCKET --delete
+        aws s3 sync . s3://$TARGET_BUCKET
         --exclude "Terraform/*"
         --exclude "Terraform"
         --exclude ".git/*"
@@ -48,13 +45,12 @@ phases:
         --exclude ".gitignore"
         --exclude ".gitattributes"
 
-      - echo "🚀 Creating CloudFront invalidation"
+      - echo "🚀 Invalidating CloudFront cache"
       - >
         aws cloudfront create-invalidation
-        --distribution-id $DISTRIBUTION_ID
+        --distribution-id $CLOUDFRONT_DISTRIBUTION_ID
         --paths "/*"
 BUILD_SPEC
-
 
   }
 

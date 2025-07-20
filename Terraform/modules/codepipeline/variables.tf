@@ -19,11 +19,6 @@ variable "github_branch" {
   default = "main"
 }
 
-variable "github_oauth_token" {
-  type      = string
-  sensitive = true
-}
-
 variable "cp_role_arn" {
   description = "The ARN of the CodePipeline role"
   type        = string
@@ -51,5 +46,12 @@ variable "s3_bucket_my_bucket" {
 variable "codebuild_project_name" {
   description = "The name of the CodeBuild project for syncing the frontend"
   type        = string
+  
+}
+
+variable "codestar_connection_arn" {
+  description = "ARN of the CodeStar connection for GitHub"
+  type        = string
+  sensitive   = true
   
 }

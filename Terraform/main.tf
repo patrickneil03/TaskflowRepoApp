@@ -58,6 +58,7 @@ module "iam" {
   codebuild_project_name = module.codebuild.codebuild_project_name
   s3_bucket_name_artifact = module.s3.s3_bucket_name_artifact
   cloudfront_distribution_id = module.cloudfront.cloudfront_distribution_id
+  codestar_connection_arn = var.codestar_connection_arn
  
 }
 
@@ -126,12 +127,12 @@ module "codepipeline" {
   github_owner = var.github_owner
   github_repo = var.github_repo
   github_branch = var.github_branch
-  github_oauth_token = var.github_oauth_token
   cp_role_arn = module.iam.cp_role_arn
   s3_bucket_arn_artifact = module.s3.s3_bucket_arn_artifact
   s3_bucket_name_artifact = module.s3.s3_bucket_name_artifact
   s3_bucket_my_bucket = module.s3.s3_bucket_my_bucket
   codebuild_project_name = module.codebuild.codebuild_project_name
+  codestar_connection_arn = var.codestar_connection_arn
 }
 
 

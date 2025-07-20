@@ -77,6 +77,14 @@ resource "aws_iam_policy" "codepipeline_policy" {
           "logs:PutLogEvents"
         ]
         Resource = "arn:aws:logs:${var.region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/codepipeline/*"
+      },
+      {
+        Sid    = "CodeStarConnectionGitHubAccess"
+        Effect = "Allow"
+        Action = [
+          "codestar-connections:UseConnection"
+        ]
+        Resource = var.codestar_connection_arn
       }
     ]
   })
@@ -101,6 +109,7 @@ resource "aws_iam_role_policy" "cp_build_invoker" {
     ]
   })
 }
+
 
 
 resource "aws_iam_role_policy_attachment" "cp_policy_attach" {

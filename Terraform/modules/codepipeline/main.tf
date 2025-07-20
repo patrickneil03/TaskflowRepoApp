@@ -13,17 +13,15 @@ stage {
   action {
     name             = "GitHub_Source"
     category         = "Source"
-    owner            = "ThirdParty"
-    provider         = "GitHub"
+    owner            = "AWS"
+    provider         = "CodeStarSourceConnection"
     version          = "1"
-    output_artifacts = ["source_output"]
+    output_artifacts = ["SourceArtifact"]
 
     configuration = {
-      Owner                = var.github_owner
-      Repo                 = var.github_repo
-      Branch               = var.github_branch
-      OAuthToken           = var.github_oauth_token
-      PollForSourceChanges = "true"
+      ConnectionArn = var.codestar_connection_arn
+      FullRepositoryId = "${var.github_owner}/${var.github_repo}"
+      BranchName       = var.github_branch
     }
   }
 }
@@ -37,7 +35,7 @@ stage {
       owner            = "AWS"
       provider         = "CodeBuild"
       version          = "1"
-      input_artifacts  = ["source_output"]
+      input_artifacts  = ["SourceArtifact"]
 
       configuration = {
         ProjectName = var.codebuild_project_name

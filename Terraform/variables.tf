@@ -55,9 +55,8 @@ variable "github_branch" {
   type        = string 
 }
 
-variable "github_oauth_token" {
-  description = "GitHub OAuth token for accessing the repository"
+variable "codestar_connection_arn" {
+  description = "ARN of the CodeStar connection for GitHub"
   type        = string
   sensitive   = true
-  
 }
