@@ -84,43 +84,39 @@ async function resizeImage(file, maxWidth = 800, quality = 0.7) {
 // Upload Handlers
 async function handleModernUpload(file) {
     try {
-        const authToken = localStorage.getItem('authToken');
-        if (!authToken) throw new Error("Not authenticated");
-        
-        // Resize image first
-        const processedFile = await resizeImage(file);
-        
-        // Get presigned URL
-        const response = await fetch(
-            "https://y41x5c3mi6.execute-api.ap-southeast-1.amazonaws.com/prod/profileimagetos3",
+        // 1. Get presigned POST data from Lambda
+        const { url, fields } = await fetch(
+            "https://y41x5c3mi6.../generate-presigned-url",
             {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": authToken
                 },
-                body: JSON.stringify({
-                    fileType: "image/jpeg"
-                })
+                body: JSON.stringify({ fileType: "image/jpeg" })
             }
-        );
-        
-        const { uploadUrl } = await response.json();
-        
-        // Upload directly to S3
-        await fetch(uploadUrl, {
-            method: "PUT",
-            body: processedFile,
-            headers: { "Content-Type": "image/jpeg" }
+        ).then(res => res.json());
+
+        // 2. Prepare form data
+        const formData = new FormData();
+        Object.entries(fields).forEach(([key, value]) => {
+            formData.append(key, value);
         });
-        
-        // Create object URL for immediate display
-        profilePic.src = URL.createObjectURL(processedFile);
-        showMessage("Upload successful!", false);
+        formData.append("file", file);  // The actual file
+
+        // 3. Upload directly to S3 using POST
+        await fetch(url, {
+            method: "POST",
+            body: formData  // No Content-Type header! Let browser set it
+        });
+
+        // 4. Update UI
+        profilePic.src = URL.createObjectURL(file);
+        showMessage("Upload successful!");
         
     } catch (error) {
         console.error("Modern upload failed:", error);
-        throw error; // Fallback to legacy
+        throw error;
     }
 }
 

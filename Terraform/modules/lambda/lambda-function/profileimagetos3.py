@@ -40,32 +40,30 @@ def create_response(status_code, body, headers):
     }
 
 def handle_generate_presigned_url(event, headers):
-    """Generate presigned URL for direct S3 upload"""
     try:
-        # Extract username from Cognito token
         username = event["requestContext"]["authorizer"]["claims"]["cognito:username"]
-        
-        # Parse request body
         body = json.loads(event.get("body", "{}"))
-        file_type = body.get("fileType")
+        file_type = body.get("fileType", "image/jpeg")
         
-        # Validate file type
         if file_type not in ["image/jpeg", "image/png"]:
             return create_response(400, {"error": "Only JPEG/PNG allowed"}, headers)
         
-        # Generate S3 key and presigned URL
         key = f"profile-pictures/{username}/avatar.jpg"
-        upload_url = s3.generate_presigned_url(
-            "put_object",
-            Params={
-                "Bucket": BUCKET,
-                "Key": key,
-                "ContentType": file_type
+        
+        # Generate POST presigned URL (not PUT)
+        presigned_post = s3.generate_presigned_post(
+            Bucket=BUCKET,
+            Key=key,
+            Fields={
+                "Content-Type": file_type
             },
-            ExpiresIn=300  # 5-minute expiry
+            Conditions=[
+                ["content-length-range", 0, 10 * 1024 * 1024]  # 10MB max
+            ],
+            ExpiresIn=300  # 5 minutes
         )
         
-        return create_response(200, {"uploadUrl": upload_url, "key": key}, headers)
+        return create_response(200, presigned_post, headers)
         
     except Exception as e:
         print(f"Presigned URL Error: {str(e)}")
