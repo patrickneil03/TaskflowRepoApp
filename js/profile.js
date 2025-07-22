@@ -119,51 +119,51 @@ async function handleFileUpload(file) {
             showMessage("User not authenticated. Please login again.", true);
             return;
         }
+
         const payload = JSON.parse(atob(authToken.split('.')[1]));
         const username = payload['cognito:username'];
 
-        console.log("Preparing file for upload for user:", username);
-
-        // Convert file to base64
-        const base64Image = await fileToBase64(file);
-
-        // Prepare the payload to send to API Gateway
-        const requestBody = {
-            username: username,
-            image: base64Image
-        };
+        const requestBody = { username };
 
         const apiUrl = "https://y41x5c3mi6.execute-api.ap-southeast-1.amazonaws.com/prod/profileimagetos3";
 
-        showMessage("Uploading...", false); // Show uploading message
+        showMessage("Uploading...", false);
 
-        // Send the payload to API Gateway
-        fetch(apiUrl, {
-			method: "POST",
-			headers: {
-			"Content-Type": "application/json",
-			"Authorization": authToken  // 🔒 Pass ID token here
-			},
-			body: JSON.stringify(requestBody)
-		})
-
-        .then(response => response.json())
-        .then(data => {
-            if (data.url) {
-                document.getElementById("profilePic").src = data.url;
-                showMessage("Profile picture updated successfully!", false);
-            } else {
-                console.error("API error:", data.error);
-                showMessage("Upload failed. Please try again.", true);
-            }
-        })
-        .catch(uploadError => {
-            console.error("Upload Error:", uploadError);
-            showMessage("Upload failed due to network error.", true);
+        // Step 1: Get presigned PUT URL
+        const response = await fetch(apiUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": authToken
+            },
+            body: JSON.stringify(requestBody)
         });
+
+        const data = await response.json();
+        if (!data.uploadUrl) {
+            showMessage("Failed to get upload URL", true);
+            return;
+        }
+
+        // Step 2: Upload image directly to S3
+        const uploadRes = await fetch(data.uploadUrl, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "image/jpeg"
+            },
+            body: file
+        });
+
+        if (!uploadRes.ok) {
+            showMessage("Upload to S3 failed", true);
+            return;
+        }
+
+        showMessage("Profile Picture uploaded successfully!", false);
+        await fetchProfilePicture(); // Refresh the profile picture
     } catch (error) {
-        console.error("Upload Error:", error);
-        showMessage(error.message || "Upload failed", true);
+        console.error("Hybrid Upload Error:", error);
+        showMessage("Upload failed", true);
     }
 }
 
