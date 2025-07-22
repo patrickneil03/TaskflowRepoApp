@@ -10,8 +10,27 @@ resource "aws_api_gateway_stage" "prod" {
   stage_name     = "prod"
 }
 
+
 #############################################
-# 6. Automatically Re-Deploy the API
+# 6. API Throtlling
+#############################################
+resource "aws_api_gateway_method_settings" "throttling" {
+  rest_api_id = aws_api_gateway_rest_api.zerefapi.id
+  stage_name  = aws_api_gateway_stage.prod.stage_name
+
+  method_path = "*/*"
+
+  settings {
+    throttling_rate_limit  = 5
+    throttling_burst_limit = 10
+    metrics_enabled        = true
+    logging_level          = "OFF"
+    data_trace_enabled     = false
+  }
+}
+
+#############################################
+# 7. Automatically Re-Deploy the API
 #############################################
 
 resource "aws_api_gateway_deployment" "zerefapi_deployment" {
@@ -44,7 +63,7 @@ resource "aws_api_gateway_deployment" "zerefapi_deployment" {
 
 
 #############################################
-# 7. Grant API Gateway Permission to Invoke Lambda
+# 8. Grant API Gateway Permission to Invoke Lambda
 #############################################
 
 resource "aws_lambda_permission" "allow_apigw_invoke_TokenHandler" {
