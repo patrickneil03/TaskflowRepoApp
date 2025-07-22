@@ -1,25 +1,18 @@
-// Ensure AWS Cognito SDK is loaded first
-if (typeof AmazonCognitoIdentity === 'undefined') {
-    console.error("AmazonCognitoIdentity SDK is not loaded. Check your script imports.");
-}
-
 // AWS Configuration
-
 const region = "ap-southeast-1";
 const identityPoolId = "ap-southeast-1:3b4324f5-c724-46c5-aa69-c74719e681c7";
 const userPoolId = "ap-southeast-1_t4OcTbD3r";
 const clientId = "5k18fu9gla3nf1ajmgb0nu0822";
 
-// Set up Cognito User Pool
+// Cognito Setup
 let userPool;
 if (typeof AmazonCognitoIdentity !== 'undefined') {
-    const poolData = { UserPoolId: userPoolId, ClientId: clientId };
-    userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
-} else {
-    console.error("AmazonCognitoIdentity SDK is missing. Ensure you included the Cognito SDK script.");
+    userPool = new AmazonCognitoIdentity.CognitoUserPool({
+        UserPoolId: userPoolId,
+        ClientId: clientId
+    });
 }
 
-// Ensure AWS SDK is properly configured
 if (typeof AWS !== 'undefined') {
     AWS.config.update({
         region: region,
@@ -27,8 +20,6 @@ if (typeof AWS !== 'undefined') {
             IdentityPoolId: identityPoolId
         })
     });
-} else {
-    console.error("AWS SDK is missing. Ensure you included the AWS SDK script.");
 }
 
 // DOM Elements
@@ -36,171 +27,166 @@ const profilePic = document.getElementById('profilePic');
 const uploadStatus = document.getElementById('uploadStatus');
 const fileInput = document.getElementById('fileInput');
 const uploadBtn = document.getElementById('uploadBtn');
+let selectedFile = null;
 
-let selectedFile = null; // To store the file chosen by the user
+// Utility Functions
+function showMessage(message, isError = false) {
+    uploadStatus.style.display = 'block';
+    uploadStatus.className = 'status-message show';
+    uploadStatus.style.backgroundColor = 'transparent';
+    uploadStatus.style.color = isError ? 'red' : 'green';
+    uploadStatus.textContent = message;
 
-// Utility function to show messages to user
-const showMessage = (message, isError = false) => {
-  // 1) Force it visible (override your style="display:none")
-  uploadStatus.style.display = 'block';
-
-  // 2) Clear any leftover classes/backgrounds
-  uploadStatus.className = 'status-message show';
-  uploadStatus.style.backgroundColor = 'transparent'; 
-  uploadStatus.style.color = isError ? 'red' : 'green';
-
-  // 3) Set the text
-  uploadStatus.textContent = message;
-
-  // 4) Fade out after 3s, then clear and hide again
-  setTimeout(() => {
-    uploadStatus.classList.remove('show');
     setTimeout(() => {
-      uploadStatus.textContent = '';
-      uploadStatus.style.display = '';  // re-apply the original inline none
-    }, 300); // give CSS transition time
-  }, 3000);
-};
+        uploadStatus.classList.remove('show');
+        setTimeout(() => {
+            uploadStatus.textContent = '';
+            uploadStatus.style.display = '';
+        }, 300);
+    }, 3000);
+}
 
-
-// Function to convert file to base64 string
 function fileToBase64(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onload = () => {
-            // Remove the data URL part and only return base64 string
-            resolve(reader.result.split(',')[1]);
-        };
+        reader.onload = () => resolve(reader.result.split(',')[1]);
         reader.onerror = error => reject(error);
         reader.readAsDataURL(file);
     });
 }
 
-// Function to display preview of selected image
 function displayImagePreview(file) {
     const reader = new FileReader();
-    reader.onload = () => {
-        profilePic.src = reader.result; // Show preview
-    };
+    reader.onload = () => profilePic.src = reader.result;
     reader.readAsDataURL(file);
 }
 
-// Function to fetch and display user profile details using the stored auth token
-async function fetchUserProfile() {
-    try {
-        console.log("Fetching user profile...");
-        const authToken = localStorage.getItem('authToken');
-        if (!authToken) throw new Error('No authentication data found.');
-
-        const payload = JSON.parse(atob(authToken.split('.')[1]));
-        const userData = {
-            username: payload['cognito:username'],
-            email: payload.email
+async function resizeImage(file, maxWidth = 800, quality = 0.7) {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const scale = Math.min(maxWidth / img.width, 1);
+                canvas.width = img.width * scale;
+                canvas.height = img.height * scale;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                canvas.toBlob((blob) => resolve(blob), 'image/jpeg', quality);
+            };
+            img.src = e.target.result;
         };
-        localStorage.setItem('cognitoUser', JSON.stringify(userData));
-
-        document.getElementById("username").textContent = userData.username;
-        document.getElementById("email").textContent = userData.email;
-        console.log("User profile loaded:", userData);
-    } catch (error) {
-        console.error('Profile Error:', error);
-        showMessage("Redirecting to login...", true);
-        setTimeout(() => {
-            window.location.href = "index.html";
-        }, 2000);
-    }
+        reader.readAsDataURL(file);
+    });
 }
 
-// Simplified Upload Handler using API Gateway & Lambda
-async function handleFileUpload(file) {
+// Upload Handlers
+async function handleModernUpload(file) {
     try {
         const authToken = localStorage.getItem('authToken');
-        if (!authToken) {
-            showMessage("User not authenticated. Please login again.", true);
-            return;
-        }
-        const payload = JSON.parse(atob(authToken.split('.')[1]));
-        const username = payload['cognito:username'];
-
-        console.log("Preparing file for upload for user:", username);
-
-        // Convert file to base64
-        const base64Image = await fileToBase64(file);
-
-        // Prepare the payload to send to API Gateway
-        const requestBody = {
-            username: username,
-            image: base64Image
-        };
-
-        const apiUrl = "https://y41x5c3mi6.execute-api.ap-southeast-1.amazonaws.com/prod/profileimagetos3";
-
-        showMessage("Uploading...", false); // Show uploading message
-
-        // Send the payload to API Gateway
-        fetch(apiUrl, {
-			method: "POST",
-			headers: {
-			"Content-Type": "application/json",
-			"Authorization": authToken  // 🔒 Pass ID token here
-			},
-			body: JSON.stringify(requestBody)
-		})
-
-        .then(response => response.json())
-        .then(data => {
-            if (data.url) {
-                document.getElementById("profilePic").src = data.url;
-                showMessage("Profile picture updated successfully!", false);
-            } else {
-                console.error("API error:", data.error);
-                showMessage("Upload failed. Please try again.", true);
+        if (!authToken) throw new Error("Not authenticated");
+        
+        // Resize image first
+        const processedFile = await resizeImage(file);
+        
+        // Get presigned URL
+        const response = await fetch(
+            "https://y41x5c3mi6.execute-api.ap-southeast-1.amazonaws.com/prod/profileimagetos3/generate-presigned-url",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": authToken
+                },
+                body: JSON.stringify({
+                    fileType: "image/jpeg"
+                })
             }
-        })
-        .catch(uploadError => {
-            console.error("Upload Error:", uploadError);
-            showMessage("Upload failed due to network error.", true);
+        );
+        
+        const { uploadUrl } = await response.json();
+        
+        // Upload directly to S3
+        await fetch(uploadUrl, {
+            method: "PUT",
+            body: processedFile,
+            headers: { "Content-Type": "image/jpeg" }
         });
+        
+        // Create object URL for immediate display
+        profilePic.src = URL.createObjectURL(processedFile);
+        showMessage("Upload successful!", false);
+        
     } catch (error) {
-        console.error("Upload Error:", error);
-        showMessage(error.message || "Upload failed", true);
+        console.error("Modern upload failed:", error);
+        throw error; // Fallback to legacy
     }
 }
 
+async function handleLegacyUpload(file) {
+    try {
+        const authToken = localStorage.getItem('authToken');
+        const base64Image = await fileToBase64(file);
+        const payload = JSON.parse(atob(authToken.split('.')[1]));
+        
+        const response = await fetch(
+            "https://y41x5c3mi6.execute-api.ap-southeast-1.amazonaws.com/prod/profileimagetos3",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": authToken
+                },
+                body: JSON.stringify({
+                    username: payload['cognito:username'],
+                    image: base64Image
+                })
+            }
+        );
+        
+        const data = await response.json();
+        if (data.url) {
+            profilePic.src = data.url;
+            showMessage("Upload successful (legacy mode)!", false);
+        }
+    } catch (error) {
+        console.error("Legacy upload failed:", error);
+        throw error;
+    }
+}
 
-// Logout Handler
-document.getElementById("logoutBtn").addEventListener("click", () => {
-  const clientId = "5k18fu9gla3nf1ajmgb0nu0822";
-    const logoutUri = "https://baylenwebsite.xyz";
-    const cognitoDomain = "https://zeref-todolist-auth.auth.ap-southeast-1.amazoncognito.com";
-    window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
-});
+async function handleFileUpload(file) {
+    showMessage("Uploading...", false);
+    
+    try {
+        // Try modern upload first
+        await handleModernUpload(file);
+    } catch (error) {
+        console.log("Falling back to legacy upload");
+        await handleLegacyUpload(file);
+    }
+}
 
-// Event listener for file input change event (choosing file)
+// Event Listeners
 fileInput.addEventListener("change", async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validate file type (only image files allowed)
     if (!file.type.startsWith('image/')) {
-        showMessage("Only image files are allowed", true);
+        showMessage("Only images allowed", true);
+        return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+        showMessage("Image must be <10MB", true);
         return;
     }
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-        showMessage("File size must be less than 5MB", true);
-        return;
-    }
-
-    selectedFile = file; // Save the selected file for later upload
-    displayImagePreview(file); // Show preview immediately
-
-    // Enable the upload button now that a file is selected
+    selectedFile = file;
+    displayImagePreview(file);
     uploadBtn.disabled = false;
 });
 
-// Event listener for Upload Button click (triggers the upload to Lambda)
 uploadBtn.addEventListener("click", async () => {
     if (!selectedFile) {
         showMessage("Please choose a file first", true);
@@ -209,77 +195,71 @@ uploadBtn.addEventListener("click", async () => {
     await handleFileUpload(selectedFile);
 });
 
-// Function to fetch the user's profile picture
-async function fetchProfilePicture() {
-    const profilePic = document.getElementById("profilePic");
-    const defaultImage = "default-profile.png";
-    
+// Profile Management
+async function fetchUserProfile() {
     try {
         const authToken = localStorage.getItem('authToken');
-        if (!authToken) {
-            profilePic.src = defaultImage;
-            return;
-        }
-        
+        if (!authToken) throw new Error('No authentication data');
+
         const payload = JSON.parse(atob(authToken.split('.')[1]));
-        const username = payload['cognito:username'];
-        if (!username) {
-            profilePic.src = defaultImage;
-            return;
-        }
-
-        const apiUrl = `https://y41x5c3mi6.execute-api.ap-southeast-1.amazonaws.com/prod/profileimagetos3?username=${encodeURIComponent(username)}`;
+        const userData = {
+            username: payload['cognito:username'],
+            email: payload.email
+        };
         
-        const response = await fetch(apiUrl, {
-		method: "GET",
-		headers: {
-		"Authorization": authToken
-		}
-		});
-
-
-        if (response.status === 404) {
-            // Expected missing image case
-            profilePic.src = defaultImage;
-            return;
-        }
-
-        if (!response.ok) {
-            // Handle other errors (including 500)
-            console.error("Unexpected error:", response.status);
-            profilePic.src = defaultImage;
-            return;
-        }
-
-        const data = await response.json();
-        profilePic.src = data.url || defaultImage;
-        
+        document.getElementById("username").textContent = userData.username;
+        document.getElementById("email").textContent = userData.email;
     } catch (error) {
-        console.error("Fetch error:", error);
-        profilePic.src = defaultImage;
+        console.error('Profile Error:', error);
+        showMessage("Redirecting to login...", true);
+        setTimeout(() => window.location.href = "index.html", 2000);
     }
 }
 
+async function fetchProfilePicture() {
+    try {
+        const authToken = localStorage.getItem('authToken');
+        if (!authToken) return;
+        
+        const payload = JSON.parse(atob(authToken.split('.')[1]));
+        const username = payload['cognito:username'];
+        
+        const response = await fetch(
+            `https://y41x5c3mi6.execute-api.ap-southeast-1.amazonaws.com/prod/profileimagetos3?username=${encodeURIComponent(username)}`,
+            {
+                headers: { "Authorization": authToken }
+            }
+        );
+        
+        const data = await response.json();
+        profilePic.src = data.url || "default-profile.png";
+    } catch (error) {
+        console.error("Fetch error:", error);
+        profilePic.src = "default-profile.png";
+    }
+}
 
+// Logout Handler
+document.getElementById("logoutBtn").addEventListener("click", () => {
+    const logoutUri = "https://baylenwebsite.xyz";
+    const cognitoDomain = "https://zeref-todolist-auth.auth.ap-southeast-1.amazoncognito.com";
+    window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
+});
 
-// Initialize the profile page
+// Initialize
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        console.log("Initializing profile page...");
-
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
             showMessage('Please login first', true);
-            console.warn("No authenticated user found. Redirecting...");
             setTimeout(() => window.location.href = "index.html", 2000);
             return;
         }
 
-        await fetchUserProfile(); // Fetch and display username & email
-        await fetchProfilePicture(); // Fetch and display profile picture
+        await fetchUserProfile();
+        await fetchProfilePicture();
     } catch (error) {
         console.error('Initialization error:', error);
         setTimeout(() => window.location.href = "index.html", 2000);
     }
 });
-
