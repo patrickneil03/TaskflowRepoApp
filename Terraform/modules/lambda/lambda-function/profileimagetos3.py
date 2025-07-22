@@ -1,12 +1,14 @@
 import json
 import boto3
+import base64
 import os
-from urllib.parse import parse_qs
 
 s3 = boto3.client('s3')
 BUCKET = os.environ.get("PROFILE_BUCKET")
 
 def lambda_handler(event, context):
+    # Common headers for CORS
+  
     cors_headers = {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "OPTIONS, GET, POST",
@@ -14,15 +16,10 @@ def lambda_handler(event, context):
     }
     
     try:
-        http_method = event.get("httpMethod")
+        http_method = event.get("httpMethod", "GET")
         
         if http_method == "POST":
-            # Handle both presigned URL generation AND legacy base64 uploads
-            path = event.get("path", "")
-            if "/generate-presigned-url" in path:
-                return handle_generate_presigned_url(event, cors_headers)
-            else:
-                return handle_legacy_upload(event, cors_headers)
+            return handle_upload(event, cors_headers)
         elif http_method == "GET":
             return handle_get_presigned_url(event, cors_headers)
         else:
@@ -39,55 +36,33 @@ def create_response(status_code, body, headers):
         "body": json.dumps(body, default=str)
     }
 
-def handle_generate_presigned_url(event, headers):
+def handle_upload(event, headers):
     try:
-        username = event["requestContext"]["authorizer"]["claims"]["cognito:username"]
-        body = json.loads(event.get("body", "{}"))
-        file_type = body.get("fileType", "image/jpeg")
-        
-        if file_type not in ["image/jpeg", "image/png"]:
-            return create_response(400, {"error": "Only JPEG/PNG allowed"}, headers)
-        
-        key = f"profile-pictures/{username}/avatar.jpg"
-        
-        # Generate POST presigned URL (not PUT)
-        presigned_post = s3.generate_presigned_post(
-            Bucket=BUCKET,
-            Key=key,
-            Fields={
-                "Content-Type": file_type
-            },
-            Conditions=[
-                ["content-length-range", 0, 10 * 1024 * 1024]  # 10MB max
-            ],
-            ExpiresIn=300  # 5 minutes
-        )
-        
-        return create_response(200, presigned_post, headers)
-        
-    except Exception as e:
-        print(f"Presigned URL Error: {str(e)}")
-        return create_response(500, {"error": "Failed to generate upload URL"}, headers)
+        raw_body = event.get("body")
+        body = json.loads(raw_body or "{}")
 
-def handle_legacy_upload(event, headers):
-    """Legacy base64 upload (fallback)"""
-    try:
-        body = json.loads(event.get("body", "{}"))
-        username = body.get("username")
+        # ✅ Extract authenticated username from token
         username_from_token = event["requestContext"]["authorizer"]["claims"]["cognito:username"]
-        
-        # Validate user
+
+        # ✅ Compare against username sent in request
+        username = body.get("username")
         if username_from_token != username:
-            return create_response(403, {"error": "Unauthorized"}, headers)
-        
-        # Process base64 image
+            return create_response(403, {"error": "Unauthorized. Username mismatch."}, headers)
+
         image_base64 = body.get("image")
-        if not image_base64:
-            return create_response(400, {"error": "No image data"}, headers)
-            
-        image_data = base64.b64decode(image_base64)
-        key = f"profile-pictures/{username}/avatar.jpg"
         
+        # Validate input
+        if not username or not image_base64:
+            return create_response(400, {"error": "Missing required parameters"}, headers)
+
+        # Decode base64 image
+        try:
+            image_data = base64.b64decode(image_base64)
+        except base64.binascii.Error:
+            return create_response(400, {"error": "Invalid base64 encoding"}, headers)
+
+        key = f"profile-pictures/{username}/avatar.jpg"
+
         # Upload to S3
         s3.put_object(
             Bucket=BUCKET,
@@ -96,18 +71,21 @@ def handle_legacy_upload(event, headers):
             ContentType="image/jpeg",
             ACL="private"
         )
-        
-        # Return presigned URL for viewing
+
+        # Generate presigned URL
         url = s3.generate_presigned_url(
             "get_object",
             Params={"Bucket": BUCKET, "Key": key},
             ExpiresIn=3600
         )
+
         return create_response(200, {"url": url}, headers)
-        
+
+    except json.JSONDecodeError:
+        return create_response(400, {"error": "Invalid JSON format"}, headers)
     except Exception as e:
-        print(f"Legacy Upload Error: {str(e)}")
-        return create_response(500, {"error": "Upload failed"}, headers)
+        print(f"Upload Processing Error: {str(e)}")
+        return create_response(500, {"error": "Internal server error"}, headers)
 
 
 def handle_get_presigned_url(event, headers):
