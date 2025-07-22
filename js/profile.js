@@ -92,7 +92,7 @@ async function handleModernUpload(file) {
         
         // Get presigned URL
         const response = await fetch(
-            "https://y41x5c3mi6.execute-api.ap-southeast-1.amazonaws.com/prod/profileimagetos3/generate-presigned-url",
+            "https://y41x5c3mi6.execute-api.ap-southeast-1.amazonaws.com/prod/profileimagetos3",
             {
                 method: "POST",
                 headers: {
