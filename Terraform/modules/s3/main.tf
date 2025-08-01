@@ -26,6 +26,20 @@ resource "aws_s3_bucket" "profile_bucket" {
   }
 }
 
+
+resource "aws_s3_bucket_cors_configuration" "profile_bucket_cors" {
+  bucket = aws_s3_bucket.profile_bucket.id
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["PUT", "GET", "POST", "HEAD"]
+    allowed_origins = ["https://baylenwebsite.xyz"]
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
+  }
+}
+
+
 resource "aws_s3_object" "profile_folder" {
   bucket  = aws_s3_bucket.profile_bucket.bucket   # reference the bucket name
   key     = "profile-pictures/"                           # note the trailing slash to indicate a folder

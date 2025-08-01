@@ -28,6 +28,7 @@ variable "google_client_secret" {
 variable "facebook_app_id" {
   description = "The app ID for Facebook authentication"
   type        = string
+  sensitive = true
 }
 
 

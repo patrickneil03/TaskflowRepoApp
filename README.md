@@ -71,29 +71,71 @@ git clone https://github.com/patrickneil03/TaskflowRepoApp.git
 
 
 2. Configure Terraform
-Update variables (bucket names, domain, region, etc.).
+Update your Terraform variable files such as terraform.tfvars and secrets.auth.tfvars.
 
-3. Deploy Infrastructure
+terraform.tfvars contains general infrastructure configurations.
+
+secrets.auth.tfvars should contain sensitive auth secrets such as:
+facebook_app_id     = "your_facebook_app_id"
+facebook_app_secret = "your_facebook_app_secret"
+google_client_id    = "your_google_client_id"
+google_client_secret = "your_google_client_secret"
+codestar_connection_arn ="your_codestarconnection_arn"
+
+3. Create Google & Facebook Identity Providers for Cognito
+🔵 Google
+Go to Google Cloud Console
+
+Create or select a project.
+
+Go to APIs & Services > Credentials
+
+Create an OAuth 2.0 Client ID
+
+Application type: Web Application
+
+Authorized redirect URI:
+https://<your_cognito_domain>/oauth2/idpresponse
+
+Copy the Client ID and Client Secret
+
+Add them to secrets.auth.tfvars
+
+🔵 Facebook
+Go to Facebook for Developers
+
+Create an App
+
+Navigate to Facebook Login > Settings
+
+Add the Valid OAuth Redirect URIs:
+https://<your_cognito_domain>/oauth2/idpresponse
+
+Go to Settings > Basic to get the App ID and App Secret
+
+Add them to secrets.auth.tfvars
+
+4. Deploy Infrastructure
 cd terraform/
 terraform init
 terraform plan   # Review planned changes
 terraform apply  # Provision infrastructure
 
 4. Push Frontend Code to GitHub
-Push to the main branch
+git add .
+git commit -m "Initial deployment"
+git push origin main
 
-CodePipeline triggers CodeBuild
+This triggers AWS CodePipeline, which builds and deploys the frontend via CodeBuild.
 
-## 🔐 Security
-IAM policies follow least privilege best practices
-
-Cognito secures API access via tokens
-
-Profile uploads are per-user private in S3
-
-HTTPS via ACM protects all public traffic
-
-Lambda roles are tightly scoped.
+## 🔐 Security  
+- **IAM least privilege** – Strict permissions for all roles and services  
+- **Cognito token auth** – API access secured via JWT validation  
+- **S3 pre-signed URLs** – Profile uploads/fetches use temporary, scoped links (no public S3 access)  
+- **HTTPS enforcement** – ACM-managed certificates for all endpoints  
+- **Lambda minimal permissions** – Execution roles scoped to required resources only  
+- **CloudFront OAC** – S3 bucket accessible *only* via CloudFront (no direct access)  
+- **API Gateway throttling** – Rate limiting to prevent abuse (DoS protection)  
 
 ## 📚 Learning Highlights
 This project helped me develop and demonstrate skills in:
