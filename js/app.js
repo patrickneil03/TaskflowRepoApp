@@ -1,4 +1,4 @@
-const apiUrl = 'https://164yf9ouy6.execute-api.ap-southeast-1.amazonaws.com/prodtaskhandler';
+const apiUrl = 'https://164yf9ouy6.execute-api.ap-southeast-1.amazonaws.com/prod/taskhandler';
 
 // Global variable to store the selected deadline
 let selectedDeadline = null;
