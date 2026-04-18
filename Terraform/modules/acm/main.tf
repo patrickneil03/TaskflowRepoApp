@@ -13,8 +13,8 @@ resource "aws_acm_certificate" "cert_baylenwebsite" {
   validation_method = "DNS"
 }
 
-resource "aws_acm_certificate_validation" "cert_validation" {
-  certificate_arn         = aws_acm_certificate.cert_baylenwebsite.arn
-  validation_record_fqdns = var.cert_validation_fqdns
-}
+//resource "aws_acm_certificate_validation" "cert_validation" {
+ // certificate_arn         = aws_acm_certificate.cert_baylenwebsite.arn
+ // validation_record_fqdns = var.cert_validation_fqdns
+//}
 

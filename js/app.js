@@ -1,4 +1,4 @@
-const apiUrl = 'https://y41x5c3mi6.execute-api.ap-southeast-1.amazonaws.com/prod/taskhandler';
+const apiUrl = 'https://164yf9ouy6.execute-api.ap-southeast-1.amazonaws.com/prodtaskhandler';
 
 // Global variable to store the selected deadline
 let selectedDeadline = null;
@@ -11,7 +11,7 @@ const COGNITO_DOMAIN  = "zeref-todolist-auth.auth.ap-southeast-1.amazoncognito.c
 const REDIRECT_URI    = "https://baylenwebsite.xyz/dashboard.html";
 const LOGIN_PAGE      = "index.html";
 const TOKEN_EXCHANGE_URL =
-  "https://y41x5c3mi6.execute-api.ap-southeast-1.amazonaws.com/prod/token";
+  "https://164yf9ouy6.execute-api.ap-southeast-1.amazonaws.com/prod/token";
 
 // ==================================================
 // 1) Federated login helper
@@ -526,7 +526,7 @@ function logout() {
     });
 
     // 3. Force full Cognito logout with federated signout
-    const clientId = "5k18fu9gla3nf1ajmgb0nu0822";
+    const clientId = "5b0hq83r91i8l3jqlmduc5op1s";
     const logoutUri = "https://baylenwebsite.xyz";
     const cognitoDomain = "https://zeref-todolist-auth.auth.ap-southeast-1.amazoncognito.com";
     

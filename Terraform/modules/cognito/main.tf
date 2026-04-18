@@ -28,27 +28,31 @@ resource "aws_cognito_user_pool" "my_user_pool" {
 }
 
 resource "aws_cognito_user_pool_client" "my_user_pool_client" {
-  name         = var.aws_cognito_user_pool_client_name
-  user_pool_id = aws_cognito_user_pool.my_user_pool.id
+  name                   = var.aws_cognito_user_pool_client_name
+  user_pool_id           = aws_cognito_user_pool.my_user_pool.id
   refresh_token_validity = 30
-  generate_secret = true
+  generate_secret        = true
 
-  // Set the allowed OAuth flows and scopes.
-  allowed_oauth_flows       = ["code"]
-  allowed_oauth_scopes      = ["email", "openid", "profile"]
+  allowed_oauth_flows                  = ["code"]
+  allowed_oauth_scopes                 = ["email", "openid", "profile"]
   allowed_oauth_flows_user_pool_client = true
-  callback_urls  = ["https://baylenwebsite.xyz/dashboard.html"]
-  logout_urls    = ["https://baylenwebsite.xyz"]
+  callback_urls                        = ["https://baylenwebsite.xyz/dashboard.html"]
+  logout_urls                         = ["https://baylenwebsite.xyz"]
 
-   supported_identity_providers = ["COGNITO", "Facebook", "Google"]
+  # These strings must match the 'provider_name' in the resources below
+  supported_identity_providers = ["COGNITO", "Facebook", "Google"]
 
-  # Explicit auth flows are included to support username/password login.
   explicit_auth_flows = [
     "ALLOW_USER_PASSWORD_AUTH",
     "ALLOW_REFRESH_TOKEN_AUTH",
     "ALLOW_USER_SRP_AUTH"
   ]
-  
+
+  # THE FIX: This forces the providers to be created BEFORE the client
+  depends_on = [
+    aws_cognito_identity_provider.google,
+    aws_cognito_identity_provider.facebook
+  ]
 }
 
  resource "aws_cognito_identity_provider" "google" {
@@ -63,13 +67,25 @@ resource "aws_cognito_user_pool_client" "my_user_pool_client" {
   }
 
   attribute_mapping = {
-    email    = "email"
-    username = "sub"
+    email          = "email"
+    username       = "sub"
     email_verified = "email_verified"
   }
- }
 
- resource "aws_cognito_identity_provider" "facebook" {
+  # This prevents the plan from showing updates every time
+  lifecycle {
+    ignore_changes = [
+      provider_details["attributes_url"],
+      provider_details["attributes_url_add_attributes"],
+      provider_details["authorize_url"],
+      provider_details["oidc_issuer"],
+      provider_details["token_request_method"],
+      provider_details["token_url"]
+    ]
+  }
+}
+
+resource "aws_cognito_identity_provider" "facebook" {
   user_pool_id  = aws_cognito_user_pool.my_user_pool.id
   provider_name = "Facebook"
   provider_type = "Facebook"
@@ -83,7 +99,17 @@ resource "aws_cognito_user_pool_client" "my_user_pool_client" {
   attribute_mapping = {
     email    = "email"
     username = "id"
-    
+  }
+
+  # Add it here as well
+  lifecycle {
+    ignore_changes = [
+      provider_details["attributes_url"],
+      provider_details["attributes_url_add_attributes"],
+      provider_details["authorize_url"],
+      provider_details["token_request_method"],
+      provider_details["token_url"]
+    ]
   }
 }
 

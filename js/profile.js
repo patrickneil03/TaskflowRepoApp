@@ -7,8 +7,8 @@ if (typeof AmazonCognitoIdentity === 'undefined') {
 
 const region = "ap-southeast-1";
 const identityPoolId = "ap-southeast-1:3b4324f5-c724-46c5-aa69-c74719e681c7";
-const userPoolId = "ap-southeast-1_t4OcTbD3r";
-const clientId = "5k18fu9gla3nf1ajmgb0nu0822";
+const userPoolId = "ap-southeast-1_7IsLb8ddk";
+const clientId = "5b0hq83r91i8l3jqlmduc5op1s";
 
 // Set up Cognito User Pool
 let userPool;
@@ -125,7 +125,7 @@ async function handleFileUpload(file) {
 
         const requestBody = { username };
 
-        const apiUrl = "https://y41x5c3mi6.execute-api.ap-southeast-1.amazonaws.com/prod/profileimagetos3";
+        const apiUrl = "https://164yf9ouy6.execute-api.ap-southeast-1.amazonaws.com/prod/profileimagetos3";
 
         showMessage("Uploading...", false);
 
@@ -170,7 +170,7 @@ async function handleFileUpload(file) {
 
 // Logout Handler
 document.getElementById("logoutBtn").addEventListener("click", () => {
-  const clientId = "5k18fu9gla3nf1ajmgb0nu0822";
+  const clientId = "5b0hq83r91i8l3jqlmduc5op1s";
     const logoutUri = "https://baylenwebsite.xyz";
     const cognitoDomain = "https://zeref-todolist-auth.auth.ap-southeast-1.amazoncognito.com";
     window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
@@ -228,7 +228,7 @@ async function fetchProfilePicture() {
             return;
         }
 
-        const apiUrl = `https://y41x5c3mi6.execute-api.ap-southeast-1.amazonaws.com/prod/profileimagetos3?username=${encodeURIComponent(username)}`;
+        const apiUrl = `https://164yf9ouy6.execute-api.ap-southeast-1.amazonaws.com/prod/profileimagetos3?username=${encodeURIComponent(username)}`;
         
         const response = await fetch(apiUrl, {
 		method: "GET",

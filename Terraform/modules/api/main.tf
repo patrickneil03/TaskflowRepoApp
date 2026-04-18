@@ -37,27 +37,27 @@ resource "aws_api_gateway_deployment" "zerefapi_deployment" {
   rest_api_id = aws_api_gateway_rest_api.zerefapi.id
 
   triggers = {
-    redeployment = timestamp()
+    # Hashing the IDs/Attributes of your integrations ensures 
+    # that if any of them change, a new deployment is triggered.
+    redeployment = sha1(jsonencode([
+      aws_api_gateway_integration.token_post,
+      aws_api_gateway_integration.token_options,
+      aws_api_gateway_integration.taskhandler_post,
+      aws_api_gateway_integration.taskhandler_get,
+      aws_api_gateway_integration.taskhandler_options,
+      aws_api_gateway_integration.taskhandler_id_delete,
+      aws_api_gateway_integration.taskhandler_id_put,
+      aws_api_gateway_integration.taskhandler_id_patch,
+      aws_api_gateway_integration.taskhandler_id_options,
+      aws_api_gateway_integration.profileimagetos3_post,
+      aws_api_gateway_integration.profileimagetos3_get,
+      aws_api_gateway_integration.profileimagetos3_options,
+    ]))
   }
 
   lifecycle {
     create_before_destroy = true
   }
-
-  depends_on = [
-    aws_api_gateway_integration.token_post,
-    aws_api_gateway_integration.token_options,
-    aws_api_gateway_integration.taskhandler_post,
-    aws_api_gateway_integration.taskhandler_get,
-    aws_api_gateway_integration.taskhandler_options,
-    aws_api_gateway_integration.taskhandler_id_delete,
-    aws_api_gateway_integration.taskhandler_id_put,
-    aws_api_gateway_integration.taskhandler_id_patch,
-    aws_api_gateway_integration.taskhandler_id_options,
-    aws_api_gateway_integration.profileimagetos3_post,
-    aws_api_gateway_integration.profileimagetos3_get,
-    aws_api_gateway_integration.profileimagetos3_options,
-  ]
 }
 
 

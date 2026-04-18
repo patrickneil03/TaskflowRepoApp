@@ -14,10 +14,9 @@ resource "aws_dynamodb_table" "todolist_dynamodb_table" {
     type = "S"
   }
 
-  # Optional attributes (DynamoDB is schemaless, but declaring improves query performance)
   attribute {
     name = "deadline"
-    type = "S"  # Will store ISO 8601 format (YYYY-MM-DDTHH:MM:SS)
+    type = "S"
   }
 
   # Global Secondary Index for deadline queries
@@ -25,9 +24,8 @@ resource "aws_dynamodb_table" "todolist_dynamodb_table" {
     name            = "DeadlineIndex"
     hash_key        = "userId"
     range_key       = "deadline"
-    projection_type = "ALL"  # Project all attributes for flexibility
-    write_capacity  = 1      # Match base table's PAY_PER_REQUEST
-    read_capacity   = 1
+    projection_type = "ALL"
+    # REMOVED: write_capacity and read_capacity
   }
 
   tags = {
@@ -35,7 +33,8 @@ resource "aws_dynamodb_table" "todolist_dynamodb_table" {
     Environment = var.environment
   }
 
-  # Explicitly set capacities (required when using GSIs with PAY_PER_REQUEST)
+  # You can keep ignore_changes as a safety net, 
+  # but removing the lines above is the real fix.
   lifecycle {
     ignore_changes = [read_capacity, write_capacity]
   }

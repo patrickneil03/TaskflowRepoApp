@@ -18,6 +18,11 @@ provider "aws" {
   region = "us-east-1"
 }
 
+data "aws_route53_zone" "shared_domain" {
+  name         = "baylenwebsite.xyz"
+  private_zone = false
+}
+
 module "s3" {
   source = "./modules/s3"
   cloudfront_distribution_arn = module.cloudfront.cloudfront_distribution_arn
@@ -27,8 +32,7 @@ module "cloudfront" {
   source = "./modules/cloudfront"
   s3_bucket_regional_domain_name = module.s3.bucket_regional_domain_name
   cert_baylenwebsite_arn = module.acm.cert_baylenwebsite_arn
-  route53_domain_name = module.route53.route53_domain_name
-  
+  route53_domain_name = var.route53_domain_name
 }
 
 module "dynamodb" {
@@ -89,17 +93,16 @@ module "api" {
 
 module "route53" {
   source = "./modules/route53"
-  cloudfront_distribution_domain_name = module.cloudfront.cloudfront_distribution_domain_name
   cloudfront_distribution_id = module.cloudfront.cloudfront_distribution_id
   domain_validation_options = module.acm.domain_validation_options
   ses_domain_identity_verification_token = module.ses.ses_domain_identity_verification_token
-  
+  route53_domain_name = var.route53_domain_name
 }
 
 module "acm" {
   source = "./modules/acm"   # Your ACM module source
-  route53_domain_name = module.route53.route53_domain_name
-  cert_validation_fqdns = module.route53.cert_validation_fqdns
+  route53_domain_name = var.route53_domain_name
+  //cert_validation_fqdns = module.route53.cert_validation_fqdns
   providers = {
     aws = aws.us_east_1   # This override forces all resources in the ACM module to use us-east-1.
   }
@@ -141,4 +144,17 @@ module "codebuild" {
   s3_bucket_my_bucket = module.s3.s3_bucket_my_bucket
   cb_role_arn = module.iam.cb_role_arn
   cloudfront_distribution_id = module.cloudfront.cloudfront_distribution_id
+}
+
+
+resource "aws_route53_record" "alias_record" {
+  zone_id = data.aws_route53_zone.shared_domain.zone_id
+  name    = var.route53_domain_name
+  type    = "A"
+
+  alias {
+    name                   = module.cloudfront.cloudfront_distribution_domain_name
+    zone_id                = module.cloudfront.cloudfront_distribution_hosted_zone_id
+    evaluate_target_health = false
+  }
 }

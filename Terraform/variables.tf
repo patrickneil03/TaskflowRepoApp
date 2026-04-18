@@ -9,8 +9,6 @@ variable "region" {
 variable "sender_email" {
   description = "Email address used to send notifications via SES"
   type        = string
-  default = "noreply@baylenwebsite.xyz"
-  
 }
 
 variable "google_client_secret" {
@@ -60,4 +58,9 @@ variable "codestar_connection_arn" {
   description = "ARN of the CodeStar connection for GitHub"
   type        = string
   sensitive   = true
+}
+
+variable "route53_domain_name" {
+  type = string
+  description = "The domain name for my portfolio"
 }
