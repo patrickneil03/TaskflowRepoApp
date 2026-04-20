@@ -115,7 +115,7 @@ terraform init
 terraform plan   # Review planned changes
 terraform apply  # Provision infrastructure
 
-### 4. Push Frontend Code to GitHub
+### 5. Push Frontend Code to GitHub
 git add .
 git commit -m "Initial deployment"
 git push origin main
