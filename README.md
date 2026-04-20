@@ -72,58 +72,44 @@ You can deploy this project in your own AWS account:
 git clone https://github.com/patrickneil03/TaskflowRepoApp.git
 
 
-2. Configure Terraform
-Update your Terraform variable files such as terraform.tfvars and secrets.auth.tfvars.
+### 2. Configure Terraform
 
-terraform.tfvars contains general infrastructure configurations.
+Update your Terraform variable files.
+
+Note: This project is designed to reference a shared Route 53 Hosted Zone managed in a separate directory. This ensures that even if you run terraform destroy on this application, your shared infrastructure (Domain/DNS) remains unaffected.
+
+terraform.tfvars (General infrastructure configurations)
+
+github_owner       = "your_github_username"
+github_repo        = "your_github_repository_name"
+github_branch      = "your_github_branch"
+sender_email = "your_email"
+route53_domain_name = "your_domain_name"
 
 secrets.auth.tfvars should contain sensitive auth secrets such as:
+
 facebook_app_id     = "your_facebook_app_id"
 facebook_app_secret = "your_facebook_app_secret"
 google_client_id    = "your_google_client_id"
 google_client_secret = "your_google_client_secret"
 codestar_connection_arn ="your_codestarconnection_arn"
 
-3. Create Google & Facebook Identity Providers for Cognito
-🔵 Google
-Go to Google Cloud Console
+### 3. Create Google & Facebook Identity Providers for Cognito
 
-Create or select a project.
+Follow the instructions in the official AWS documentation to set up your social identity providers:
 
-Go to APIs & Services > Credentials
+https://docs.aws.amazon.com/cognito/latest/developerguide/tutorial-create-user-pool-social-idp.html
 
-Create an OAuth 2.0 Client ID
 
-Application type: Web Application
+### 4. Deploy Infrastructure
 
-Authorized redirect URI:
-https://<your_cognito_domain>/oauth2/idpresponse
+Go to your code editor and make sure you are in the project's directory inside of Terraform folder.
 
-Copy the Client ID and Client Secret
-
-Add them to secrets.auth.tfvars
-
-🔵 Facebook
-Go to Facebook for Developers
-
-Create an App
-
-Navigate to Facebook Login > Settings
-
-Add the Valid OAuth Redirect URIs:
-https://<your_cognito_domain>/oauth2/idpresponse
-
-Go to Settings > Basic to get the App ID and App Secret
-
-Add them to secrets.auth.tfvars
-
-4. Deploy Infrastructure
-cd terraform/
 terraform init
 terraform plan   # Review planned changes
 terraform apply  # Provision infrastructure
 
-4. Push Frontend Code to GitHub
+### 4. Push Frontend Code to GitHub
 git add .
 git commit -m "Initial deployment"
 git push origin main
