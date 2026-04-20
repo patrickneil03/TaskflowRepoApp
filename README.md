@@ -116,11 +116,14 @@ terraform plan   # Review planned changes
 terraform apply  # Provision infrastructure
 
 ### 5. Push Frontend Code to GitHub
+
+Run the following commands to push your code. This will trigger **AWS CodePipeline**, which builds and deploys the frontend via **CodeBuild**.
+
+```bash
 git add .
 git commit -m "Initial deployment"
 git push origin main
-
-This triggers AWS CodePipeline, which builds and deploys the frontend via CodeBuild.
+```
 
 ## 🔐 Security  
 - **IAM least privilege** – Strict permissions for all roles and services  
