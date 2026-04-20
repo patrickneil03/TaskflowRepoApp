@@ -111,9 +111,11 @@ https://docs.aws.amazon.com/cognito/latest/developerguide/tutorial-create-user-p
 
 Go to your code editor and make sure you are in the project's directory inside of Terraform folder.
 
+```hcl
 terraform init
 terraform plan   # Review planned changes
 terraform apply  # Provision infrastructure
+```
 
 ### 5. Push Frontend Code to GitHub
 
