@@ -80,19 +80,25 @@ Note: This project is designed to reference a shared Route 53 Hosted Zone manage
 
 terraform.tfvars (General infrastructure configurations)
 
-github_owner       = "your_github_username"
-github_repo        = "your_github_repository_name"
-github_branch      = "your_github_branch"
-sender_email = "your_email"
-route53_domain_name = "your_domain_name"
+**terraform.tfvars**
+```hcl
+github_owner        = "your_username"
+github_repo         = "your_repo"
+github_branch       = "main"
+sender_email        = "your_email"
+route53_domain_name = "your_domain"
+```
 
 secrets.auth.tfvars should contain sensitive auth secrets such as:
 
+**secrets.auth.tfvars**
+```hcl
 facebook_app_id     = "your_facebook_app_id"
 facebook_app_secret = "your_facebook_app_secret"
 google_client_id    = "your_google_client_id"
 google_client_secret = "your_google_client_secret"
 codestar_connection_arn ="your_codestarconnection_arn"
+```
 
 ### 3. Create Google & Facebook Identity Providers for Cognito
 
