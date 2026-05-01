@@ -41,3 +41,12 @@ variable "cognito_user_pool_arn" {
   default     = ""  # This should be set to the actual Cognito User Pool ARN when using the module
   
 }
+
+variable "custom_domain_name" {
+  description = "The custom domain name for the API"
+  type        = string
+}
+
+variable "api_cert_validation_arn" {
+  description = "The arn of cert validation for api custom domain name"
+}

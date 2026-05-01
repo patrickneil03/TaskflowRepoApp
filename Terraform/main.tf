@@ -89,23 +89,35 @@ module "api" {
   account_id = data.aws_caller_identity.current.account_id
   cognito_user_pool_arn = module.cognito.cognito_user_pool_arn
   profileimagetos3_function_name = module.lambda.profileimagetos3_function_name
+  custom_domain_name = var.custom_domain_name
+  api_cert_validation_arn = module.acm.api_cert_validation_arn
 }
 
 module "route53" {
   source = "./modules/route53"
   cloudfront_distribution_id = module.cloudfront.cloudfront_distribution_id
-  domain_validation_options = module.acm.domain_validation_options
+  domain_validation_options = flatten([
+    module.acm.domain_validation_options, 
+    module.acm.domain_validation_options_api
+  ])
   ses_domain_identity_verification_token = module.ses.ses_domain_identity_verification_token
   route53_domain_name = var.route53_domain_name
+  custom_domain_name = var.custom_domain_name
+  regional_domain_name = module.api.regional_domain_name
+  regional_zone_id = module.api.regional_zone_id
 }
 
 module "acm" {
   source = "./modules/acm"   # Your ACM module source
   route53_domain_name = var.route53_domain_name
-  //cert_validation_fqdns = module.route53.cert_validation_fqdns
+  
   providers = {
-    aws = aws.us_east_1   # This override forces all resources in the ACM module to use us-east-1.
+    aws = aws  # This override forces all resources in the ACM module to use ap-southeast-1.
+    aws.us_east_1 = aws.us_east_1   # This override forces all resources in the ACM module to use us-east-1.
   }
+
+  custom_domain_name = var.custom_domain_name
+  //validation_fqdns = module.route53.validation_fqdns
   
 }
 

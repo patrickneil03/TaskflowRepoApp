@@ -26,5 +26,17 @@ variable "route53_domain_name" {
   description = "The domain name for my portfolio"
 }
 
+variable "custom_domain_name" {
+  type = string
+  description = "The custom domain name for the API"
+}
 
 
+variable "regional_domain_name" {
+  type = string
+}
+
+variable "regional_zone_id" {
+  type = string
+  description = "regional zone id for the API Gateway custom domain"
+}

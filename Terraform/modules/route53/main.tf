@@ -22,6 +22,7 @@ resource "aws_route53_record" "cert_validation" {
 
   # Time to live for the record.
   ttl     = 60
+  //allow_overwrite = true
 }
 
 resource "aws_route53_record" "ses_verification" {
@@ -30,4 +31,17 @@ resource "aws_route53_record" "ses_verification" {
   type    = "TXT"
   ttl     = 600
   records = [var.ses_domain_identity_verification_token]
+}
+
+
+resource "aws_route53_record" "api_dns" {
+  name    = var.custom_domain_name
+  type    = "A"
+  zone_id = data.aws_route53_zone.shared_domain.zone_id
+
+  alias {
+    evaluate_target_health = true
+    name                   = var.regional_domain_name
+    zone_id                = var.regional_zone_id
+  }
 }

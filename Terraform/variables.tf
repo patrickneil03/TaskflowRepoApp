@@ -64,3 +64,8 @@ variable "route53_domain_name" {
   type = string
   description = "The domain name for my portfolio"
 }
+
+variable "custom_domain_name" {
+  type = string
+  description = "The custom domain name for the API"
+}
