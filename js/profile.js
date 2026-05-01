@@ -125,7 +125,7 @@ async function handleFileUpload(file) {
 
         const requestBody = { username };
 
-        const apiUrl = "https://164yf9ouy6.execute-api.ap-southeast-1.amazonaws.com/prod/profileimagetos3";
+        const apiUrl = "https://api.baylenwebsite.xyz/prod/profileimagetos3";
 
         showMessage("Uploading...", false);
 
@@ -228,7 +228,7 @@ async function fetchProfilePicture() {
             return;
         }
 
-        const apiUrl = `https://164yf9ouy6.execute-api.ap-southeast-1.amazonaws.com/prod/profileimagetos3?username=${encodeURIComponent(username)}`;
+        const apiUrl = `https://api.baylenwebsite.xyz/prod/profileimagetos3?username=${encodeURIComponent(username)}`;
         
         const response = await fetch(apiUrl, {
 		method: "GET",

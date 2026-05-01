@@ -1,4 +1,4 @@
-const apiUrl = 'https://164yf9ouy6.execute-api.ap-southeast-1.amazonaws.com/prod/taskhandler';
+const apiUrl = 'https://api.baylenwebsite.xyz/prod/taskhandler';
 
 // Global variable to store the selected deadline
 let selectedDeadline = null;
@@ -11,7 +11,7 @@ const COGNITO_DOMAIN  = "zeref-todolist-auth.auth.ap-southeast-1.amazoncognito.c
 const REDIRECT_URI    = "https://baylenwebsite.xyz/dashboard.html";
 const LOGIN_PAGE      = "index.html";
 const TOKEN_EXCHANGE_URL =
-  "https://164yf9ouy6.execute-api.ap-southeast-1.amazonaws.com/prod/token";
+  "https://api.baylenwebsite.xyz/prod/token";
 
 // ==================================================
 // 1) Federated login helper
