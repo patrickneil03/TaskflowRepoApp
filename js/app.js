@@ -10,8 +10,7 @@ const CLIENT_ID       = "5k18fu9gla3nf1ajmgb0nu0822";
 const COGNITO_DOMAIN  = "zeref-todolist-auth.auth.ap-southeast-1.amazoncognito.com";
 const REDIRECT_URI    = "https://baylenwebsite.xyz/dashboard.html";
 const LOGIN_PAGE      = "index.html";
-const TOKEN_EXCHANGE_URL =
-  "https://api.baylenwebsite.xyz/token";
+const TOKEN_EXCHANGE_URL = "https://api.baylenwebsite.xyz/token";
 
 // ==================================================
 // 1) Federated login helper

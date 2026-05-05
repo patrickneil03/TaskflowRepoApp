@@ -87,6 +87,7 @@ github_repo         = "your_repo"
 github_branch       = "main"
 sender_email        = "your_email"
 route53_domain_name = "your_domain"
+custom_domain_name = "your_custom_domain"
 ```
 
 secrets.auth.tfvars should contain sensitive auth secrets such as:
@@ -100,14 +101,49 @@ google_client_secret = "your_google_client_secret"
 codestar_connection_arn ="your_codestarconnection_arn"
 ```
 
-### 3. Create Google & Facebook Identity Providers for Cognito
+### 3. Replace the parameters in app.js and profile.js file
+
+In app.js file, replace the line 1, 13,  with your custom domain.
+```javascript
+const apiUrl = 'https://your_custom_domain/taskhandler';
+const TOKEN_EXCHANGE_URL = "https://your_custom_domain/token";
+```
+
+In app.js file, replace the line 11, 529, with your domain name.
+```javascript
+const REDIRECT_URI    = "https://your_domain_name/dashboard.html";
+const logoutUri = "https://your_domain_name";
+```
+
+In app.js file, replace the line 9, 528 with your Cognito Client ID
+```javascript
+const CLIENT_ID       = "your_cognito_client_ID";
+const clientId = "your_cognito_client_ID";
+```
+
+In profile.js file, replace the line 128, 231 with your custom domain name
+```javascript
+const apiUrl = "https://your_custom_domain/profileimagetos3";
+const apiUrl = `https://your_custom_domain/profileimagetos3?username=${encodeURIComponent(username)}`;
+```
+
+In profile.js file, replace the line 9 with your cognito identity pool id, line 10, with your cognito userpool id, line 11, 173 with your cognito client ID, and line 174 with your domain name.
+```javascript
+const identityPoolId = "your_cognito_identity_pool_ID";
+const userPoolId = "your_userpool_id";
+const clientId = "your_cognito_client_ID";
+const logoutUri = "https://your_domain_name";
+```
+
+
+### 4. Create Google & Facebook Identity Providers for Cognito
 
 Follow the instructions in the official AWS documentation to set up your social identity providers:
 
 https://docs.aws.amazon.com/cognito/latest/developerguide/tutorial-create-user-pool-social-idp.html
 
 
-### 4. Deploy Infrastructure
+### 5. Deploy Infrastructure
 
 Go to your code editor and make sure you are in the project's directory inside of Terraform folder.
 
@@ -117,7 +153,7 @@ terraform plan   # Review planned changes
 terraform apply  # Provision infrastructure
 ```
 
-### 5. Push Frontend Code to GitHub
+### 6. Push Frontend Code to GitHub
 
 Run the following commands to push your code. This will trigger **AWS CodePipeline**, which builds and deploys the frontend via **CodeBuild**.
 
