@@ -67,7 +67,32 @@ This project demonstrates a real-world, production-grade cloud application with:
 
 You can deploy this project in your own AWS account:
 
-### 1. Clone the repo
+### Clone the repository for route53 hostedzone
+
+- Note: This project is designed to reference a shared Route 53 Hosted Zone managed in a separate directory. This ensures that even if you run terraform destroy on this application, your shared infrastructure (Domain/DNS) remains unaffected.
+
+git clone https://github.com/patrickneil03/Route53hostedzone.git
+
+```Bash
+cd Terraform
+```
+
+- Create a terraform.tfvars file inside Terraform folder then replace the parameters with your own.
+
+```hcl
+domain_name = "your_registered_domain_name"
+aws_region = "your_aws_region"
+```
+
+- Apply the changes
+
+```hcl
+terraform init
+terraform plan
+terraform apply
+```
+
+### 1. Clone the repo for askflowRepoApp
 
 git clone https://github.com/patrickneil03/TaskflowRepoApp.git
 
@@ -76,7 +101,6 @@ git clone https://github.com/patrickneil03/TaskflowRepoApp.git
 
 Update your Terraform variable files.
 
-Note: This project is designed to reference a shared Route 53 Hosted Zone managed in a separate directory. This ensures that even if you run terraform destroy on this application, your shared infrastructure (Domain/DNS) remains unaffected.
 
 terraform.tfvars (General infrastructure configurations)
 
