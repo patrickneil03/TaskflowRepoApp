@@ -84,3 +84,14 @@ variable "codestar_connection_arn" {
   sensitive   = true
   
 }
+
+variable "sqs_queue_arn" {
+  description = "The ARN of the SQS queue for task processing"
+  type        = string
+}
+
+variable "dynamodb_table_arn" {
+  description = "The ARN of the DynamoDB table for TodoList website"
+  type        = string
+
+}

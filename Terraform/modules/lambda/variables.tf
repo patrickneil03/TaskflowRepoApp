@@ -61,3 +61,9 @@ variable "timezone" {
   type        = string
   default     = "Asia/Manila"  # Default to UTC if not specified
 }
+
+variable "sqs_queue_url" {
+  description = "The URL of the SQS queue for task processing"
+  type        = string
+  
+}

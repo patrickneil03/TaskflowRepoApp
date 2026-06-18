@@ -21,6 +21,11 @@ resource "aws_lambda_function" "TaskHandler" {
   handler          = "task-handler.lambda_handler"  
   runtime          = "python3.12"
   source_code_hash = filebase64sha256("${path.module}/lambda-function/task-handler.zip")
+  environment {
+    variables = {
+      SQS_QUEUE_URL = var.sqs_queue_url
+    }
+  }
 }
 
 resource "aws_lambda_function" "NotificationHandler" {

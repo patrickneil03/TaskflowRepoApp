@@ -1,6 +1,9 @@
 import json
 import boto3
 import logging
+import os
+sqs = boto3.client('sqs')
+QUEUE_URL = os.environ.get('SQS_QUEUE_URL')
 import uuid
 from boto3.dynamodb.conditions import Key
 from datetime import datetime
@@ -45,12 +48,12 @@ def lambda_handler(event, context):
             'body': json.dumps({'message': 'Unauthorized'})
         }
 
-    # POST /taskhandler - Create a new task
+    # POST /taskhandler - Create a new task (Now routes to SQS)
     if resource == '/taskhandler' and method == 'POST':
         try:
             task_id = str(uuid.uuid4())
             task_text = body.get('taskText', '')
-            deadline = body.get('deadline', None)  # Optional deadline
+            deadline = body.get('deadline', None)
             
             if not task_text:
                 return {
@@ -62,7 +65,7 @@ def lambda_handler(event, context):
             local_tz = ZoneInfo("Asia/Manila")
             created_at = datetime.now(local_tz).strftime('%m/%d/%y %H:%M')
             
-            # Base item structure
+            # 1. Construct the payload exactly as you did before
             item = {
                 'userId': user_id,
                 'taskId': task_id,
@@ -70,32 +73,35 @@ def lambda_handler(event, context):
                 'createdAt': created_at
             }
             
-            # Only add deadline if provided and valid
             if deadline:
                 try:
-                    # Validate ISO format but keep as string
                     datetime.fromisoformat(deadline)
                     item['deadline'] = deadline
                 except ValueError:
                     return {
                         'statusCode': 400,
                         'headers': headers,
-                        'body': json.dumps({'message': 'Invalid deadline format. Use ISO 8601 (YYYY-MM-DDTHH:MM:SS)'})
+                        'body': json.dumps({'message': 'Invalid deadline format.'})
                     }
 
-            logger.info(f"Adding task: {item}")
-            table.put_item(Item=item)
+            # 2. INSTEAD OF table.put_item(), push to SQS!
+            logger.info(f"Sending task metadata to SQS: {item}")
+            sqs.send_message(
+                QueueUrl=QUEUE_URL,
+                MessageBody=json.dumps(item)
+            )
 
+            # 3. Return an instant success code to API Gateway!
             return {
-                'statusCode': 200,
+                'statusCode': 202, # 202 Accepted is standard for async operations
                 'headers': headers,
                 'body': json.dumps({
-                    'message': 'Task added successfully',
+                    'message': 'Task submitted to queue successfully',
                     'taskId': task_id
                 })
             }
         except Exception as e:
-            logger.error(f"Error adding task: {str(e)}")
+            logger.error(f"Error queuing task: {str(e)}")
             return {
                 'statusCode': 500,
                 'headers': headers,

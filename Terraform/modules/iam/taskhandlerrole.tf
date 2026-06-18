@@ -19,6 +19,25 @@ resource "aws_iam_role_policy_attachment" "lambda_logs_taskhandler" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+# This gives your producer lambda permission to send messages to the queue
+resource "aws_iam_role_policy" "producer_sqs_policy" {
+  name = "ProducerSQSPolicy"
+  role = aws_iam_role.TaskHandlerRole.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect   = "Allow",
+        Action   = [
+          "sqs:SendMessage"
+        ],
+        Resource = var.sqs_queue_arn
+      }
+    ]
+  })
+}
+
 resource "aws_iam_role_policy" "crudinline_policy" {
   name = "CrudInlinePolicy"
   role = aws_iam_role.TaskHandlerRole.id

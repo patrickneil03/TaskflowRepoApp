@@ -63,6 +63,8 @@ module "iam" {
   s3_bucket_name_artifact = module.s3.s3_bucket_name_artifact
   cloudfront_distribution_id = module.cloudfront.cloudfront_distribution_id
   codestar_connection_arn = var.codestar_connection_arn
+  sqs_queue_arn = module.sqs.sqs_queue_arn
+  dynamodb_table_arn = module.dynamodb.dynamodb_table_arn
  
 }
 
@@ -78,6 +80,7 @@ module "lambda" {
   dynamodb_table_name = module.dynamodb.dynamodb_table_name
   notifications_role_arn = module.iam.notifications_role_arn
   sender_email = var.sender_email
+  sqs_queue_url = module.sqs.sqs_queue_url
 }
 
 data "aws_caller_identity" "current" {}
@@ -156,6 +159,10 @@ module "codebuild" {
   s3_bucket_my_bucket = module.s3.s3_bucket_my_bucket
   cb_role_arn = module.iam.cb_role_arn
   cloudfront_distribution_id = module.cloudfront.cloudfront_distribution_id
+}
+
+module "sqs" {
+  source = "./modules/sqs"
 }
 
 
