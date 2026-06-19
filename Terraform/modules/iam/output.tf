@@ -8,6 +8,11 @@ output "taskhandler_role_arn" {
   description = "value of the TaskHandlerRole ARN"
 }
 
+output "taskconsumer_role_arn" {
+  value = aws_iam_role.TaskConsumerRole.arn
+  description = "value of the TaskConsumerRole ARN"
+}
+
 output "uploadimagetos3_role_arn" {
   value = aws_iam_role.UploadImageToS3.arn
   description = "value of the UploadImageToS3 ARN"

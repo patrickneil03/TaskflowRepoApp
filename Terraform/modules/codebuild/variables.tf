@@ -15,3 +15,15 @@ variable "cloudfront_distribution_id" {
   type        = string
   
 }
+
+variable "cognito_client_id" {
+  description = "The ID of the Cognito User Pool Client."
+  type        = string
+  
+}
+
+variable "custom_cognito_domain" {
+  description = "The custom domain name for the Cognito User Pool."
+  type        = string
+  
+}

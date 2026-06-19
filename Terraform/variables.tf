@@ -69,3 +69,8 @@ variable "custom_domain_name" {
   type = string
   description = "The custom domain name for the API"
 }
+
+variable "custom_cognito_domain" {
+  type = string
+  description = "The custom domain name for Cognito"
+}

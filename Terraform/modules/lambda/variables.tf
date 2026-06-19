@@ -10,6 +10,18 @@ variable "taskhandler_role_arn" {
   
 }
 
+variable "taskconsumer_role_arn" {
+  description = "ARN of the TaskConsumerRole"
+  type        = string
+  
+}
+
+variable "sqs_queue_arn" {
+  description = "The ARN of the SQS queue for task processing"
+  type        = string
+
+}
+
 variable "uploadimagetos3_role_arn" {
   description = "ARN of the UploadImageToS3 role"
   type        = string

@@ -1,3 +1,4 @@
+# --- API CERTIFICATE ---
 resource "aws_acm_certificate" "api_cert" {
   domain_name       = var.custom_domain_name
   validation_method = "DNS"
@@ -9,5 +10,8 @@ resource "aws_acm_certificate" "api_cert" {
 
 resource "aws_acm_certificate_validation" "api_cert_validation" {
   certificate_arn         = aws_acm_certificate.api_cert.arn
-  //validation_record_fqdns = var.validation_fqdns
+  # ✅ FIXED: Uncommented and mapped to the proper validation records loop output
+  validation_record_fqdns = var.api_validation_fqdns
 }
+
+

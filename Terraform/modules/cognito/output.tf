@@ -19,3 +19,8 @@ output "cognito_client_secret" {
   description = "The secret of the Cognito App Client"
   
 }
+
+output "cloudfront_distribution_domain" {
+  # ✅ FIX: Use .cloudfront_distribution instead of .cloudfront_distribution_arn
+  value = aws_cognito_user_pool_domain.cognito_domain.cloudfront_distribution
+}

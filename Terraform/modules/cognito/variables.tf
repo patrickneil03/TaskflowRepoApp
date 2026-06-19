@@ -39,11 +39,9 @@ variable "facebook_client_secret" {
   
 }
 
-variable "MytodoListweb_cognito_domain" {
+variable "custom_cognito_domain" {
   description = "The domain for the Cognito user pool"
   type        = string
-  default     = "zeref-todolist-auth"
-  
 }
 
 variable "region" {
@@ -57,4 +55,10 @@ variable "uploadimagetos3_role_arn" {
   description = "The ARN of the Upload Image to S3 Role"
   type        = string
   
+}
+
+variable "cognito_cert_validation_arn" {
+  description = "The ARN of the ACM certificate validation resource for Cognito"
+  type        = string
+
 }

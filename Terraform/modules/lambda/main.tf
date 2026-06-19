@@ -28,6 +28,30 @@ resource "aws_lambda_function" "TaskHandler" {
   }
 }
 
+resource "aws_lambda_function" "TaskConsumer" {
+  filename         = "${path.module}/lambda-function/task-consumer.zip"
+  function_name    = "TaskConsumer"
+  role             = var.taskconsumer_role_arn # Attaches your newly built consumer role
+  handler          = "task-consumer.lambda_handler"  
+  runtime          = "python3.12"                      # Matches your python3.12 standard
+  timeout          = 30                                # Safe buffer for processing queue batches
+  source_code_hash = filebase64sha256("${path.module}/lambda-function/task-consumer.zip")
+
+  environment {
+    variables = {
+      DYNAMODB_TABLE = var.dynamodb_table_name
+    }
+  }
+}
+
+# The Trigger Event that connects SQS to this Consumer Function
+resource "aws_lambda_event_source_mapping" "sqs_to_lambda_trigger" {
+  event_source_arn = var.sqs_queue_arn
+  function_name    = aws_lambda_function.TaskConsumer.arn
+  batch_size       = 10   # Pulls up to 10 items at once from SQS for processing efficiency
+  enabled          = true
+}
+
 resource "aws_lambda_function" "NotificationHandler" {
   filename         = "${path.module}/lambda-function/notif-handler.zip"
   function_name    = "NotificationHandler"

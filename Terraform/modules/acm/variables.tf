@@ -15,8 +15,25 @@ variable "custom_domain_name" {
   type        = string
 }
 
-variable "validation_fqdns" {
-  description = "validation_fqdns for the ACM certificate validation"
+variable "api_validation_fqdns" {
+  description = "FQDNs of the Route53 records created for API certificate validation"
   type    = list(string)
   default = []
+}
+
+variable "cognito_validation_fqdns" {
+  description = "FQDNs of the Route53 records created for Cognito certificate validation"
+  type    = list(string)
+  default = []
+}
+
+variable "custom_cognito_domain" {
+  description = "The custom domain name for Cognito"
+  type        = string
+}
+
+variable "route53_validation_records" {
+  description = "FQDNs of the Route53 records created for Cognito certificate validation"
+  type        = list(string)
+  default     = []  # Default value can be overridden
 }

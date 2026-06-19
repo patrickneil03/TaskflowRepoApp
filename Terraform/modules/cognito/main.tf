@@ -114,8 +114,7 @@ resource "aws_cognito_identity_provider" "facebook" {
 }
 
 resource "aws_cognito_user_pool_domain" "cognito_domain" {
-  # Replace with your chosen unique domain prefix.
-  domain       = var.MytodoListweb_cognito_domain
-  user_pool_id = aws_cognito_user_pool.my_user_pool.id
+  domain          = var.custom_cognito_domain
+  user_pool_id    = aws_cognito_user_pool.my_user_pool.id
+  certificate_arn = var.cognito_cert_validation_arn
 }
-

@@ -16,10 +16,21 @@ resource "aws_acm_certificate" "cert_baylenwebsite" {
   validation_method = "DNS"
 }
 
-//resource "aws_acm_certificate_validation" "cert_validation" {
- // certificate_arn         = aws_acm_certificate.cert_baylenwebsite.arn
- // validation_record_fqdns = var.cert_validation_fqdns
-//}
+# --- COGNITO CERTIFICATE (Must be us-east-1) ---
+resource "aws_acm_certificate" "cognito_cert" {
+  provider          = aws.us_east_1
+  domain_name       = var.custom_cognito_domain
+  validation_method = "DNS"
 
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_acm_certificate_validation" "cognito_cert_validation" {
+  provider                = aws.us_east_1 
+  certificate_arn         = aws_acm_certificate.cognito_cert.arn
+  validation_record_fqdns = var.cognito_validation_fqdns
+}
 
 

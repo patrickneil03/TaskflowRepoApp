@@ -16,6 +16,11 @@ variable "domain_validation_options" {
   
 }
 
+variable "cloudfront_distribution_arn" {
+  description = "The ARN of the CloudFront distribution"
+  type        = string
+}
+
 
 variable "ses_domain_identity_verification_token" {
   description = "verification token fir ses domain"
@@ -31,6 +36,10 @@ variable "custom_domain_name" {
   description = "The custom domain name for the API"
 }
 
+variable "custom_cognito_domain" {
+  type = string
+  description = "The custom domain name for Cognito"
+}
 
 variable "regional_domain_name" {
   type = string
@@ -39,4 +48,19 @@ variable "regional_domain_name" {
 variable "regional_zone_id" {
   type = string
   description = "regional zone id for the API Gateway custom domain"
+}
+
+variable "domain_validation_options_api" {
+  type = any
+  description = "DNS validation options for the API Gateway certificate"
+}
+
+variable "domain_validation_options_cognito" {
+  type = any
+  description = "DNS validation options for the Cognito Custom Domain certificate"
+}
+
+variable "cognito_cloudfront_distribution_domain" {
+  type = string
+  description = "The CloudFront distribution domain name for the Cognito Custom Domain"
 }

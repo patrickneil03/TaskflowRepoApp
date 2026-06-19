@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome to Your To-Do List</title>
-    <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=300;400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -54,17 +53,14 @@
 <body class="selection:bg-indigo-300 selection:text-indigo-900">
 
     <div class="card p-8 md:p-12 rounded-xl max-w-2xl w-full text-center">
-        <!-- Main Heading -->
         <h1 class="text-indigo-700 text-4xl sm:text-5xl font-extrabold mb-4 leading-tight">
             Welcome to <span class="text-purple-600">TaskFlow</span>
         </h1>
 
-        <!-- Subtitle/Tagline -->
         <p class="text-gray-600 text-lg sm:text-xl mb-8 leading-relaxed">
             Your intuitive partner for mastering daily tasks and achieving your goals.
         </p>
 
-        <!-- Feature List or Key Benefits -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
             <div class="flex flex-col items-center p-4 bg-indigo-50/50 rounded-lg shadow-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-indigo-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -89,17 +85,16 @@
             </div>
         </div>
 
-        <!-- Call to Action Button -->
-        <a href="https://zeref-todolist-auth.auth.ap-southeast-1.amazoncognito.com/login?client_id=5b0hq83r91i8l3jqlmduc5op1s&response_type=code&scope=email+openid+profile&redirect_uri=https%3A%2F%2Fbaylenwebsite.xyz%2Fdashboard.html">
+        <a href="https://__CUSTOM_COGNITO_DOMAIN__/login?client_id=__COGNITO_CLIENT_ID__&response_type=code&scope=email+openid+profile&redirect_uri=https%3A%2F%2Fbaylenwebsite.xyz%2Fdashboard.html" 
+           class="button-primary inline-flex items-center justify-center text-white font-semibold py-3 px-8 rounded-lg shadow-md transition duration-300">
             Get Started Now
             <svg xmlns="http://www.w3.org/2000/svg" class="ml-3 -mr-1 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
             </svg>
         </a>
 
-        <!-- Small Footer or Privacy Link (Optional) -->
         <p class="mt-8 text-gray-400 text-sm">
-            &copy; 2025 TaskFlow. All rights reserved.
+            &copy; 2026 TaskFlow. All rights reserved.
         </p>
     </div>
 

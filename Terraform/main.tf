@@ -46,7 +46,8 @@ module "cognito" {
   facebook_client_secret = var.facebook_client_secret
   google_client_id = var.google_client_id
   facebook_app_id = var.facebook_app_id
-  
+  custom_cognito_domain = var.custom_cognito_domain
+  cognito_cert_validation_arn = module.acm.cognito_cert_validation_arn
 }
 
 module "iam" {
@@ -81,6 +82,8 @@ module "lambda" {
   notifications_role_arn = module.iam.notifications_role_arn
   sender_email = var.sender_email
   sqs_queue_url = module.sqs.sqs_queue_url
+  taskconsumer_role_arn = module.iam.taskconsumer_role_arn
+  sqs_queue_arn = module.sqs.sqs_queue_arn
 }
 
 data "aws_caller_identity" "current" {}
@@ -108,6 +111,11 @@ module "route53" {
   custom_domain_name = var.custom_domain_name
   regional_domain_name = module.api.regional_domain_name
   regional_zone_id = module.api.regional_zone_id
+  custom_cognito_domain = var.custom_cognito_domain
+  domain_validation_options_cognito = module.acm.domain_validation_options_cognito
+  domain_validation_options_api = module.acm.domain_validation_options_api
+  cognito_cloudfront_distribution_domain = module.cognito.cloudfront_distribution_domain
+  cloudfront_distribution_arn = module.cognito.cloudfront_distribution_domain
 }
 
 module "acm" {
@@ -120,6 +128,7 @@ module "acm" {
   }
 
   custom_domain_name = var.custom_domain_name
+  custom_cognito_domain = var.custom_cognito_domain
   //validation_fqdns = module.route53.validation_fqdns
   
 }
@@ -159,6 +168,8 @@ module "codebuild" {
   s3_bucket_my_bucket = module.s3.s3_bucket_my_bucket
   cb_role_arn = module.iam.cb_role_arn
   cloudfront_distribution_id = module.cloudfront.cloudfront_distribution_id
+  cognito_client_id = module.cognito.cognito_client_id
+  custom_cognito_domain = var.custom_cognito_domain
 }
 
 module "sqs" {
