@@ -6,10 +6,12 @@ resource "aws_lambda_function" "TokenHandlerCognito" {
   handler          = "token-handler.lambda_handler"  
   runtime          = "python3.12"
   source_code_hash = filebase64sha256("${path.module}/lambda-function/token-handler.zip")
+  
   environment {
     variables = {
-      CLIENT_ID = var.cognito_client_id
-      CLIENT_SECRET = var.cognito_client_secret
+      CLIENT_ID             = var.cognito_client_id
+      CLIENT_SECRET         = var.cognito_client_secret
+      CUSTOM_COGNITO_DOMAIN = var.custom_cognito_domain
     }
   }
 }

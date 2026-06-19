@@ -84,6 +84,7 @@ module "lambda" {
   sqs_queue_url = module.sqs.sqs_queue_url
   taskconsumer_role_arn = module.iam.taskconsumer_role_arn
   sqs_queue_arn = module.sqs.sqs_queue_arn
+  custom_cognito_domain = var.custom_cognito_domain
 }
 
 data "aws_caller_identity" "current" {}

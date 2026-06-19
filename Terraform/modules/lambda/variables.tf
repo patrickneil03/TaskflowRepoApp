@@ -79,3 +79,9 @@ variable "sqs_queue_url" {
   type        = string
   
 }
+
+variable "custom_cognito_domain" {
+  description = "Custom domain name for Cognito User Pool"
+  type        = string
+
+}
