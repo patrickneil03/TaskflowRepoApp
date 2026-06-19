@@ -62,15 +62,17 @@ phases:
       - sed -i "s/__CUSTOM_COGNITO_DOMAIN__/$CUSTOM_COGNITO_DOMAIN/g" index.html
       - sed -i "s/__COGNITO_CLIENT_ID__/$COGNITO_CLIENT_ID/g" index.html
 
-      - echo "✏️ Injecting dynamic endpoints into app.js..."
-      - sed -i "s/__CUSTOM_COGNITO_DOMAIN__/$CUSTOM_COGNITO_DOMAIN/g" app.js
-      - sed -i "s/__COGNITO_CLIENT_ID__/$COGNITO_CLIENT_ID/g" app.js
+      # ✅ FIXED: Adjusted paths to match your /js directory structure
+      - echo "✏️ Injecting dynamic endpoints into js/app.js..."
+      - sed -i "s/__CUSTOM_COGNITO_DOMAIN__/$CUSTOM_COGNITO_DOMAIN/g" js/app.js
+      - sed -i "s/__COGNITO_CLIENT_ID__/$COGNITO_CLIENT_ID/g" js/app.js
 
-      - echo "✏️ Injecting dynamic endpoints into profile.js..."
-      - sed -i "s/__CUSTOM_COGNITO_DOMAIN__/$CUSTOM_COGNITO_DOMAIN/g" profile.js
-      - sed -i "s/__COGNITO_CLIENT_ID__/$COGNITO_CLIENT_ID/g" profile.js
-      - sed -i "s/__IDENTITY_POOL_ID__/$IDENTITY_POOL_ID/g" profile.js
-      - sed -i "s/__USER_POOL_ID__/$USER_POOL_ID/g" profile.js
+      # ✅ FIXED: Adjusted paths to match your /js directory structure
+      - echo "✏️ Injecting dynamic endpoints into js/profile.js..."
+      - sed -i "s/__CUSTOM_COGNITO_DOMAIN__/$CUSTOM_COGNITO_DOMAIN/g" js/profile.js
+      - sed -i "s/__COGNITO_CLIENT_ID__/$COGNITO_CLIENT_ID/g" js/profile.js
+      - sed -i "s/__IDENTITY_POOL_ID__/$IDENTITY_POOL_ID/g" js/profile.js
+      - sed -i "s/__USER_POOL_ID__/$USER_POOL_ID/g" js/profile.js
 
       - echo "🔄 Syncing only frontend files (excluding Terraform, Git, README)"
       - >
