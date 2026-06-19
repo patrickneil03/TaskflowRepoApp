@@ -27,3 +27,13 @@ variable "custom_cognito_domain" {
   type        = string
   
 }
+
+variable "identity_pool_id" {
+  description = "The ID of the Cognito Identity Pool."
+  type        = string
+}
+
+variable "user_pool_id" {
+  description = "The ID of the Cognito User Pool."
+  type        = string
+}

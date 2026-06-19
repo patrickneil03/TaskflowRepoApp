@@ -22,10 +22,19 @@ resource "aws_codebuild_project" "frontend_sync" {
       value = var.cognito_client_id
     }
 
-    # ✅ ADDED: Expose the Custom Cognito Domain as a container environment variable
     environment_variable {
       name  = "CUSTOM_COGNITO_DOMAIN"
       value = var.custom_cognito_domain
+    }
+
+    environment_variable {
+      name  = "IDENTITY_POOL_ID"
+      value = var.identity_pool_id
+    }
+
+    environment_variable {
+      name  = "USER_POOL_ID"
+      value = var.user_pool_id
     }
   }
 
@@ -39,18 +48,29 @@ env:
     TARGET_BUCKET: "${var.s3_bucket_my_bucket}"
     CLOUDFRONT_DISTRIBUTION_ID: "${var.cloudfront_distribution_id}"
     COGNITO_CLIENT_ID: "${var.cognito_client_id}"
-    CUSTOM_COGNITO_DOMAIN: "${var.custom_cognito_domain}" # ✅ ADDED: Map it to the buildspec environment
+    CUSTOM_COGNITO_DOMAIN: "${var.custom_cognito_domain}"
+    IDENTITY_POOL_ID: "${var.identity_pool_id}"
+    USER_POOL_ID: "${var.user_pool_id}"
 
 phases:
   build:
     commands:
-      - echo "🗺️ Listing local files"
+      - echo "🗺️ Listing workspace local files"
       - ls -R .
 
-      # ✅ UPDATED: String substitution replaces BOTH placeholders in index.html before deployment
       - echo "✏️ Injecting dynamic endpoints into index.html..."
       - sed -i "s/__CUSTOM_COGNITO_DOMAIN__/$CUSTOM_COGNITO_DOMAIN/g" index.html
       - sed -i "s/__COGNITO_CLIENT_ID__/$COGNITO_CLIENT_ID/g" index.html
+
+      - echo "✏️ Injecting dynamic endpoints into app.js..."
+      - sed -i "s/__CUSTOM_COGNITO_DOMAIN__/$CUSTOM_COGNITO_DOMAIN/g" app.js
+      - sed -i "s/__COGNITO_CLIENT_ID__/$COGNITO_CLIENT_ID/g" app.js
+
+      - echo "✏️ Injecting dynamic endpoints into profile.js..."
+      - sed -i "s/__CUSTOM_COGNITO_DOMAIN__/$CUSTOM_COGNITO_DOMAIN/g" profile.js
+      - sed -i "s/__COGNITO_CLIENT_ID__/$COGNITO_CLIENT_ID/g" profile.js
+      - sed -i "s/__IDENTITY_POOL_ID__/$IDENTITY_POOL_ID/g" profile.js
+      - sed -i "s/__USER_POOL_ID__/$USER_POOL_ID/g" profile.js
 
       - echo "🔄 Syncing only frontend files (excluding Terraform, Git, README)"
       - >

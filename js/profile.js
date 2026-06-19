@@ -4,11 +4,12 @@ if (typeof AmazonCognitoIdentity === 'undefined') {
 }
 
 // AWS Configuration
-
-const region = "ap-southeast-1";
-const identityPoolId = "ap-southeast-1:3b4324f5-c724-46c5-aa69-c74719e681c7";
-const userPoolId = "ap-southeast-1_7IsLb8ddk";
-const clientId = "5b0hq83r91i8l3jqlmduc5op1s";
+// ✅ INJECTED BY CODEBUILD PIPELINE
+const region         = "ap-southeast-1";
+const identityPoolId = "__IDENTITY_POOL_ID__";
+const userPoolId     = "__USER_POOL_ID__";
+const clientId       = "__COGNITO_CLIENT_ID__";
+const COGNITO_DOMAIN = "__CUSTOM_COGNITO_DOMAIN__";
 
 // Set up Cognito User Pool
 let userPool;
@@ -41,34 +42,26 @@ let selectedFile = null; // To store the file chosen by the user
 
 // Utility function to show messages to user
 const showMessage = (message, isError = false) => {
-  // 1) Force it visible (override your style="display:none")
   uploadStatus.style.display = 'block';
-
-  // 2) Clear any leftover classes/backgrounds
   uploadStatus.className = 'status-message show';
   uploadStatus.style.backgroundColor = 'transparent'; 
   uploadStatus.style.color = isError ? 'red' : 'green';
-
-  // 3) Set the text
   uploadStatus.textContent = message;
 
-  // 4) Fade out after 3s, then clear and hide again
   setTimeout(() => {
     uploadStatus.classList.remove('show');
     setTimeout(() => {
       uploadStatus.textContent = '';
-      uploadStatus.style.display = '';  // re-apply the original inline none
-    }, 300); // give CSS transition time
+      uploadStatus.style.display = ''; 
+    }, 300); 
   }, 3000);
 };
-
 
 // Function to convert file to base64 string
 function fileToBase64(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => {
-            // Remove the data URL part and only return base64 string
             resolve(reader.result.split(',')[1]);
         };
         reader.onerror = error => reject(error);
@@ -80,7 +73,7 @@ function fileToBase64(file) {
 function displayImagePreview(file) {
     const reader = new FileReader();
     reader.onload = () => {
-        profilePic.src = reader.result; // Show preview
+        profilePic.src = reader.result; 
     };
     reader.readAsDataURL(file);
 }
@@ -122,9 +115,7 @@ async function handleFileUpload(file) {
 
         const payload = JSON.parse(atob(authToken.split('.')[1]));
         const username = payload['cognito:username'];
-
         const requestBody = { username };
-
         const apiUrl = "https://api.baylenwebsite.xyz/profileimagetos3";
 
         showMessage("Uploading...", false);
@@ -160,20 +151,18 @@ async function handleFileUpload(file) {
         }
 
         showMessage("Profile Picture uploaded successfully!", false);
-        await fetchProfilePicture(); // Refresh the profile picture
+        await fetchProfilePicture(); 
     } catch (error) {
         console.error("Hybrid Upload Error:", error);
         showMessage("Upload failed", true);
     }
 }
 
-
 // Logout Handler
 document.getElementById("logoutBtn").addEventListener("click", () => {
-  const clientId = "5b0hq83r91i8l3jqlmduc5op1s";
     const logoutUri = "https://baylenwebsite.xyz";
-    const cognitoDomain = "https://zeref-todolist-auth.auth.ap-southeast-1.amazoncognito.com";
-    window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
+    // ✅ FIXED: Cleans up session against dynamic identity stack
+    window.location.href = `https://${COGNITO_DOMAIN}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
 });
 
 // Event listener for file input change event (choosing file)
@@ -181,26 +170,22 @@ fileInput.addEventListener("change", async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validate file type (only image files allowed)
     if (!file.type.startsWith('image/')) {
         showMessage("Only image files are allowed", true);
         return;
     }
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
         showMessage("File size must be less than 5MB", true);
         return;
     }
 
-    selectedFile = file; // Save the selected file for later upload
-    displayImagePreview(file); // Show preview immediately
-
-    // Enable the upload button now that a file is selected
+    selectedFile = file; 
+    displayImagePreview(file); 
     uploadBtn.disabled = false;
 });
 
-// Event listener for Upload Button click (triggers the upload to Lambda)
+// Event listener for Upload Button click
 uploadBtn.addEventListener("click", async () => {
     if (!selectedFile) {
         showMessage("Please choose a file first", true);
@@ -231,21 +216,18 @@ async function fetchProfilePicture() {
         const apiUrl = `https://api.baylenwebsite.xyz/profileimagetos3?username=${encodeURIComponent(username)}`;
         
         const response = await fetch(apiUrl, {
-		method: "GET",
-		headers: {
-		"Authorization": authToken
-		}
-		});
-
+            method: "GET",
+            headers: {
+                "Authorization": authToken
+            }
+        });
 
         if (response.status === 404) {
-            // Expected missing image case
             profilePic.src = defaultImage;
             return;
         }
 
         if (!response.ok) {
-            // Handle other errors (including 500)
             console.error("Unexpected error:", response.status);
             profilePic.src = defaultImage;
             return;
@@ -260,8 +242,6 @@ async function fetchProfilePicture() {
     }
 }
 
-
-
 // Initialize the profile page
 document.addEventListener('DOMContentLoaded', async () => {
     try {
@@ -275,11 +255,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        await fetchUserProfile(); // Fetch and display username & email
-        await fetchProfilePicture(); // Fetch and display profile picture
+        await fetchUserProfile(); 
+        await fetchProfilePicture(); 
     } catch (error) {
         console.error('Initialization error:', error);
         setTimeout(() => window.location.href = "index.html", 2000);
     }
 });
-

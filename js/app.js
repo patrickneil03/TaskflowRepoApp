@@ -6,10 +6,11 @@ let selectedDeadline = null;
 // ==================================================
 // Config & Constants
 // ==================================================
-const CLIENT_ID       = "5k18fu9gla3nf1ajmgb0nu0822";
-const COGNITO_DOMAIN  = "zeref-todolist-auth.auth.ap-southeast-1.amazoncognito.com";
-const REDIRECT_URI    = "https://baylenwebsite.xyz/dashboard.html";
-const LOGIN_PAGE      = "index.html";
+// ✅ INJECTED BY CODEBUILD PIPELINE
+const CLIENT_ID          = "__COGNITO_CLIENT_ID__";
+const COGNITO_DOMAIN     = "__CUSTOM_COGNITO_DOMAIN__";
+const REDIRECT_URI       = "https://baylenwebsite.xyz/dashboard.html";
+const LOGIN_PAGE         = "index.html";
 const TOKEN_EXCHANGE_URL = "https://api.baylenwebsite.xyz/token";
 
 // ==================================================
@@ -108,8 +109,6 @@ function isTokenExpired(token) {
   }
 }
 
-
-
 // Initialize deadline functionality
 document.addEventListener('DOMContentLoaded', function() {
     const deadlineToggle = document.getElementById('deadline-toggle');
@@ -177,10 +176,6 @@ function getDeadlineClass(deadline) {
     if (hoursUntilDeadline < 24) return 'deadline-warning'; // Due within 24 hours
     return '';
 }
-
-
-
-
 
 function showInlineDeadlineEditor(taskId) {
   const editor = document.getElementById(`deadline-editor-${taskId}`);
@@ -286,17 +281,14 @@ async function fetchTodos() {
   }
 }
 
-
-
 function triggerDatePicker(taskId) {
   const input = document.getElementById(`deadline-editor-${taskId}`);
-  if (input) input.showPicker?.() || input.focus(); // `showPicker()` for modern browsers, fallback to focus
+  if (input) input.showPicker?.() || input.focus();
 }
-
 
 // Function to create a new todo
 async function createTodo() {
-    idToken = localStorage.getItem('authToken');
+    let idToken = localStorage.getItem('authToken');
     console.log('Fetched ID token:', idToken);
 
     if (!idToken) {
@@ -316,12 +308,10 @@ async function createTodo() {
         return;
     }
 
-    // Prepare the todo data with optional deadline
     const todoData = {
         taskText: text
     };
 
-    // Add deadline if it was set
     if (selectedDeadline) {
         todoData.deadline = selectedDeadline;
         console.log('Creating todo with deadline:', selectedDeadline);
@@ -344,11 +334,9 @@ async function createTodo() {
             throw new Error(`Failed to create todo: ${errorData.message || response.statusText}`);
         }
 
-        // Reset form and deadline selection
         document.getElementById('new-todo').value = '';
         selectedDeadline = null;
         
-        // Reset deadline button visual state if it exists
         const deadlineToggle = document.getElementById('deadline-toggle');
         if (deadlineToggle) {
             deadlineToggle.innerHTML = `<i class="far fa-calendar-alt"></i> Set Deadline`;
@@ -361,8 +349,6 @@ async function createTodo() {
         displayErrorMessage(`Error creating todo: ${error.message || 'Unknown error'}`);
     }
 }
-
-
 
 //function for update deadline for tasks
 async function updateDeadline(taskId, newDeadline) {
@@ -377,9 +363,7 @@ async function updateDeadline(taskId, newDeadline) {
         'Authorization': `Bearer ${idToken}`
       },
      body: JSON.stringify({
-  deadline: newDeadline,
- 
- // reset notification flag
+       deadline: newDeadline
       })
     });
 
@@ -387,7 +371,6 @@ async function updateDeadline(taskId, newDeadline) {
       throw new Error(`Failed to update deadline: ${response.statusText}`);
     }
 
-    // Optional: Refresh the task list to reflect changes
     await fetchTodos();
   } catch (error) {
     console.error('Error updating deadline:', error);
@@ -397,7 +380,7 @@ async function updateDeadline(taskId, newDeadline) {
 
 // Function to update an existing todo
 async function updateTodo(id) {
-    idToken = localStorage.getItem('authToken');
+    let idToken = localStorage.getItem('authToken');
     console.log('Fetched ID token:', idToken);
     if (isTokenExpired(idToken)) {
         await refreshIdToken();
@@ -406,8 +389,6 @@ async function updateTodo(id) {
     }
 
     const text = document.getElementById(`todo-text-${id}`).value;
-    
-    // Check if we're in deadline selection mode for this update
     const currentDeadline = selectedDeadline;
     const resetDeadlineUI = () => {
         selectedDeadline = null;
@@ -419,7 +400,6 @@ async function updateTodo(id) {
     };
 
     try {
-        // Prepare update data with optional deadline
         const updateData = { taskText: text };
         if (currentDeadline) {
             updateData.deadline = currentDeadline;
@@ -441,28 +421,24 @@ async function updateTodo(id) {
             throw new Error(`Failed to update todo: ${errorData.message || response.statusText}`);
         }
         
-        // Reset deadline UI if we used it
         if (currentDeadline) {
             resetDeadlineUI();
         }
 		
-		 displaySuccessMessage('Task updated successfully!', id);
+        displaySuccessMessage('Task updated successfully!', id);
         
         setTimeout(() => {
-		fetchTodos();
-		}, 3000);
+            fetchTodos();
+        }, 3000);
     } catch (error) {
         console.error('Error updating todo:', error);
         displayErrorMessage(`Error updating todo: ${error.message || 'Unknown error'}`);
-        
-        // Reset deadline UI on error if we were using it
         if (currentDeadline) {
             resetDeadlineUI();
         }
     }
 }
 
-// per‐item success
 function displaySuccessMessage(msg, id) {
   const statusEl = document.getElementById(`todo-status-${id}`);
   if (!statusEl) return;
@@ -471,7 +447,6 @@ function displaySuccessMessage(msg, id) {
   setTimeout(() => { statusEl.textContent = ''; }, 5000);
 }
 
-// per‐item error (assuming you have one)
 function displayErrorMessage(msg, id) {
   const statusEl = document.getElementById(`todo-status-${id}`);
   if (!statusEl) return;
@@ -480,11 +455,9 @@ function displayErrorMessage(msg, id) {
   setTimeout(() => { statusEl.textContent = ''; }, 3000);
 }
 
-
-
 // Function to delete a todo
 async function deleteTodo(id) {
-    idToken = localStorage.getItem('authToken');
+    let idToken = localStorage.getItem('authToken');
     console.log('Fetched ID token:', idToken);
     if (isTokenExpired(idToken)) {
         await refreshIdToken();
@@ -510,11 +483,9 @@ async function deleteTodo(id) {
 
 // Function to handle logout
 function logout() {
-    // 1. Clear ALL client-side storage
     localStorage.clear();
     sessionStorage.clear();
     
-    // 2. Delete all Cognito-related cookies
     document.cookie.split(';').forEach(cookie => {
         const [name] = cookie.trim().split('=');
         if (name.startsWith('CognitoIdentityServiceProvider') || 
@@ -524,49 +495,35 @@ function logout() {
         }
     });
 
-    // 3. Force full Cognito logout with federated signout
-    const clientId = "5b0hq83r91i8l3jqlmduc5op1s";
     const logoutUri = "https://baylenwebsite.xyz";
-    const cognitoDomain = "https://zeref-todolist-auth.auth.ap-southeast-1.amazoncognito.com";
-    
-    // 4. Redirect with parameters that ensure complete logout
-    window.location.href = `${cognitoDomain}/logout?` +
-    `client_id=${clientId}&` +
-    `logout_uri=${encodeURIComponent(logoutUri)}`;
+    // ✅ FIXED: Federated logout logic matches dynamic deployment targets
+    window.location.href = `https://${COGNITO_DOMAIN}/logout?client_id=${CLIENT_ID}&logout_uri=${encodeURIComponent(logoutUri)}`;
 }
 
 window.onload = async () => {
   const path   = window.location.pathname;
   const params = new URLSearchParams(window.location.search);
 
-  // 1) Finish any OAuth code exchange
   if (params.get("code")) {
     await handleOAuthCallback();
     return;
   }
 
-  // 2) If we’re on the dashboard, try to get a valid token…
   if (path.includes("dashboard.html")) {
     try {
-      // grab whatever’s in storage
       let token = localStorage.getItem("authToken") || "";
 
-      // if it’s expired (or missing), try to refresh
       if (!token || isTokenExpired(token)) {
         token = await refreshIdToken();
       }
 
-      // 3) **Only** if we actually have a token do we proceed
       if (token) {
         fetchTodos();
       }
-      // if token is null (FB path), federatedLogin() has already redirected us  
-      // so we simply `return` here and do nothing
       return;
     }
     catch (err) {
       console.error("Init error:", err);
-      // for non-FB errors, send back to sign-in
       const idp = localStorage.getItem("idpProvider") || "Cognito";
       if (idp !== "Facebook") {
         window.location.href = "index.html";
@@ -575,8 +532,6 @@ window.onload = async () => {
   }
 };
 
-
-// Utility function to display error messages
 function displayErrorMessage(message) {
     const errorElement = document.getElementById('error-message');
     if (errorElement) {

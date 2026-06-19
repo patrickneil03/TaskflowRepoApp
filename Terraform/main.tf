@@ -170,6 +170,8 @@ module "codebuild" {
   cloudfront_distribution_id = module.cloudfront.cloudfront_distribution_id
   cognito_client_id = module.cognito.cognito_client_id
   custom_cognito_domain = var.custom_cognito_domain
+  identity_pool_id = module.cognito.identity_pool_id
+  user_pool_id = module.cognito.user_pool_id
 }
 
 module "sqs" {

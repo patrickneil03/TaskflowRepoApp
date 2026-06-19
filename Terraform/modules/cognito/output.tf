@@ -21,6 +21,15 @@ output "cognito_client_secret" {
 }
 
 output "cloudfront_distribution_domain" {
-  # ✅ FIX: Use .cloudfront_distribution instead of .cloudfront_distribution_arn
   value = aws_cognito_user_pool_domain.cognito_domain.cloudfront_distribution
+}
+
+output "identity_pool_id" {
+  value       = aws_cognito_identity_pool.identity_pool.id
+  description = "The ID of the Cognito Identity Pool"
+}
+
+output "user_pool_id" {
+  value       = aws_cognito_user_pool.my_user_pool.id
+  description = "The ID of the Cognito User Pool"
 }
