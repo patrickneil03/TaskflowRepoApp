@@ -6,10 +6,10 @@
     --card-bg: #ffffff;
     --text-color: #0f172a;
     --text-light: #475569;
-    --text-muted: #94a3b8;
+    --text-muted: #64748b;
     --border-color: #e2e8f0;
     --error-bg: #fef2f2;
-    --error-text: #b91c1c;
+    --error-text: #ef4444; /* Clean crisp alert red */
     --success-bg: #f0fdf4;
     --success-text: #15803d;
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.02);
@@ -19,7 +19,8 @@
     --radius-md: 12px;
 }
 
-[data-theme="dark"] {
+/* ✅ FIXED: Bound selector explicitly to body tag to fix settings.js handshake runtime */
+body[data-theme="dark"] {
     --primary-color: #6366f1;
     --primary-hover: #4f46e5;
     --primary-light: #1e1b4b;
@@ -27,9 +28,9 @@
     --card-bg: #1e293b;
     --text-color: #f8fafc;
     --text-light: #cbd5e1;
-    --text-muted: #64748b;
+    --text-muted: #94a3b8;
     --border-color: #334155;
-    --error-bg: rgba(220, 53, 69, 0.15);
+    --error-bg: rgba(239, 68, 68, 0.15);
     --error-text: #fca5a5;
     --success-bg: rgba(40, 167, 69, 0.15);
     --success-text: #86efac;
@@ -49,7 +50,7 @@ body {
     flex-direction: column;
 }
 
-/* --- Shared Navigation Bar Layout --- */
+/* --- Navigation Header --- */
 .navbar {
     background-color: var(--card-bg);
     padding: 16px 24px;
@@ -76,7 +77,6 @@ body {
     letter-spacing: -0.025em;
 }
 
-/* Navbar Menu Dropdown Styling */
 .dropdown {
     position: relative;
     display: inline-block;
@@ -166,7 +166,7 @@ body {
     color: #b91c1c;
 }
 
-[data-theme="dark"] .dropdown-menu .logout-link:hover {
+body[data-theme="dark"] .dropdown-menu .logout-link:hover {
     background-color: rgba(239, 68, 68, 0.1);
     color: #fca5a5;
 }
@@ -211,7 +211,6 @@ body {
     display: flex;
     flex-direction: column;
     gap: 16px;
-    position: relative;
     transition: var(--transition);
 }
 
@@ -232,7 +231,7 @@ body {
 #new-todo {
     width: 100%;
     padding: 14px 16px 14px 48px;
-    font-size: 1rem;
+    font-size: 1.05rem;
     background-color: var(--bg-color);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
@@ -247,10 +246,12 @@ body {
     box-shadow: 0 0 0 3px var(--primary-light);
 }
 
+/* ✅ FIXED: Relative wrapper to neatly position dropdown window right below button anchor context */
 .action-buttons-group {
     display: flex;
     justify-content: flex-end;
     gap: 12px;
+    position: relative;
 }
 
 /* Action Utility Button Definitions */
@@ -287,28 +288,26 @@ body {
     color: var(--text-color);
 }
 
-/* Pop-Over Deadline Datepicker Module Layout */
+/* ✅ FIXED: Re-anchored to display directly underneath the calendar button action element container */
 .deadline-picker-container {
     background-color: var(--card-bg);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-md);
-    padding: 20px;
-    width: calc(100% - 40px);
-    max-width: 340px;
+    padding: 18px;
+    width: 290px;
     position: absolute;
-    top: 100%;
-    right: 20px;
-    z-index: 10;
-    margin-top: 8px;
+    top: calc(100% + 8px);
+    right: 120px; /* Aligns comfortably next to the primary button spacing bounds */
+    z-index: 1010;
     display: flex;
     flex-direction: column;
     gap: 14px;
-    animation: slideDown 0.2s ease;
+    animation: slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .picker-header {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 700;
     color: var(--text-light);
     text-transform: uppercase;
@@ -323,6 +322,7 @@ body {
     background-color: var(--bg-color);
     color: var(--text-color);
     font-family: inherit;
+    font-size: 0.9rem;
     outline: none;
     box-sizing: border-box;
 }
@@ -356,7 +356,7 @@ body {
     color: #ef4444;
 }
 
-/* --- Todo Items Interactive Row Element Layouts --- */
+/* --- Todo Items Row Elements --- */
 .todo-list {
     list-style: none;
     padding: 0;
@@ -391,8 +391,8 @@ body {
 
 .todo-checkbox {
     appearance: none;
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     border: 2px solid var(--text-muted);
     border-radius: 6px;
     cursor: pointer;
@@ -400,6 +400,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
     transition: var(--transition);
 }
 
@@ -411,19 +412,20 @@ body {
 .todo-checkbox:checked::after {
     content: "✓";
     color: white;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     font-weight: 800;
 }
 
 .todo-text-container {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 4px;
 }
 
+/* ✅ FIXED: Increased task font size slightly per your guidelines */
 .todo-text {
-    font-size: 1rem;
-    font-weight: 500;
+    font-size: 1.15rem; 
+    font-weight: 600;
     color: var(--text-color);
     transition: var(--transition);
 }
@@ -433,91 +435,18 @@ body {
     color: var(--text-muted);
 }
 
+/* ✅ FIXED: Shrank text metric sizes for cleaner visual hierarchy constraints */
 .todo-deadline {
-    font-size: 0.75rem;
-    font-weight: 600;
+    font-size: 0.72rem; 
+    font-weight: 700;
     color: var(--primary-color);
     background-color: var(--primary-light);
-    padding: 2px 8px;
+    padding: 3px 8px;
     border-radius: 4px;
     width: fit-content;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
 }
 
-.todo-item.completed .todo-deadline {
-    background-color: var(--bg-color);
-    color: var(--text-muted);
-}
-
-/* Action Control Icons Groups */
-.todo-actions {
-    display: flex;
-    gap: 8px;
-}
-
-.action-btn {
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    font-size: 1rem;
-    padding: 6px;
-    border-radius: 6px;
-    transition: var(--transition);
-}
-
-.action-btn:hover {
-    color: var(--text-color);
-    background-color: var(--bg-color);
-}
-
-.action-btn.delete-btn:hover {
-    color: #ef4444;
-    background-color: #fef2f2;
-}
-
-[data-theme="dark"] .action-btn.delete-btn:hover {
-    background-color: rgba(239, 68, 68, 0.1);
-}
-
-/* Common System Message Overlays */
-.error-message {
-    background-color: var(--error-bg);
-    color: var(--error-text);
-    border: 1px solid var(--border-color);
-    padding: 14px 18px;
-    border-radius: var(--radius-md);
-    font-size: 0.9rem;
-    font-weight: 500;
-    animation: fadeIn 0.2s ease;
-}
-
-/* Keyframe Standard Animations declarations */
-@keyframes slideDown {
-    from { opacity: 0; transform: translateY(-6px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-/* Mobile Screen Breakpoints Configuration */
-@media (max-width: 640px) {
-    .dashboard-page-wrapper {
-        padding: 24px 16px;
-    }
-    .todo-input-card {
-        padding: 16px;
-    }
-    .action-buttons-group {
-        width: 100%;
-    }
-    .btn {
-        flex-grow: 1;
-        justify-content: center;
-    }
-    .todo-item {
-        padding: 14px 16px;
-    }
-}
+/* ✅ FIXED: High-priority style overrides for items that have breached operational deadlines */
+.todo-
