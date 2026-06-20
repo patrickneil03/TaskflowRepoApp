@@ -59,6 +59,67 @@
 
                     <!-- Deadline Picker Dropdown Panel Container -->
                     <div id="deadline-picker-container" class="deadline-picker-container" style="display: none;">
+                        <div class="picker-header"><!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" href="favicon.png" type="image/png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | TaskFlow</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Main Header Navbar -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="logo">TaskFlow</div>
+            <div class="dropdown">
+                <button class="dropdown-toggle" id="dropdown-toggle" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-user-circle"></i>
+                    <i class="fas fa-chevron-down dropdown-chevron"></i>
+                </button>
+                <div class="dropdown-menu" id="dropdown-menu">
+                    <a href="dashboard.html" class="active"><i class="fas fa-home"></i> Home</a>
+                    <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+                    <button class="dropdown-item" id="theme-toggle">
+                        <i class="fas fa-moon"></i> <span>Dark Mode</span>
+                    </button>
+                    <a href="#" id="logoutBtn" class="logout-link" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Content Layout -->
+    <main class="dashboard-page-wrapper">
+        <div class="dashboard-container">
+            <div class="dashboard-header-meta">
+                <h1 class="todo-list-title">My Todo List</h1>
+                <p class="todo-list-subtitle">Stay organized and track your daily priorities.</p>
+            </div>
+            
+            <div id="error-message" class="error-message" style="display: none;"></div>
+
+            <!-- Task Input Bar Card Layout -->
+            <div class="todo-input-card">
+                <div class="input-wrapper">
+                    <i class="fas fa-tasks input-icon"></i>
+                    <input type="text" id="new-todo" placeholder="Add a new todo...">
+                </div>
+                
+                <!-- Action Buttons Group (Acts as anchor context for the picker) -->
+                <div class="action-buttons-group">
+                    <button class="btn btn-secondary" id="deadline-toggle">
+                        <i class="far fa-calendar-alt"></i> Set Deadline
+                    </button>
+                    <button class="btn btn-primary" onclick="createTodo()">
+                        <i class="fas fa-plus"></i> Add Todo
+                    </button>
+
+                    <!-- Deadline Picker Dropdown Panel Container -->
+                    <div id="deadline-picker-container" class="deadline-picker-container" style="display: none;">
                         <div class="picker-header">
                             <i class="far fa-clock"></i> Choose Due Date & Time
                         </div>
