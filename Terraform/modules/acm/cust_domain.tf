@@ -14,3 +14,4 @@ resource "aws_acm_certificate_validation" "api_cert_validation" {
 }
 
 
+
