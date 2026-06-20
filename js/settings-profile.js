@@ -9,16 +9,22 @@ function toggleDarkMode() {
 
 function updateThemeIcon() {
     const icons = document.querySelectorAll("#theme-toggle i, #theme-toggle-settings i");
+    const labelSpan = document.querySelector("#theme-toggle span");
     const isDarkMode = document.body.getAttribute("data-theme") === "dark";
     
+    // Smoothly swap icon metrics classes
     icons.forEach(icon => {
-        if (icon.classList.contains("fa-moon")) {
-            icon.style.display = isDarkMode ? "none" : "inline-block";
-        }
-        if (icon.classList.contains("fa-sun")) {
-            icon.style.display = isDarkMode ? "inline-block" : "none";
+        if (isDarkMode) {
+            icon.className = "fas fa-sun";
+        } else {
+            icon.className = "fas fa-moon";
         }
     });
+
+    // Update context text cleanly
+    if (labelSpan) {
+        labelSpan.textContent = isDarkMode ? "Light Mode" : "Dark Mode";
+    }
 }
 
 document.addEventListener("DOMContentLoaded", () => {

@@ -10,7 +10,6 @@ resource "aws_acm_certificate" "api_cert" {
 
 resource "aws_acm_certificate_validation" "api_cert_validation" {
   certificate_arn         = aws_acm_certificate.api_cert.arn
-  # ✅ FIXED: Uncommented and mapped to the proper validation records loop output
   validation_record_fqdns = var.api_validation_fqdns
 }
 
