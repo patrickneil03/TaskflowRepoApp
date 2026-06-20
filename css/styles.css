@@ -1,440 +1,949 @@
-:root {
-    --primary-color: #4f46e5;
-    --primary-hover: #4338ca;
-    --primary-light: #e0e7ff;
-    --bg-color: #f8fafc;
-    --card-bg: #ffffff;
-    --text-color: #0f172a;
-    --text-light: #475569;
-    --text-muted: #64748b;
-    --border-color: #e2e8f0;
-    --error-bg: #fef2f2;
-    --error-text: #ef4444;
-    --success-bg: #f0fdf4;
-    --success-text: #15803d;
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.02);
-    --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-    --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    --radius-lg: 16px;
-    --radius-md: 12px;
-}
+/* --- Base Styles --- */
+  body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: var(--transition);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
+/* --- Dark Theme Base --- */
 body[data-theme="dark"] {
-    --bg-color: #0f172a;
-    --card-bg: #1e293b;
-    --text-color: #f8fafc;
-    --text-light: #cbd5e1;
-    --text-muted: #64748b;
-    --border-color: #334155;
-    --primary-light: #1e1b4b;
-    --error-bg: rgba(239, 68, 68, 0.15);
-    --error-text: #fca5a5;
+  background-color: #2c3e50;
+  color: #ecf0f1;
 }
 
-body {
-    font-family: 'Inter', sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    line-height: 1.6;
-    transition: var(--transition);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-/* --- Navigation & Dropdown Layout --- */
-.navbar {
-    background-color: var(--card-bg);
-    padding: 14px 24px;
-    border-bottom: 1px solid var(--border-color);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    box-shadow: var(--shadow-sm);
-    transition: var(--transition);
-}
-
-.navbar-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 1000px;
-    margin: 0 auto;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.logo {
-    font-size: 1.4rem;
-    font-weight: 800;
-    color: var(--primary-color);
-    letter-spacing: -0.03em;
-    user-select: none;
-}
-
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-.dropdown-toggle {
-    background-color: var(--bg-color);
-    color: var(--text-light);
-    border: 1px solid var(--border-color);
-    padding: 8px 14px;
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    font-size: 0.95rem;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: var(--transition);
-}
-
-.dropdown-toggle:hover {
-    color: var(--text-color);
-    border-color: var(--primary-color);
-    background-color: var(--card-bg);
-}
-
-.dropdown-chevron {
-    font-size: 0.75rem;
-    transition: transform 0.2s ease;
-}
-
-.dropdown-menu {
-    display: none;
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background-color: var(--card-bg);
-    min-width: 220px;
-    box-shadow: var(--shadow-md);
-    z-index: 1001;
-    border-radius: var(--radius-md);
-    margin-top: 8px;
-    border: 1px solid var(--border-color);
-    padding: 6px;
-    transform-origin: top right;
-    animation: dropdownFade 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@keyframes dropdownFade {
-    from { opacity: 0; transform: scale(0.95) translateY(-4px); }
-    to { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-.dropdown-menu.show {
-    display: block;
-}
-
-.dropdown-menu a,
-.dropdown-menu .dropdown-item {
-    color: var(--text-light);
-    padding: 10px 14px;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 0.95rem;
-    font-weight: 500;
-    border: none;
-    width: 100%;
-    text-align: left;
-    background: none;
-    cursor: pointer;
-    box-sizing: border-box;
-    border-radius: 8px;
-    transition: var(--transition);
-    font-family: 'Inter', sans-serif;
-}
-
-.dropdown-menu a:hover,
-.dropdown-menu .dropdown-item:hover {
-    background-color: var(--primary-light);
-    color: var(--primary-color);
-}
-
-.dropdown-menu a.active {
-    background-color: var(--primary-color);
-    color: #ffffff;
-}
-
-/* --- Container Frame Contexts --- */
-.dashboard-page-wrapper,
-.profile-page-wrapper {
-    flex-grow: 1;
-    padding: 40px 24px;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    box-sizing: border-box;
-}
-
+/* --- Layout Containers --- */
 .dashboard-container {
-    width: 100%;
-    max-width: 760px;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
+
+body[data-theme="dark"] .dashboard-container {
+  background-color: #34495e;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+}
+
+
 
 .todo-list-title {
-    margin: 0 0 4px 0;
-    font-weight: 800;
-    font-size: 1.8rem;
-    letter-spacing: -0.02em;
+  text-align: center;
+  color: #2c3e50;
+  margin-bottom: 30px;
+  font-weight: 700;
+  font-size: 2.2rem;
 }
 
-/* --- Inputs and Button Controls --- */
+body[data-theme="dark"] .todo-list-title {
+  color: #ecf0f1;
+}
+
+/* --- Error Message --- */
+.error-message {
+  background-color: #ffe6e6;
+  color: #cc0000;
+  padding: 12px 20px;
+  border: 1px solid #ffb3b3;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+/* ===== CORE STYLES (Your Exact Preferences) ===== */
+   /* --- Navbar --- */
+        .navbar {
+            background-color: #007bff;
+            padding: 15px 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: white;
+            letter-spacing: -0.5px;
+        }
+
+        body[data-theme="dark"] .navbar {
+            background-color: #1a242f;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Dropdown Styles */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-toggle {
+            background-color: transparent;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s ease;
+            min-height: 44px; /* Better touch target for mobile */
+        }
+
+        .dropdown-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: #ffffff;
+            min-width: 220px;
+            width: max-content;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            border-radius: 8px;
+            overflow: visible;
+            margin-top: 8px;
+        }
+
+        body[data-theme="dark"] .dropdown-menu {
+            background-color: #44607c;
+        }
+
+        .dropdown-menu a,
+        .dropdown-menu button {
+            color: #333;
+            padding: 18px 24px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.95rem;
+            border: none;
+            width: 100%;
+            text-align: left;
+            background: none;
+            cursor: pointer;
+            min-height: 52px;
+            box-sizing: border-box;
+            white-space: nowrap;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .dropdown-menu a:last-child,
+        .dropdown-menu button:last-child {
+            border-bottom: none;
+        }
+
+        body[data-theme="dark"] .dropdown-menu a,
+        body[data-theme="dark"] .dropdown-menu button {
+            color: #ecf0f1;
+        }
+
+        .dropdown-menu a:hover,
+        .dropdown-menu button:hover {
+            background-color: #f0f0f0;
+        }
+
+        body[data-theme="dark"] .dropdown-menu a:hover,
+        body[data-theme="dark"] .dropdown-menu button:hover {
+            background-color: #55708c;
+        }
+
+        .dropdown-menu .fas {
+            width: 20px;
+            color: #555;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        body[data-theme="dark"] .dropdown-menu .fas {
+            color: #ccc;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+/* ===== TODO INPUT ===== */
 .todo-input-container {
-    background-color: var(--card-bg);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
-    border: 1px solid var(--border-color);
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    transition: var(--transition);
-    position: relative;
+  display: flex;
+  gap: 12px;
+  margin-bottom: 25px;
+  align-items: center;
 }
 
 #new-todo {
+  flex-grow: 1;
+  padding: 14px 18px;
+  border: 1px solid #dcdcdc;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  color: #333;
+  background-color: #ffffff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+
+ /* Desktop Styles */
+        @media (min-width: 1025px) {
+            .profile-page-wrapper {
+                padding: 40px 20px;
+            }
+            
+            .profile-container {
+                gap: 30px;
+            }
+            
+            .section-title {
+                font-size: 2.4rem;
+                margin-bottom: 25px;
+            }
+            
+            .profile-card {
+                padding: 35px;
+            }
+            
+            .profile-top-section {
+                flex-direction: row;
+                align-items: flex-start;
+                gap: 40px;
+            }
+            
+            #profilePic {
+                width: 200px;
+                height: 200px;
+                border: 5px solid var(--primary-color);
+            }
+            
+            .profile-details {
+                flex: 1;
+                font-size: 1.15rem;
+            }
+            
+            .detail-item {
+                flex-direction: row;
+                align-items: baseline;
+                gap: 10px;
+                border-bottom: none;
+                padding: 8px 0;
+            }
+            
+            .detail-label {
+                flex-basis: 120px;
+                flex-shrink: 0;
+                font-size: 1rem;
+            }
+            
+            .detail-value {
+                flex-grow: 1;
+            }
+            
+            .button-group {
+                flex-direction: row;
+                justify-content: center;
+                width: auto;
+            }
+            
+            .custom-file-upload,
+            .upload-btn {
+                width: auto;
+                min-width: 140px;
+            }
+        }
+
+/* ===== MOBILE RESPONSIVE (Your Exact Preferences) ===== */
+@media (max-width: 768px) {
+  .dashboard-container {
+    margin: 20px;
+    padding: 20px;
+  }
+  
+
+  .todo-list-title {
+    font-size: 1.6rem;
+  }
+
+  .todo-input-container {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  #new-todo {
     width: 100%;
-    padding: 14px 16px;
-    font-size: 1rem;
-    font-weight: 500;
-    background-color: var(--bg-color);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    color: var(--text-color);
-    outline: none;
-    box-sizing: border-box;
-    transition: var(--transition);
+  }
+
+  .navbar-content {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .todo-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .todo-actions {
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .btn-small {
+    width: auto;
+    height: auto;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    padding: 8px 12px;
+  }
+
+  .btn-primary, .btn-secondary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .task-meta {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+
+
+/* --- Add Todo Input --- */
+.todo-input-container {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 25px;
+  align-items: center;
+}
+
+#new-todo {
+  flex-grow: 1;
+  padding: 14px 18px;
+  border: 1px solid #dcdcdc;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  color: #333;
+  background-color: #ffffff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+#new-todo::placeholder {
+  color: #999;
+  opacity: 0.9;
+}
+
+#new-todo:hover {
+  border-color: #b0b0b0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 #new-todo:focus {
-    border-color: var(--primary-color);
-    background-color: var(--card-bg);
-    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.25);
+  background-color: #f8fbff;
 }
 
-/* Flex Group Layer containing the interaction controls */
-.action-buttons-group,
-.todo-input-container .btn-primary, 
-.todo-input-container #deadline-toggle {
-    display: inline-flex;
+body[data-theme="dark"] #new-todo {
+  background-color: #44607c;
+  border-color: #55708c;
+  color: #ecf0f1;
 }
 
-/* Container directly holding buttons inside your input frame */
-.todo-input-container {
-    position: relative;
+body[data-theme="dark"] #new-todo:focus {
+  background-color: #4f6e8d;
+  border-color: #0099ff;
+  box-shadow: 0 0 0 4px rgba(0, 153, 255, 0.35);
 }
 
-/* Target both buttons inside the control context */
-.todo-input-container .btn {
-    padding: 12px 18px;
-    border-radius: var(--radius-md);
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    align-items: center;
-    gap: 8px;
-    transition: var(--transition);
-    font-family: 'Inter', sans-serif;
-    box-sizing: border-box;
-    
-    /* Force buttons to share available width equally */
-    flex: 1;
-    justify-content: center;
+/* --- Scrollbar --- */
+#dashboard-todo-list-container {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: #007bff #f4f7fa;
 }
 
-/* Button style extensions */
-.btn-primary {
-    background-color: var(--primary-color);
-    color: white;
+#dashboard-todo-list-container::-webkit-scrollbar {
+  width: 8px;
 }
 
-.btn-primary:hover {
-    background-color: var(--primary-hover);
+#dashboard-todo-list-container::-webkit-scrollbar-track {
+  background: #e0e0e0;
+  border-radius: 10px;
 }
 
-.btn-secondary {
-    background-color: var(--card-bg);
-    color: var(--text-light);
-    border: 1px solid var(--border-color);
+#dashboard-todo-list-container::-webkit-scrollbar-thumb {
+  background-color: #007bff;
+  border-radius: 10px;
+  border: 2px solid #e0e0e0;
 }
 
-.btn-secondary:hover {
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    border-color: var(--text-muted);
+body[data-theme="dark"] #dashboard-todo-list-container::-webkit-scrollbar-track {
+  background: #44607c;
 }
 
-/* Modifies the inner wrappers to balance execution layout */
-.todo-input-container {
-    display: flex;
-    flex-direction: column;
+body[data-theme="dark"] #dashboard-todo-list-container::-webkit-scrollbar-thumb {
+  background-color: #0099ff;
+  border-color: #44607c;
 }
 
-/* Container holding the operational layouts wrapped underneath the fields */
-.todo-input-container > div:not(.deadline-picker-container) {
-    display: flex;
-    gap: 12px;
-    width: 100%;
-}
-
-/* Explicitly setting layout fallback for inline buttons inside container */
-.todo-input-container button.btn {
-    flex: 1;
-    width: 50%;
-}
-
-/* --- Deadline Dropdown Picker --- */
-.deadline-picker-container {
-    background-color: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-md);
-    padding: 16px;
-    width: 290px;
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 20px;
-    z-index: 1010;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    box-sizing: border-box;
-    animation: dropdownFade 0.15s ease-out;
-}
-
-.picker-header {
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: var(--text-light);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.deadline-input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    font-family: inherit;
-    font-size: 0.9rem;
-    box-sizing: border-box;
-    outline: none;
-}
-
-.picker-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-}
-
-.deadline-btn {
-    padding: 8px 14px;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-}
-
-.deadline-btn-confirm {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-.deadline-btn-cancel {
-    background-color: transparent;
-    color: var(--text-light);
-}
-
-/* --- Reactive Task Output Lists --- */
-.todo-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+/* --- Todo Item & Layout --- */
+#todo-list {
+  list-style: none;
+  padding: 0;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .todo-item {
-    background-color: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    padding: 16px 20px;
-    box-shadow: var(--shadow-sm);
-    transition: var(--transition);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  padding: 12px 18px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  position: relative;
 }
 
-.todo-item:hover {
-    transform: translateY(-1px);
+body[data-theme="dark"] .todo-item {
+  background-color: #44607c;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-.todo-text {
-    font-size: 1.15rem;
-    font-weight: 600;
-    color: var(--text-color);
-    transition: var(--transition);
+.todo-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
-.todo-checkbox {
-    appearance: none;
-    width: 22px;
-    height: 22px;
-    border: 2px solid var(--text-muted);
-    border-radius: 6px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: var(--transition);
+.todo-text-block {
+  margin-bottom: 8px;
+  flex: 1;
+  min-width: 0;
 }
 
-.todo-checkbox:checked {
-    background-color: var(--success-text);
-    border-color: var(--success-text);
+.todo-text-block input[type="text"] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: none;
+  background-color: transparent;
+  font-size: 1rem;
+  color: #333;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease;
 }
 
-.todo-checkbox:checked::after {
-    content: "✓";
-    color: white;
-    font-size: 0.85rem;
-    font-weight: 800;
+
+.task-meta {
+  margin-top: 6px;
+  font-size: 0.75em;
+  color: #777;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.error-message {
-    background-color: var(--error-bg);
-    color: var(--error-text);
-    padding: 12px 16px;
-    border-radius: var(--radius-md);
-    font-size: 0.95rem;
-    border: 1px solid rgba(239, 68, 68, 0.2);
+.task-created {
+  font-size: 1.0em;
+  color: #999;
+  white-space: nowrap;
 }
 
-/* --- Media Queries --- */
-@media (max-width: 640px) {
-    .dashboard-page-wrapper {
-        padding: 16px 12px;
-    }
-
-    .btn {
-        padding: 10px 12px;
-        font-size: 0.85rem;
-    }
+.deadline-indicator {
+  font-size: 0.8em;
+  color: #666;
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
 }
+
+.deadline-label {
+  font-size: 1.25em;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+}
+
+.deadline-indicator i {
+  margin-right: 5px;
+}
+
+.deadline-urgent {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.deadline-warning {
+  color: #ffc107;
+}
+
+/* Editable deadline date field */
+.deadline-editor-container {
+  display: none;
+  gap: 8px;
+  margin-top: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.deadline-editor-input {
+  padding: 6px 10px;
+  font-size: 0.9em;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.deadline-editor-container.visible {
+  max-height: 50px;
+  opacity: 1;
+  margin-top: 6px;
+}
+
+
+
+
+/* Edit deadline button (pencil icon) */
+.edit-deadline-btn {
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  font-size: 0.85em;
+  padding: 0;
+  margin-left: 6px;
+  transition: color 0.2s ease;
+}
+
+.edit-deadline-btn:hover {
+  color: #333;
+}
+
+/* Optional: fade label + icon row */
+.deadline-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8em;
+  color: #666;
+}
+
+
+/* --- Action Buttons --- */
+.todo-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+  margin-top: 8px;
+}
+
+/* --- Button Styles --- */
+.btn-small {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  margin-left: 8px;
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease, color 0.3s ease;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  color: white;
+  font-size: 0.8rem;
+  padding: 4px 10px;
+}
+
+.btn-small:hover {
+  transform: scale(1.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-update {
+  background-color: #28a745;
+}
+.btn-update:hover {
+  background-color: #218838;
+}
+
+.btn-delete {
+  background-color: #dc3545;
+}
+.btn-delete:hover {
+  background-color: #c82333;
+}
+
+.btn-recommend {
+  background-color: #ffc107;
+  color: #333;
+}
+.btn-recommend:hover {
+  background-color: #e0a800;
+}
+
+
+/* --- Dark Mode Button Colors --- */
+body[data-theme="dark"] .btn-small {
+  background-color: #55708c;
+  color: #ecf0f1;
+}
+
+body[data-theme="dark"] .btn-small:hover {
+  background-color: #66809c;
+}
+
+body[data-theme="dark"] .btn-update {
+  background-color: #2e8b57;
+}
+
+body[data-theme="dark"] .btn-update:hover {
+  background-color: #256d44;
+}
+
+body[data-theme="dark"] .btn-delete {
+  background-color: #c0392b;
+}
+
+body[data-theme="dark"] .btn-delete:hover {
+  background-color: #a52f23;
+}
+
+body[data-theme="dark"] .btn-recommend {
+  background-color: #f39c12;
+  color: #333;
+}
+
+body[data-theme="dark"] .btn-recommend:hover {
+  background-color: #e67e22;
+}
+
+/* --- Deadline Input --- */
+#deadline-input {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-right: 5px;
+}
+
+/* Restore "Add" and "Set Deadline" Button Styling */
+.btn-primary {
+  padding: 14px 22px;
+  border-radius: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary:active {
+  background-color: #004085;
+  transform: translateY(0);
+}
+
+/* Secondary button for deadline */
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 5px;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+}
+
+/* Container styling */
+.deadline-picker {
+  display: none;
+  position: absolute;
+  z-index: 100;
+  background: #fff;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Input full-width with bottom margin */
+.deadline-input {
+ 
+}
+
+/* Flex container for horizontal alignment */
+.button-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+
+/* CSS – move this into your <style> or styles.css */
+
+/* container hidden by default; flex-row when shown */
+.deadline-picker-container {
+  display: none;
+  position: absolute;
+  z-index: 100;
+  background: #fff;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  align-items: center;
+  gap: 8px;
+}
+
+/* utility to show it */
+.deadline-picker-container.show {
+  display: flex;
+}
+
+/* base styling for both buttons */
+.deadline-btn {
+  padding: 8px 16px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  /* make it super round: */
+  border-radius: 50px;
+}
+
+/* “OK” / Confirm */
+.deadline-btn-confirm {
+  background-color: #2563eb;
+  color: #fff;
+}
+
+/* “Cancel” */
+.deadline-btn-cancel {
+  background-color: transparent;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+
+
+.deadline-btn-confirm:hover {
+  background-color: #1e40af;
+  transform: translateY(-1px);
+}
+
+
+.deadline-btn-cancel:hover {
+  background-color: #f9fafb;
+  transform: translateY(-1px);
+}
+
+
+/* ---------------------------------------------------
+   Inline deadline editor: hidden by default as flex row
+   --------------------------------------------------- */
+.deadline-editor-container {
+  display: none;           /* hide until JS toggles .visible */
+  flex-direction: row;     /* line up child elements */
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;         /* your existing spacing */
+}
+
+/* when you want to show it */
+.deadline-editor-container.visible {
+  display: flex;
+}
+
+/* Small mobile devices */
+        @media (max-width: 480px) {
+            .navbar {
+                padding: 10px 12px;
+            }
+            
+            .logo {
+                font-size: 1.3rem;
+            }
+            
+            .profile-page-wrapper {
+                padding: 12px;
+            }
+            
+            .profile-card {
+                padding: 16px;
+            }
+            
+            #profilePic {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .section-title {
+                font-size: 1.6rem;
+            }
+        }
+
+  /* Mobile-specific improvements */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 12px 16px;
+            }
+            
+            .logo {
+                font-size: 1.5rem;
+            }
+            
+            .dropdown {
+                position: static;
+            }
+            
+            .dropdown-menu {
+                position: fixed;
+                top: 60px;
+                right: 16px;
+                left: 16px;
+                width: auto;
+                min-width: auto;
+                max-width: none;
+                border-radius: 12px;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+            }
+            
+            .dropdown-menu a,
+            .dropdown-menu button {
+                padding: 20px 24px;
+                font-size: 1rem;
+                min-height: 56px;
+            }
+            
+            .dropdown-menu .fas {
+                width: 24px;
+                font-size: 1.1rem;
+            }
+            
+            .section-title {
+                font-size: 1.8rem;
+                margin-bottom: 16px;
+            }            
+            
+            .detail-item {
+                padding: 16px 0;
+            }
+        }
+
+        /* Small mobile devices */
+        @media (max-width: 480px) {
+            .navbar {
+                padding: 10px 12px;
+            }
+            
+            .logo {
+                font-size: 1.3rem;
+            }
+            
+            .profile-page-wrapper {
+                padding: 12px;
+            }
+            
+            .profile-card {
+                padding: 16px;
+            }
+            
+            #profilePic {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .section-title {
+                font-size: 1.6rem;
+            }
+        }
+
+        /* Touch-friendly improvements for all mobile sizes */
+        @media (hover: none) and (pointer: coarse) {
+            .dropdown-toggle,
+            .dropdown-menu a,
+            .dropdown-menu button,
+            .custom-file-upload,
+            .upload-btn {
+                min-height: 48px;
+            }
+            
+            .custom-file-upload:active,
+            .upload-btn:active {
+                transform: scale(0.98);
+            }
+        }
+		
+		  /* Landscape orientation on mobile */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .profile-page-wrapper {
+                padding: 16px 20px;
+            }
+            
+            .profile-top-section {
+                flex-direction: row;
+                align-items: center;
+                gap: 24px;
+            }
+            
+            #profilePic {
+                width: 100px;
+                height: 100px;
+            }
+        }
+
+
+
+
+
+
