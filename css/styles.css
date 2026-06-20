@@ -1,6 +1,3 @@
-/* ==========================================================================
-   1. Design Tokens & CSS Variables
-   ========================================================================== */
 :root {
     --primary-color: #4f46e5;
     --primary-hover: #4338ca;
@@ -12,7 +9,7 @@
     --text-muted: #64748b;
     --border-color: #e2e8f0;
     --error-bg: #fef2f2;
-    --error-text: #ef4444; 
+    --error-text: #ef4444;
     --success-bg: #f0fdf4;
     --success-text: #15803d;
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.02);
@@ -34,9 +31,6 @@ body[data-theme="dark"] {
     --error-text: #fca5a5;
 }
 
-/* ==========================================================================
-   2. Base Styles
-   ========================================================================== */
 body {
     font-family: 'Inter', sans-serif;
     margin: 0;
@@ -50,9 +44,7 @@ body {
     flex-direction: column;
 }
 
-/* ==========================================================================
-   3. Header Navbar & Dropdown Menu
-   ========================================================================== */
+/* --- Navigation & Dropdown Layout --- */
 .navbar {
     background-color: var(--card-bg);
     padding: 14px 24px;
@@ -171,21 +163,7 @@ body {
     color: #ffffff;
 }
 
-.dropdown-menu .logout-link {
-    border-top: 1px solid var(--border-color);
-    margin-top: 4px;
-    padding-top: 10px;
-    color: var(--error-text);
-}
-
-.dropdown-menu .logout-link:hover {
-    background-color: var(--error-bg);
-    color: var(--error-text);
-}
-
-/* ==========================================================================
-   4. Layout Containers & Page Wrappers
-   ========================================================================== */
+/* --- Container Frame Contexts --- */
 .dashboard-page-wrapper,
 .profile-page-wrapper {
     flex-grow: 1;
@@ -204,28 +182,15 @@ body {
     gap: 24px;
 }
 
-.dashboard-header-meta {
-    margin-bottom: 4px;
-}
-
-.todo-list-title,
-.section-title {
+.todo-list-title {
     margin: 0 0 4px 0;
     font-weight: 800;
     font-size: 1.8rem;
     letter-spacing: -0.02em;
 }
 
-.todo-list-subtitle {
-    margin: 0;
-    color: var(--text-light);
-    font-size: 0.95rem;
-}
-
-/* ==========================================================================
-   5. Interactive Controls & Equal-Sized Input Buttons
-   ========================================================================== */
-.todo-input-card {
+/* --- Inputs and Button Controls --- */
+.todo-input-container {
     background-color: var(--card-bg);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
@@ -235,25 +200,12 @@ body {
     flex-direction: column;
     gap: 16px;
     transition: var(--transition);
-}
-
-.input-wrapper {
-    display: flex;
-    align-items: center;
     position: relative;
-}
-
-.input-icon {
-    position: absolute;
-    left: 16px;
-    color: var(--text-muted);
-    font-size: 1.1rem;
-    pointer-events: none;
 }
 
 #new-todo {
     width: 100%;
-    padding: 14px 16px 14px 46px;
+    padding: 14px 16px;
     font-size: 1rem;
     font-weight: 500;
     background-color: var(--bg-color);
@@ -271,36 +223,38 @@ body {
     box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
 }
 
-/* Container hosting the input utility buttons */
+/* Flex Group Layer containing the interaction controls */
 .action-buttons-group,
-.todo-input-container {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    position: relative;
-    width: 100%;
+.todo-input-container .btn-primary, 
+.todo-input-container #deadline-toggle {
+    display: inline-flex;
 }
 
-/* Common Global Button Layout Rules */
-.btn {
+/* Container directly holding buttons inside your input frame */
+.todo-input-container {
+    position: relative;
+}
+
+/* Target both buttons inside the control context */
+.todo-input-container .btn {
     padding: 12px 18px;
     border-radius: var(--radius-md);
     font-size: 0.95rem;
     font-weight: 600;
     cursor: pointer;
     border: none;
-    display: inline-flex;
     align-items: center;
     gap: 8px;
     transition: var(--transition);
     font-family: 'Inter', sans-serif;
     box-sizing: border-box;
     
-    /* Forces layout symmetry: Both buttons scale to share 50/50 space identically */
+    /* Force buttons to share available width equally */
     flex: 1;
     justify-content: center;
 }
 
+/* Button style extensions */
 .btn-primary {
     background-color: var(--primary-color);
     color: white;
@@ -308,7 +262,6 @@ body {
 
 .btn-primary:hover {
     background-color: var(--primary-hover);
-    transform: translateY(-1px);
 }
 
 .btn-secondary {
@@ -323,9 +276,26 @@ body {
     border-color: var(--text-muted);
 }
 
-/* ==========================================================================
-   6. Deadline Picker Context Menu Panel
-   ========================================================================== */
+/* Modifies the inner wrappers to balance execution layout */
+.todo-input-container {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Container holding the operational layouts wrapped underneath the fields */
+.todo-input-container > div:not(.deadline-picker-container) {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+}
+
+/* Explicitly setting layout fallback for inline buttons inside container */
+.todo-input-container button.btn {
+    flex: 1;
+    width: 50%;
+}
+
+/* --- Deadline Dropdown Picker --- */
 .deadline-picker-container {
     background-color: var(--card-bg);
     border: 1px solid var(--border-color);
@@ -335,7 +305,7 @@ body {
     width: 290px;
     position: absolute;
     top: calc(100% + 8px);
-    right: 0;
+    right: 20px;
     z-index: 1010;
     display: flex;
     flex-direction: column;
@@ -365,10 +335,6 @@ body {
     outline: none;
 }
 
-.deadline-input:focus {
-    border-color: var(--primary-color);
-}
-
 .picker-actions {
     display: flex;
     justify-content: flex-end;
@@ -382,7 +348,6 @@ body {
     font-weight: 600;
     cursor: pointer;
     border: none;
-    font-family: inherit;
 }
 
 .deadline-btn-confirm {
@@ -390,22 +355,12 @@ body {
     color: white;
 }
 
-.deadline-btn-confirm:hover {
-    background-color: var(--primary-hover);
-}
-
 .deadline-btn-cancel {
     background-color: transparent;
     color: var(--text-light);
 }
 
-.deadline-btn-cancel:hover {
-    background-color: var(--bg-color);
-}
-
-/* ==========================================================================
-   7. Todo List Cards & Reactive Dynamic Tasks
-   ========================================================================== */
+/* --- Reactive Task Output Lists --- */
 .todo-list {
     list-style: none;
     padding: 0;
@@ -422,300 +377,64 @@ body {
     padding: 16px 20px;
     box-shadow: var(--shadow-sm);
     transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .todo-item:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
-}
-
-.todo-content {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 16px;
-}
-
-.todo-text-block {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    flex-grow: 1;
 }
 
 .todo-text {
-    font-size: 1.15rem; 
+    font-size: 1.15rem;
     font-weight: 600;
     color: var(--text-color);
     transition: var(--transition);
-    word-break: break-word;
 }
 
-.task-meta {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.task-created {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-}
-
-.deadline-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.deadline-label {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--primary-color);
-    background-color: var(--primary-light);
-    padding: 4px 10px;
-    border-radius: 20px;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.deadline-label.deadline-urgent {
-    color: var(--error-text) !important;
-    background-color: var(--error-bg) !important;
-    border: 1px solid rgba(239, 68, 68, 0.2);
-}
-
-.deadline-label.deadline-warning {
-    color: #d97706;
-    background-color: #fef3c7;
-}
-
-.btn-icon {
-    background: none;
-    border: none;
-    color: var(--text-light);
-    cursor: pointer;
-    font-size: 0.85rem;
-    padding: 6px;
+.todo-checkbox {
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--text-muted);
     border-radius: 6px;
-    display: inline-flex;
+    cursor: pointer;
+    display: flex;
     align-items: center;
     justify-content: center;
     transition: var(--transition);
 }
 
-.btn-icon:hover {
-    background-color: var(--bg-color);
-    color: var(--text-color);
+.todo-checkbox:checked {
+    background-color: var(--success-text);
+    border-color: var(--success-text);
 }
 
-/* Inline Editor Panels inside Tasks */
-.deadline-editor-container {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background-color: var(--bg-color);
-    padding: 8px;
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-    width: fit-content;
-}
-
-.deadline-editor-input {
-    padding: 6px;
+.todo-checkbox:checked::after {
+    content: "✓";
+    color: white;
     font-size: 0.85rem;
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    background-color: var(--card-bg);
-    color: var(--text-color);
-    font-family: inherit;
-    outline: none;
+    font-weight: 800;
 }
 
-.todo-actions {
-    display: flex;
-    align-items: center;
-}
-
-.btn-small {
-    padding: 8px;
-    font-size: 0.95rem;
-    border-radius: 8px;
-    background-color: transparent;
-    color: var(--text-light);
-}
-
-.btn-delete:hover {
-    background-color: var(--error-bg);
-    color: #dc2626;
-}
-
-/* ==========================================================================
-   8. System Status Warnings & Validation Messages
-   ========================================================================== */
 .error-message {
     background-color: var(--error-bg);
     color: var(--error-text);
     padding: 12px 16px;
     border-radius: var(--radius-md);
     font-size: 0.95rem;
-    font-weight: 500;
     border: 1px solid rgba(239, 68, 68, 0.2);
-    animation: dropdownFade 0.2s ease;
 }
 
-/* ==========================================================================
-   9. Profile Module Context Configurations
-   ========================================================================== */
-.profile-container {
-    width: 100%;
-    max-width: 600px;
-    background-color: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    padding: 32px;
-    box-shadow: var(--shadow-sm);
-    box-sizing: border-box;
-}
-
-.profile-card {
-    display: flex;
-    flex-direction: column;
-}
-
-.profile-top-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 24px;
-    margin-bottom: 24px;
-}
-
-.profile-pic-wrapper {
-    width: 140px;
-    height: 140px;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 3px solid var(--border-color);
-    box-shadow: var(--shadow-sm);
-    background-color: var(--bg-color);
-}
-
-#profilePic {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.profile-details {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.detail-item {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.detail-label {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-}
-
-.detail-value {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--text-color);
-}
-
-.button-group {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    margin-top: 24px;
-}
-
-.custom-file-upload, 
-.upload-btn {
-    padding: 10px 20px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    border: none;
-    font-family: 'Inter', sans-serif;
-    transition: var(--transition);
-}
-
-.custom-file-upload {
-    background-color: var(--bg-color);
-    color: var(--text-light);
-    border: 1px solid var(--border-color);
-}
-
-.custom-file-upload:hover {
-    background-color: var(--border-color);
-    color: var(--text-color);
-}
-
-.upload-btn {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-.upload-btn:hover {
-    background-color: var(--primary-hover);
-}
-
-.status-message {
-    text-align: center;
-    margin-top: 12px;
-    font-size: 0.95rem;
-    font-weight: 500;
-}
-
-/* ==========================================================================
-   10. Media Queries & Adaptability Rules
-   ========================================================================== */
+/* --- Media Queries --- */
 @media (max-width: 640px) {
-    .dashboard-page-wrapper,
-    .profile-page-wrapper {
+    .dashboard-page-wrapper {
         padding: 16px 12px;
     }
 
-    .todo-input-card {
-        padding: 14px;
-    }
-
-    /* Keep buttons side-by-side but downscale font/padding gracefully for tight screens */
     .btn {
         padding: 10px 12px;
         font-size: 0.85rem;
-        gap: 6px;
-    }
-
-    .deadline-picker-container {
-        width: 100%;
-        position: fixed;
-        bottom: 0;
-        top: auto;
-        left: 0;
-        right: 0;
-        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-        box-shadow: 0 -10px 25px rgba(0,0,0,0.1);
-        z-index: 2000;
     }
 }
