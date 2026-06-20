@@ -11,6 +11,7 @@ This project demonstrates a real-world, production-grade cloud application with:
 - Frontend hosting via **S3 + CloudFront + Route 53**
 - Backend APIs using **Lambda + API Gateway**
 - Secure user authentication with **Amazon Cognito** hosted UI
+- Asynchronous messaging and component decoupling with **Amazon SQS**
 - CI/CD using **AWS CodePipeline** and **CodeBuild**
 - **Infrastructure as Code** using **Terraform**
 - Task deadline notifications powered by **Amazon EventBridge + Lambda + SES**
@@ -26,6 +27,7 @@ This project demonstrates a real-world, production-grade cloud application with:
 | **Frontend**       | HTML, CSS, JS hosted on **S3**, served via **CloudFront** + **Route 53**       |
 | **CI/CD**          | **CodePipeline**, **CodeBuild**, GitHub integration, Artifacts stored in S3    |
 | **Auth**           | **Amazon Cognito** for user pools, login/signup, and secure access             |
+| **Messaging** | **Amazon SQS (Simple Queue Service)** for decoupling API ingestion from backend workers |
 | **Backend API**    | **API Gateway** triggering **Lambda** functions                                |
 | **Database**       | **Amazon DynamoDB** for task storage, isolated per user                        |
 | **Storage**        | S3 bucket for profile pictures, private per user                               |
@@ -47,6 +49,8 @@ This project demonstrates a real-world, production-grade cloud application with:
 - 👤 **User Auth** – Users can sign up, login, verify email and forgot password using Amazon Cognito hosted UI. 
 - 📝 **Task Management** – Users can add, update, delete personal tasks  
 - ⏰ **Task Deadlines** – Users can set a deadline when adding a task and update it later if needed, enabling flexible task scheduling and time management.
+
+- ⛓️ **Decoupled Architecture (SQS)** – Integrates **Amazon SQS** to handle event-driven message queuing. This decouples API ingestion points from heavy processing backend workers, enhancing application fault-tolerance, eliminating sync blocking bottlenecks, and absorbing rapid bursts in task creation traffic seamlessly.
 
 - 📩 **Email Reminders** – A scheduled Amazon EventBridge rule triggers a Lambda function every 12 hours. The function queries the DynamoDB table for tasks nearing their deadline. If found, it uses Amazon SES (Sandbox mode) to send personalized email reminders to authenticated users whose email addresses have been verified in SES.
 
@@ -112,6 +116,7 @@ github_branch       = "main"
 sender_email        = "your_email"
 route53_domain_name = "your_domain"
 custom_domain_name = "your_custom_domain"
+custom_cognito_domain = "your_custom_cognito_domain"
 ```
 
 secrets.auth.tfvars should contain sensitive auth secrets such as:
@@ -127,36 +132,28 @@ codestar_connection_arn ="your_codestarconnection_arn"
 
 ### 3. Replace the parameters in app.js and profile.js file
 
-In app.js file, replace the line 1, 13,  with your custom domain.
+In app.js file, replace the line 1, 14,  with your custom domain.
 ```javascript
 const apiUrl = 'https://your_custom_domain/taskhandler';
 const TOKEN_EXCHANGE_URL = "https://your_custom_domain/token";
 ```
 
-In app.js file, replace the line 11, 529, with your domain name.
+In app.js file, replace the line 12, 498, with your domain name.
 ```javascript
 const REDIRECT_URI    = "https://your_domain_name/dashboard.html";
 const logoutUri = "https://your_domain_name";
 ```
 
-In app.js file, replace the line 9, 528 with your Cognito Client ID
-```javascript
-const CLIENT_ID       = "your_cognito_client_ID";
-const clientId = "your_cognito_client_ID";
-```
-
-In profile.js file, replace the line 128, 231 with your custom domain name
+In profile.js file, replace the line 119, 216 with your custom domain name
 ```javascript
 const apiUrl = "https://your_custom_domain/profileimagetos3";
 const apiUrl = `https://your_custom_domain/profileimagetos3?username=${encodeURIComponent(username)}`;
 ```
 
-In profile.js file, replace the line 9 with your cognito identity pool id, line 10, with your cognito userpool id, line 11, 173 with your cognito client ID, and line 174 with your domain name.
+In profile.js file, replace the  line 8 with your aws region and 174 with your domain name.
 ```javascript
-const identityPoolId = "your_cognito_identity_pool_ID";
-const userPoolId = "your_userpool_id";
-const clientId = "your_cognito_client_ID";
 const logoutUri = "https://your_domain_name";
+const region         = "your_aws_region;
 ```
 
 
@@ -173,6 +170,7 @@ Go to your code editor and make sure you are in the project's directory inside o
 
 ```hcl
 terraform init
+terraform validate
 terraform plan   # Review planned changes
 terraform apply  # Provision infrastructure
 ```
@@ -199,19 +197,14 @@ git push origin main
 ## 📚 Learning Highlights
 This project helped me develop and demonstrate skills in:
 
-AWS serverless architecture
-
-Secure CI/CD pipelines with GitHub, CodePipeline, and CodeBuild
-
-Infrastructure as Code using Terraform
-
-Event-driven automation with EventBridge
-
-IAM and Cognito for secure access control
-
-Hosting static frontends on S3 with CloudFront and Route 53
-
-Email automation via AWS SES
+- **AWS Serverless Architecture** – Designing high-availability, cost-optimized systems using fully managed components.
+- **Asynchronous Messaging & Decoupling** – Using **Amazon SQS** to implement message queuing, decouple microservices, handle traffic spikes, and create resilient event-driven workflows.
+- **Secure CI/CD Pipelines** – Automating full frontend deployment pipelines using GitHub integration, AWS CodePipeline, and AWS CodeBuild.
+- **Infrastructure as Code (IaC)** – Writing clean, modular configurations in **Terraform** to enforce 100% automated provisioning and environment repeatability.
+- **Event-Driven Automation** – Scheduling cron-based tasks with Amazon EventBridge to poll states and trigger reactive compute layers.
+- **Identity & Access Control** – Implementing strict IAM least-privilege permissions and token-validated authentication via Amazon Cognito Hosted UIs.
+- **Edge Performance & Static Hosting** – Serving low-latency frontends globally via S3 static website hosting, managed Route 53 DNS routing, and CloudFront CDN caching.
+- **Email Automation** – Configuring notification delivery workflows using AWS SES to trigger reliable user alerts.
 
 ## 🙋 About Me
 I'm an aspiring Cloud Engineer passionate about AWS and DevOps.
