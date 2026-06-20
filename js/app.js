@@ -6,6 +6,7 @@ let selectedDeadline = null;
 // ==================================================
 // Config & Constants
 // ==================================================
+// ✅ INJECTED BY CODEBUILD PIPELINE
 const CLIENT_ID          = "__COGNITO_CLIENT_ID__";
 const COGNITO_DOMAIN     = "__CUSTOM_COGNITO_DOMAIN__";
 const REDIRECT_URI       = "https://baylenwebsite.xyz/dashboard.html";
@@ -13,53 +14,29 @@ const LOGIN_PAGE         = "index.html";
 const TOKEN_EXCHANGE_URL = "https://api.baylenwebsite.xyz/token";
 
 // ==================================================
-// Global Dropdown Initialization Execution Context
+// 1) Federated login helper
 // ==================================================
-function setupNavbarControls() {
-    const dropdownToggle = document.getElementById('dropdown-toggle');
-    const dropdownMenu = document.getElementById('dropdown-menu');
-    
-    if (dropdownToggle && dropdownMenu) {
-        dropdownToggle.onclick = function(e) {
-            e.stopPropagation();
-            dropdownMenu.classList.toggle('show');
-        };
-        
-        document.addEventListener('click', function() {
-            dropdownMenu.classList.remove('show');
-        });
-        
-        dropdownMenu.onclick = function(e) {
-            e.stopPropagation();
-        };
-    }
-
-    const deadlineToggle = document.getElementById('deadline-toggle');
-    if (deadlineToggle) {
-        deadlineToggle.onclick = toggleDeadlinePicker;
-    }
-}
-
-// ==================================================
-// Auth & Tokens
-// ==================================================
-function federatedLogin(provider) {
+function federatedLogin(provider /* "Google" or "Facebook" */) {
   const url = new URL(`https://${COGNITO_DOMAIN}/oauth2/authorize`);
   url.searchParams.set("identity_provider", provider);
   url.searchParams.set("client_id", CLIENT_ID);
   url.searchParams.set("redirect_uri", REDIRECT_URI);
   url.searchParams.set("response_type", "code");
-  url.searchParams.set("scope", "openid email profile");
-  url.searchParams.set("prompt", "login");
+  url.searchParams.set("scope", "openid email profile"); // no offline_access
+  url.searchParams.set("prompt", "login");               // force fresh auth
   window.location.href = url.toString();
 }
 
+// ==================================================
+// 2) Handle OAuth callback & persist IdP
+// ==================================================
 async function handleOAuthCallback() {
   const params   = new URLSearchParams(window.location.search);
   const code     = params.get("code");
   const provider = params.get("identity_provider") || "Cognito";
   if (!code) return;
 
+  console.log("OAuth code:", code, "via", provider);
   localStorage.setItem("idpProvider", provider);
 
   try {
@@ -83,15 +60,21 @@ async function handleOAuthCallback() {
   }
 }
 
+// ==================================================
+// 3) Refresh ID token (Option B style)
+// ==================================================
 async function refreshIdToken() {
   const provider     = localStorage.getItem("idpProvider") || "Cognito";
   const refreshToken = localStorage.getItem("refreshToken");
 
+  // Facebook never gets a refresh token via Cognito
   if (provider === "Facebook" || !refreshToken) {
+    console.warn("No refresh token for Facebook – re-authenticating");
     federatedLogin("Facebook");
-    return null;
+    return null;  // bail out, redirect in progress
   }
 
+  // Perform standard refresh_token grant for Cognito/native & Google
   const form = new URLSearchParams({
     grant_type:    "refresh_token",
     client_id:     CLIENT_ID,
@@ -113,6 +96,9 @@ async function refreshIdToken() {
   return id_token;
 }
 
+// ==================================================
+// 4) JWT expiry helper
+// ==================================================
 function isTokenExpired(token) {
   if (!token) return true;
   try {
@@ -123,15 +109,27 @@ function isTokenExpired(token) {
   }
 }
 
-// ==================================================
-// Deadline Logic
-// ==================================================
+// Initialize deadline functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const deadlineToggle = document.getElementById('deadline-toggle');
+    if (deadlineToggle) {
+        deadlineToggle.addEventListener('click', toggleDeadlinePicker);
+    }
+});
+
 function toggleDeadlinePicker() {
     const pickerContainer = document.getElementById('deadline-picker-container');
     if (pickerContainer.style.display === 'block') {
         pickerContainer.style.display = 'none';
     } else {
+        // Position the picker near the button
+        const button = document.getElementById('deadline-toggle');
+        const rect = button.getBoundingClientRect();
+        pickerContainer.style.top = `${rect.bottom + window.scrollY + 5}px`;
+        pickerContainer.style.left = `${rect.left + window.scrollX}px`;
         pickerContainer.style.display = 'block';
+        
+        // Set minimum date to today
         const now = new Date();
         const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
         document.getElementById('deadline-input').min = localDateTime;
@@ -143,11 +141,15 @@ function confirmDeadline() {
     selectedDeadline = deadlineInput.value;
     document.getElementById('deadline-picker-container').style.display = 'none';
     
+    // Visual feedback that deadline is set
     const deadlineToggle = document.getElementById('deadline-toggle');
     deadlineToggle.innerHTML = `<i class="far fa-calendar-check"></i> Deadline Set`;
+    deadlineToggle.style.backgroundColor = '#28a745';
     
+    // Reset after 2 seconds
     setTimeout(() => {
         deadlineToggle.innerHTML = `<i class="far fa-calendar-alt"></i> Set Deadline`;
+        deadlineToggle.style.backgroundColor = '';
     }, 2000);
 }
 
@@ -157,6 +159,7 @@ function cancelDeadline() {
     document.getElementById('deadline-picker-container').style.display = 'none';
 }
 
+// Helper functions for deadline display
 function formatDeadline(isoString) {
     if (!isoString) return '';
     const date = new Date(isoString);
@@ -167,15 +170,10 @@ function getDeadlineClass(deadline) {
     if (!deadline) return '';
     const now = new Date();
     const dueDate = new Date(deadline);
-    
-    if (dueDate < now) {
-        return 'deadline-urgent';
-    }
-    
     const hoursUntilDeadline = (dueDate - now) / (1000 * 60 * 60);
-    if (hoursUntilDeadline < 24) {
-        return 'deadline-warning';
-    }
+    
+    if (hoursUntilDeadline < 0) return 'deadline-urgent'; // Past due
+    if (hoursUntilDeadline < 24) return 'deadline-warning'; // Due within 24 hours
     return '';
 }
 
@@ -192,7 +190,7 @@ function hideInlineDeadlineEditor(taskId) {
 function confirmUpdatedDeadline(taskId) {
   const input = document.getElementById(`deadline-dt-${taskId}`);
   if (input && input.value) {
-    updateDeadline(taskId, input.value);
+    updateDeadline(taskId, input.value); // Implement this to update DynamoDB
   }
   hideInlineDeadlineEditor(taskId);
 }
@@ -201,9 +199,6 @@ function cancelUpdatedDeadline(taskId) {
   hideInlineDeadlineEditor(taskId);
 }
 
-// ==================================================
-// Task CRUD Communications
-// ==================================================
 async function fetchTodos() {
   const idToken = localStorage.getItem('authToken');
   if (!idToken) return displayErrorMessage('ID token is missing');
@@ -225,18 +220,12 @@ async function fetchTodos() {
       li.className = 'todo-item';
 
       li.innerHTML = `
-        <div class="todo-content" style="width: 100%;">
+        <div class="todo-content">
           <div class="todo-text-block">
-            <span class="todo-text">
-              ${todo.taskText}
-            </span>
-            
-            <div class="task-meta" style="margin-top: 4px;">
-              <span class="task-created">
-                ${todo.createdAt ? 'Created: ' + todo.createdAt : ''}
-              </span>
-              
-              <div class="deadline-row" style="margin-top: 4px;">
+            <input type="text" value="${todo.taskText}" id="todo-text-${todo.taskId}">
+            <div class="task-meta">
+              <span class="task-created">${todo.createdAt ? 'Created: ' + todo.createdAt : ''}</span>
+              <div class="deadline-row">
                 ${todo.deadline ? `
                   <span class="deadline-label ${getDeadlineClass(todo.deadline)}">
                     <i class="far fa-clock"></i> Due: ${formatDeadline(todo.deadline)}
@@ -245,8 +234,7 @@ async function fetchTodos() {
                   <i class="fas fa-edit"></i>
                 </button>
               </div>
-              
-              <div class="deadline-editor-container" id="deadline-editor-${todo.taskId}" style="display: none; margin-top: 8px;">
+              <div class="deadline-editor-container" id="deadline-editor-${todo.taskId}" style="display: none;">
                 <input
                   type="datetime-local"
                   class="deadline-editor-input"
@@ -258,15 +246,21 @@ async function fetchTodos() {
               </div>
             </div>
           </div>
-          
           <div class="todo-actions">
+            <button class="btn btn-small btn-update" onclick="updateTodo('${todo.taskId}')">
+              <i class="fas fa-edit"></i>
+            </button>
             <button class="btn btn-small btn-delete" onclick="deleteTodo('${todo.taskId}')">
               <i class="fas fa-trash-alt"></i>
             </button>
           </div>
         </div>
-        
-        <div class="todo-status" id="todo-status-${todo.taskId}" style="min-height:1em; margin-top:4px; color:green; font-size:0.9rem;"></div>
+		
+		<div
+    class="todo-status"
+    id="todo-status-${todo.taskId}"
+    style="min-height:1em; margin-top:4px; color:green; font-size:0.9rem;"
+  ></div>
       `;
 
       todoList.appendChild(li);
@@ -287,8 +281,16 @@ async function fetchTodos() {
   }
 }
 
+function triggerDatePicker(taskId) {
+  const input = document.getElementById(`deadline-editor-${taskId}`);
+  if (input) input.showPicker?.() || input.focus();
+}
+
+// Function to create a new todo
 async function createTodo() {
     let idToken = localStorage.getItem('authToken');
+    console.log('Fetched ID token:', idToken);
+
     if (!idToken) {
         displayErrorMessage('ID token is missing. Please log in again.');
         return;
@@ -297,6 +299,7 @@ async function createTodo() {
     if (isTokenExpired(idToken)) {
         await refreshIdToken();
         idToken = localStorage.getItem('authToken');
+        console.log('Fetched new ID token after refresh:', idToken);
     }
 
     const text = document.getElementById('new-todo').value;
@@ -305,13 +308,17 @@ async function createTodo() {
         return;
     }
 
-    const todoData = { taskText: text };
+    const todoData = {
+        taskText: text
+    };
 
     if (selectedDeadline) {
         todoData.deadline = selectedDeadline;
+        console.log('Creating todo with deadline:', selectedDeadline);
     }
 
     try {
+        console.log('Sending request to create todo:', todoData);
         const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
@@ -321,6 +328,7 @@ async function createTodo() {
             body: JSON.stringify(todoData)
         });
 
+        console.log('Response status:', response.status);
         if (!response.ok) {
             const errorData = await response.json();
             throw new Error(`Failed to create todo: ${errorData.message || response.statusText}`);
@@ -328,6 +336,13 @@ async function createTodo() {
 
         document.getElementById('new-todo').value = '';
         selectedDeadline = null;
+        
+        const deadlineToggle = document.getElementById('deadline-toggle');
+        if (deadlineToggle) {
+            deadlineToggle.innerHTML = `<i class="far fa-calendar-alt"></i> Set Deadline`;
+            deadlineToggle.style.backgroundColor = '';
+        }
+        
         fetchTodos();
     } catch (error) {
         console.error('Error creating todo:', error);
@@ -335,6 +350,7 @@ async function createTodo() {
     }
 }
 
+//function for update deadline for tasks
 async function updateDeadline(taskId, newDeadline) {
   try {
     const idToken = localStorage.getItem('authToken');
@@ -346,7 +362,9 @@ async function updateDeadline(taskId, newDeadline) {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${idToken}`
       },
-     body: JSON.stringify({ deadline: newDeadline })
+     body: JSON.stringify({
+       deadline: newDeadline
+      })
     });
 
     if (!response.ok) {
@@ -360,34 +378,101 @@ async function updateDeadline(taskId, newDeadline) {
   }
 }
 
+// Function to update an existing todo
+async function updateTodo(id) {
+    let idToken = localStorage.getItem('authToken');
+    console.log('Fetched ID token:', idToken);
+    if (isTokenExpired(idToken)) {
+        await refreshIdToken();
+        idToken = localStorage.getItem('authToken');
+        console.log('Fetched new ID token after refresh:', idToken);
+    }
+
+    const text = document.getElementById(`todo-text-${id}`).value;
+    const currentDeadline = selectedDeadline;
+    const resetDeadlineUI = () => {
+        selectedDeadline = null;
+        const deadlineToggle = document.getElementById('deadline-toggle');
+        if (deadlineToggle) {
+            deadlineToggle.innerHTML = `<i class="far fa-calendar-alt"></i> Set Deadline`;
+            deadlineToggle.style.backgroundColor = '';
+        }
+    };
+
+    try {
+        const updateData = { taskText: text };
+        if (currentDeadline) {
+            updateData.deadline = currentDeadline;
+            console.log('Updating todo with new deadline:', currentDeadline);
+        }
+
+        const response = await fetch(`${apiUrl}/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${idToken}`
+            },
+            body: JSON.stringify(updateData)
+        });
+        
+        console.log('Response status:', response.status);
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`Failed to update todo: ${errorData.message || response.statusText}`);
+        }
+        
+        if (currentDeadline) {
+            resetDeadlineUI();
+        }
+		
+        displaySuccessMessage('Task updated successfully!', id);
+        
+        setTimeout(() => {
+            fetchTodos();
+        }, 3000);
+    } catch (error) {
+        console.error('Error updating todo:', error);
+        displayErrorMessage(`Error updating todo: ${error.message || 'Unknown error'}`);
+        if (currentDeadline) {
+            resetDeadlineUI();
+        }
+    }
+}
+
+function displaySuccessMessage(msg, id) {
+  const statusEl = document.getElementById(`todo-status-${id}`);
+  if (!statusEl) return;
+  statusEl.textContent = msg;
+  statusEl.style.color = 'green';
+  setTimeout(() => { statusEl.textContent = ''; }, 5000);
+}
+
 function displayErrorMessage(msg, id) {
   const statusEl = document.getElementById(`todo-status-${id}`);
-  if (!statusEl) {
-    const errorElement = document.getElementById('error-message');
-    if (errorElement) {
-        errorElement.textContent = msg;
-        errorElement.style.display = 'block';
-        setTimeout(() => { errorElement.style.display = 'none'; }, 5000);
-    }
-    return;
-  }
+  if (!statusEl) return;
   statusEl.textContent = msg;
   statusEl.style.color = 'red';
   setTimeout(() => { statusEl.textContent = ''; }, 3000);
 }
 
+// Function to delete a todo
 async function deleteTodo(id) {
     let idToken = localStorage.getItem('authToken');
+    console.log('Fetched ID token:', idToken);
     if (isTokenExpired(idToken)) {
         await refreshIdToken();
         idToken = localStorage.getItem('authToken');
+        console.log('Fetched new ID token after refresh:', idToken);
     }
 
     try {
         const response = await fetch(`${apiUrl}/${id}`, {
             method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${idToken}` }
+            headers: {
+                'Authorization': `Bearer ${idToken}`
+            }
         });
+        console.log('Response status:', response.status);
         if (!response.ok) throw new Error(`Failed to delete todo: ${response.statusText}`);
         fetchTodos();
     } catch (error) {
@@ -396,15 +481,26 @@ async function deleteTodo(id) {
     }
 }
 
+// Function to handle logout
 function logout() {
     localStorage.clear();
     sessionStorage.clear();
+    
+    document.cookie.split(';').forEach(cookie => {
+        const [name] = cookie.trim().split('=');
+        if (name.startsWith('CognitoIdentityServiceProvider') || 
+            name.startsWith('amplify-auth') ||
+            name.startsWith('XSRF-TOKEN')) {
+            document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${window.location.hostname};`;
+        }
+    });
+
     const logoutUri = "https://baylenwebsite.xyz";
+    // ✅ FIXED: Federated logout logic matches dynamic deployment targets
     window.location.href = `https://${COGNITO_DOMAIN}/logout?client_id=${CLIENT_ID}&logout_uri=${encodeURIComponent(logoutUri)}`;
 }
 
 window.onload = async () => {
-  setupNavbarControls();
   const path   = window.location.pathname;
   const params = new URLSearchParams(window.location.search);
 
@@ -416,15 +512,35 @@ window.onload = async () => {
   if (path.includes("dashboard.html")) {
     try {
       let token = localStorage.getItem("authToken") || "";
+
       if (!token || isTokenExpired(token)) {
         token = await refreshIdToken();
       }
+
       if (token) {
         fetchTodos();
       }
-    } catch (err) {
+      return;
+    }
+    catch (err) {
       console.error("Init error:", err);
-      window.location.href = "index.html";
+      const idp = localStorage.getItem("idpProvider") || "Cognito";
+      if (idp !== "Facebook") {
+        window.location.href = "index.html";
+      }
     }
   }
 };
+
+function displayErrorMessage(message) {
+    const errorElement = document.getElementById('error-message');
+    if (errorElement) {
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+        setTimeout(() => {
+            errorElement.style.display = 'none';
+        }, 5000);
+    } else {
+        alert(message);
+    }
+}
