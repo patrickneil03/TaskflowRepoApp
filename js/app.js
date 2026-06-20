@@ -13,34 +13,32 @@ const LOGIN_PAGE         = "index.html";
 const TOKEN_EXCHANGE_URL = "https://api.baylenwebsite.xyz/token";
 
 // ==================================================
-// Native Event Handling Interceptors (Consolidated navbar logic)
+// Global Dropdown Initialization Execution Context
 // ==================================================
-document.addEventListener('DOMContentLoaded', function() {
-    // 1. Navigation Panel Dropdown Handler
+function setupNavbarControls() {
     const dropdownToggle = document.getElementById('dropdown-toggle');
     const dropdownMenu = document.getElementById('dropdown-menu');
     
     if (dropdownToggle && dropdownMenu) {
-        dropdownToggle.addEventListener('click', function(e) {
+        dropdownToggle.onclick = function(e) {
             e.stopPropagation();
             dropdownMenu.classList.toggle('show');
-        });
+        };
         
         document.addEventListener('click', function() {
             dropdownMenu.classList.remove('show');
         });
         
-        dropdownMenu.addEventListener('click', function(e) {
+        dropdownMenu.onclick = function(e) {
             e.stopPropagation();
-        });
+        };
     }
 
-    // 2. Deadline Toggle Interceptor
     const deadlineToggle = document.getElementById('deadline-toggle');
     if (deadlineToggle) {
-        deadlineToggle.addEventListener('click', toggleDeadlinePicker);
+        deadlineToggle.onclick = toggleDeadlinePicker;
     }
-});
+}
 
 // ==================================================
 // Auth & Tokens
@@ -171,12 +169,12 @@ function getDeadlineClass(deadline) {
     const dueDate = new Date(deadline);
     
     if (dueDate < now) {
-        return 'deadline-urgent'; // Red color style override
+        return 'deadline-urgent';
     }
     
     const hoursUntilDeadline = (dueDate - now) / (1000 * 60 * 60);
     if (hoursUntilDeadline < 24) {
-        return 'deadline-warning'; // Yellow color
+        return 'deadline-warning';
     }
     return '';
 }
@@ -229,12 +227,12 @@ async function fetchTodos() {
       li.innerHTML = `
         <div class="todo-content" style="width: 100%;">
           <div class="todo-text-block">
-            <span class="todo-text" style="font-size: 1.15rem; font-weight: 600; color: var(--text-color);">
+            <span class="todo-text">
               ${todo.taskText}
             </span>
             
             <div class="task-meta" style="margin-top: 4px;">
-              <span class="task-created" style="font-size: 0.75rem; color: var(--text-muted);">
+              <span class="task-created">
                 ${todo.createdAt ? 'Created: ' + todo.createdAt : ''}
               </span>
               
@@ -273,7 +271,6 @@ async function fetchTodos() {
 
       todoList.appendChild(li);
 
-      // Explicit target listener mapping logic
       li.querySelector(`#edit-btn-${CSS.escape(todo.taskId)}`)?.addEventListener('click', () => {
         showInlineDeadlineEditor(todo.taskId);
       });
@@ -407,6 +404,7 @@ function logout() {
 }
 
 window.onload = async () => {
+  setupNavbarControls();
   const path   = window.location.pathname;
   const params = new URLSearchParams(window.location.search);
 

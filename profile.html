@@ -5,18 +5,266 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Profile | TaskFlow</title>
-    <link rel="stylesheet" href="css/profile-styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@5.2.10/dist/amazon-cognito-identity.min.js"></script>
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1305.0.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --primary-light: #e0e7ff;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #0f172a;
+            --text-light: #475569;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --radius-lg: 16px;
+            --radius-md: 12px;
+        }
+
+        body[data-theme="dark"] {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --text-light: #cbd5e1;
+            --text-muted: #64748b;
+            --border-color: #334155;
+            --primary-light: #1e1b4b;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.5;
+            transition: var(--transition);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            background-color: var(--card-bg);
+            padding: 14px 24px;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            letter-spacing: -0.03em;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-toggle {
+            background-color: var(--bg-color);
+            color: var(--text-light);
+            border: 1px solid var(--border-color);
+            padding: 8px 14px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: var(--card-bg);
+            min-width: 220px;
+            box-shadow: var(--shadow-md);
+            z-index: 1001;
+            border-radius: var(--radius-md);
+            margin-top: 8px;
+            border: 1px solid var(--border-color);
+            padding: 6px;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-menu a,
+        .dropdown-menu .dropdown-item {
+            color: var(--text-light);
+            padding: 10px 14px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border: none;
+            width: 100%;
+            text-align: left;
+            background: none;
+            cursor: pointer;
+            box-sizing: border-box;
+            border-radius: 8px;
+            transition: var(--transition);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .dropdown-menu a:hover,
+        .dropdown-menu .dropdown-item:hover {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+        }
+
+        .dropdown-menu a.active {
+            background-color: var(--primary-color);
+            color: #ffffff;
+        }
+
+        .profile-page-wrapper {
+            flex-grow: 1;
+            padding: 40px 24px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .profile-container {
+            width: 100%;
+            max-width: 600px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .section-title {
+            margin: 0 0 24px 0;
+            font-weight: 800;
+            font-size: 1.8rem;
+            letter-spacing: -0.02em;
+        }
+
+        .profile-top-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .profile-pic-wrapper {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid var(--border-color);
+        }
+
+        #profilePic {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-details {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .detail-label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .detail-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 24px;
+        }
+
+        .custom-file-upload, .upload-btn {
+            padding: 10px 20px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            transition: var(--transition);
+        }
+
+        .custom-file-upload {
+            background-color: var(--bg-color);
+            color: var(--text-light);
+            border: 1px solid var(--border-color);
+        }
+
+        .upload-btn {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .upload-btn:hover {
+            background-color: var(--primary-hover);
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="navbar-content">
             <div class="logo">TaskFlow</div>
             <div class="dropdown">
-                <button class="dropdown-toggle" id="dropdown-toggle" aria-haspopup="true" aria-expanded="false">
+                <button class="dropdown-toggle" id="dropdown-toggle">
                     <i class="fas fa-user-circle"></i>
                     <i class="fas fa-chevron-down dropdown-chevron"></i>
                 </button>
@@ -26,61 +274,48 @@
                     <button class="dropdown-item" id="theme-toggle">
                         <i class="fas fa-moon"></i> <span>Dark Mode</span>
                     </button>
-                    <a href="#" id="logoutBtn" class="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    <a href="#" id="logoutBtn" class="logout-link" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
                 </div>
             </div>
         </div>
     </nav>
 
-    <main class="profile-page-wrapper">
+    <div class="profile-page-wrapper">
         <div class="profile-container">
-            <div class="profile-header-meta">
-                <h2 class="section-title">Account Settings</h2>
-                <p class="section-subtitle">Manage your profile metadata and personalization options.</p>
-            </div>
-
-            <div class="profile-card main-info-card">
-                <div class="avatar-management-pane">
+            <h1 class="section-title">Your Profile</h1>
+            <div class="profile-card">
+                <div class="profile-top-section">
                     <div class="profile-pic-wrapper">
                         <img id="profilePic" src="images/default-profile.png" alt="Profile Picture">
-                        <input type="file" id="fileInput" accept="image/*" hidden>
-                        <label for="fileInput" class="avatar-edit-badge" title="Change Photo">
-                            <i class="fas fa-camera"></i>
-                        </label>
                     </div>
-                    <div class="avatar-meta-text">
-                        <h3>Profile Image</h3>
-                        <p>PNG or JPG up to 2MB.</p>
-                    </div>
-                    <button id="uploadBtn" class="upload-btn primary-button">
-                        <i class="fas fa-cloud-upload-alt"></i> Save Image
-                    </button>
-                    <div id="uploadStatus" class="status-message"></div>
-                </div>
 
-                <div class="profile-details-pane">
-                    <div class="detail-item">
-                        <div class="icon-avatar-badge"><i class="fas fa-user"></i></div>
-                        <div class="detail-content">
-                            <span class="detail-label">Username</span>
+                    <div class="profile-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Username:</span>
                             <span id="username" class="detail-value">Loading...</span>
                         </div>
-                    </div>
-                    
-                    <div class="detail-item">
-                        <div class="icon-avatar-badge"><i class="fas fa-envelope"></i></div>
-                        <div class="detail-content">
-                            <span class="detail-label">Email Address</span>
+                        <div class="detail-item">
+                            <span class="detail-label">Email:</span>
                             <span id="email" class="detail-value">Loading...</span>
                         </div>
                     </div>
                 </div>
+
+                <div class="button-group">
+                    <input type="file" id="fileInput" accept="image/*" hidden>
+                    <label for="fileInput" class="custom-file-upload">
+                        <i class="fas fa-camera"></i> Change Photo
+                    </label>
+                    <button id="uploadBtn" class="upload-btn">
+                        <i class="fas fa-upload"></i> Upload
+                    </button>
+                </div>
+                <div id="uploadStatus" style="display: none; text-align: center; margin-top: 12px;"></div>
             </div>
         </div>
-    </main>
+    </div>
 
     <script src="js/profile.js"></script>
-    <script src="js/dropdown.js"></script>
     <script src="js/settings-profile.js"></script>
 </body>
 </html>
