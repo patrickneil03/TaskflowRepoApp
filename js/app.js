@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ==================================================
-// Auth & Tokens (Unchanged Functions)
+// Auth & Tokens
 // ==================================================
 function federatedLogin(provider) {
   const url = new URL(`https://${COGNITO_DOMAIN}/oauth2/authorize`);
@@ -165,19 +165,18 @@ function formatDeadline(isoString) {
     return date.toLocaleString();
 }
 
-/* ✅ MONITORS DEADLINE AND ASSIGNS RED ALERTS TO OVERDUE ITEMS */
 function getDeadlineClass(deadline) {
     if (!deadline) return '';
     const now = new Date();
     const dueDate = new Date(deadline);
     
     if (dueDate < now) {
-        return 'deadline-urgent'; // Past due -> Red Color
+        return 'deadline-urgent'; // Red color style override
     }
     
     const hoursUntilDeadline = (dueDate - now) / (1000 * 60 * 60);
     if (hoursUntilDeadline < 24) {
-        return 'deadline-warning'; // Yellow Color
+        return 'deadline-warning'; // Yellow color
     }
     return '';
 }
@@ -228,12 +227,18 @@ async function fetchTodos() {
       li.className = 'todo-item';
 
       li.innerHTML = `
-        <div class="todo-content">
+        <div class="todo-content" style="width: 100%;">
           <div class="todo-text-block">
-            <input type="text" value="${todo.taskText}" id="todo-text-${todo.taskId}">
-            <div class="task-meta">
-              <span class="task-created">${todo.createdAt ? 'Created: ' + todo.createdAt : ''}</span>
-              <div class="deadline-row">
+            <span class="todo-text" style="font-size: 1.15rem; font-weight: 600; color: var(--text-color);">
+              ${todo.taskText}
+            </span>
+            
+            <div class="task-meta" style="margin-top: 4px;">
+              <span class="task-created" style="font-size: 0.75rem; color: var(--text-muted);">
+                ${todo.createdAt ? 'Created: ' + todo.createdAt : ''}
+              </span>
+              
+              <div class="deadline-row" style="margin-top: 4px;">
                 ${todo.deadline ? `
                   <span class="deadline-label ${getDeadlineClass(todo.deadline)}">
                     <i class="far fa-clock"></i> Due: ${formatDeadline(todo.deadline)}
@@ -242,7 +247,8 @@ async function fetchTodos() {
                   <i class="fas fa-edit"></i>
                 </button>
               </div>
-              <div class="deadline-editor-container" id="deadline-editor-${todo.taskId}" style="display: none;">
+              
+              <div class="deadline-editor-container" id="deadline-editor-${todo.taskId}" style="display: none; margin-top: 8px;">
                 <input
                   type="datetime-local"
                   class="deadline-editor-input"
@@ -254,21 +260,20 @@ async function fetchTodos() {
               </div>
             </div>
           </div>
+          
           <div class="todo-actions">
-            <button class="btn btn-small btn-update" onclick="updateTodo('${todo.taskId}')">
-              <i class="fas fa-save"></i>
-            </button>
             <button class="btn btn-small btn-delete" onclick="deleteTodo('${todo.taskId}')">
               <i class="fas fa-trash-alt"></i>
             </button>
           </div>
         </div>
-		
-		<div class="todo-status" id="todo-status-${todo.taskId}" style="min-height:1em; margin-top:4px; color:green; font-size:0.9rem;"></div>
+        
+        <div class="todo-status" id="todo-status-${todo.taskId}" style="min-height:1em; margin-top:4px; color:green; font-size:0.9rem;"></div>
       `;
 
       todoList.appendChild(li);
 
+      // Explicit target listener mapping logic
       li.querySelector(`#edit-btn-${CSS.escape(todo.taskId)}`)?.addEventListener('click', () => {
         showInlineDeadlineEditor(todo.taskId);
       });
@@ -356,45 +361,6 @@ async function updateDeadline(taskId, newDeadline) {
     console.error('Error updating deadline:', error);
     displayErrorMessage(`Could not update deadline: ${error.message}`);
   }
-}
-
-async function updateTodo(id) {
-    let idToken = localStorage.getItem('authToken');
-    if (isTokenExpired(idToken)) {
-        await refreshIdToken();
-        idToken = localStorage.getItem('authToken');
-    }
-
-    const text = document.getElementById(`todo-text-${id}`).value;
-    try {
-        const response = await fetch(`${apiUrl}/${id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${idToken}`
-            },
-            body: JSON.stringify({ taskText: text })
-        });
-        
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(`Failed to update todo: ${errorData.message || response.statusText}`);
-        }
-        
-        displaySuccessMessage('Task updated successfully!', id);
-        setTimeout(() => { fetchTodos(); }, 1500);
-    } catch (error) {
-        console.error('Error updating todo:', error);
-        displayErrorMessage(`Error updating todo: ${error.message || 'Unknown error'}`, id);
-    }
-}
-
-function displaySuccessMessage(msg, id) {
-  const statusEl = document.getElementById(`todo-status-${id}`);
-  if (!statusEl) return;
-  statusEl.textContent = msg;
-  statusEl.style.color = 'green';
-  setTimeout(() => { statusEl.textContent = ''; }, 3000);
 }
 
 function displayErrorMessage(msg, id) {
