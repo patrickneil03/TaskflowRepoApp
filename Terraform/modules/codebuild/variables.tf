@@ -42,3 +42,7 @@ variable "custom_domain_name" {
   description = "The custom domain name for the API."
   type        = string
 }
+
+variable "route53_domain_name" {
+  description = "The main domain name: baylenweb-app.xyz"
+}

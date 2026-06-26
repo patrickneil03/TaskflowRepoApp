@@ -79,8 +79,8 @@ env:
     USER_POOL_ID: "${var.user_pool_id}"
     API_URL: "https://api.${var.custom_domain_name}/taskhandler"
     TOKEN_EXCHANGE_URL: "https://api.${var.custom_domain_name}/token"
-    REDIRECT_URI: "https://${var.custom_domain_name}/dashboard.html"
-    LOGOUT_URI: "https://${var.custom_domain_name}"
+    REDIRECT_URI: "https://${var.route53_domain_name}/dashboard.html"
+    LOGOUT_URI: "https://${var.route53_domain_name}"
     PROFILE_API_URL: "https://api.${var.custom_domain_name}/profileimagetos3"
 
 phases:

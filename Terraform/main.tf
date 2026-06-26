@@ -177,6 +177,7 @@ module "codebuild" {
   identity_pool_id = module.cognito.identity_pool_id
   user_pool_id = module.cognito.user_pool_id
   custom_domain_name = var.custom_domain_name
+  route53_domain_name = var.route53_domain_name
 }
 
 module "sqs" {
