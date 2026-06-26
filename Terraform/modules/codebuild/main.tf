@@ -18,6 +18,11 @@ resource "aws_codebuild_project" "frontend_sync" {
     }
 
     environment_variable {
+      name  = "CLOUDFRONT_DISTRIBUTION_ID"
+      value = var.cloudfront_distribution_id
+    }
+
+    environment_variable {
       name  = "COGNITO_CLIENT_ID"
       value = var.cognito_client_id
     }
@@ -37,30 +42,31 @@ resource "aws_codebuild_project" "frontend_sync" {
       value = var.user_pool_id
     }
 
-    # ✅ NEW: Domain-driven API and redirection routing configurations
     environment_variable {
       name  = "API_URL"
-      value = "https://api.${var.custom_domain_name}/taskhandler"
+      value = "https://${var.custom_domain_name}/taskhandler"
     }
 
     environment_variable {
       name  = "TOKEN_EXCHANGE_URL"
-      value = "https://api.${var.custom_domain_name}/token"
+      value = "https://${var.custom_domain_name}/token"
     }
 
+    # ✅ FIXED: Now targeting root domain instead of 'api.' subdomain
     environment_variable {
       name  = "REDIRECT_URI"
-      value = "https://${var.custom_domain_name}/dashboard.html"
+      value = "https://${var.route53_domain_name}/dashboard.html"
     }
 
+    # ✅ FIXED: Now targeting root domain instead of 'api.' subdomain
     environment_variable {
       name  = "LOGOUT_URI"
-      value = "https://${var.custom_domain_name}"
+      value = "https://${var.route53_domain_name}"
     }
 
     environment_variable {
       name  = "PROFILE_API_URL"
-      value = "https://api.${var.custom_domain_name}/profileimagetos3"
+      value = "https://${var.custom_domain_name}/profileimagetos3"
     }
   }
 
@@ -68,20 +74,6 @@ resource "aws_codebuild_project" "frontend_sync" {
     type      = "CODEPIPELINE"
     buildspec = <<BUILD_SPEC
 version: 0.2
-
-env:
-  variables:
-    TARGET_BUCKET: "${var.s3_bucket_my_bucket}"
-    CLOUDFRONT_DISTRIBUTION_ID: "${var.cloudfront_distribution_id}"
-    COGNITO_CLIENT_ID: "${var.cognito_client_id}"
-    CUSTOM_COGNITO_DOMAIN: "${var.custom_cognito_domain}"
-    IDENTITY_POOL_ID: "${var.identity_pool_id}"
-    USER_POOL_ID: "${var.user_pool_id}"
-    API_URL: "https://api.${var.custom_domain_name}/taskhandler"
-    TOKEN_EXCHANGE_URL: "https://api.${var.custom_domain_name}/token"
-    REDIRECT_URI: "https://${var.route53_domain_name}/dashboard.html"
-    LOGOUT_URI: "https://${var.route53_domain_name}"
-    PROFILE_API_URL: "https://api.${var.custom_domain_name}/profileimagetos3"
 
 phases:
   build:
