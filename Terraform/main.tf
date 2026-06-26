@@ -19,7 +19,7 @@ provider "aws" {
 }
 
 data "aws_route53_zone" "shared_domain" {
-  name         = "baylenwebsite.xyz"
+  name         = var.route53_domain_name
   private_zone = false
 }
 
@@ -48,6 +48,8 @@ module "cognito" {
   facebook_app_id = var.facebook_app_id
   custom_cognito_domain = var.custom_cognito_domain
   cognito_cert_validation_arn = module.acm.cognito_cert_validation_arn
+  cognito_validation_dependency = module.acm.cognito_validation_dependency
+  route53_domain_name = var.route53_domain_name
 }
 
 module "iam" {
@@ -85,6 +87,7 @@ module "lambda" {
   taskconsumer_role_arn = module.iam.taskconsumer_role_arn
   sqs_queue_arn = module.sqs.sqs_queue_arn
   custom_cognito_domain = var.custom_cognito_domain
+  route53_domain_name = var.route53_domain_name
 }
 
 data "aws_caller_identity" "current" {}
@@ -173,6 +176,7 @@ module "codebuild" {
   custom_cognito_domain = var.custom_cognito_domain
   identity_pool_id = module.cognito.identity_pool_id
   user_pool_id = module.cognito.user_pool_id
+  custom_domain_name = var.custom_domain_name
 }
 
 module "sqs" {

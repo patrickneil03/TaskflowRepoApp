@@ -9,7 +9,7 @@ resource "random_id" "bucket_suffix" {
 resource "aws_s3_bucket" "my_bucket" {
   # The final bucket name is now: <base_name>-<account_id>-<random_suffix>
   bucket = "${var.aws_s3_bucket_name}-${data.aws_caller_identity.current.account_id}-${random_id.bucket_suffix.hex}"
-  
+  force_destroy = true
   tags = {
     Name        = var.aws_s3_bucket_name
     Environment = "Dev"
@@ -19,7 +19,7 @@ resource "aws_s3_bucket" "my_bucket" {
 resource "aws_s3_bucket" "profile_bucket" {
   # The final bucket name is now: <base_name>-<account_id>-<random_suffix>
   bucket = "${var.s3_bucket_name_profile}-${data.aws_caller_identity.current.account_id}-${random_id.bucket_suffix.hex}"
-  
+  force_destroy = true
   tags = {
     Name        = var.s3_bucket_name_profile
     Environment = "Dev"
@@ -51,6 +51,7 @@ resource "aws_s3_object" "profile_folder" {
 
 resource "aws_s3_bucket" "artifact" {
   bucket = "${var.aws_s3_bucket_name}-${data.aws_caller_identity.current.account_id}-artifacts-${random_id.bucket_suffix.hex}"
+  force_destroy = true
 }
 
 resource "aws_s3_bucket_ownership_controls" "artifact" {

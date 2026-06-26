@@ -4,10 +4,11 @@ if (typeof AmazonCognitoIdentity === 'undefined') {
 }
 
 // AWS Configuration
-// ✅ INJECTED BY CODEBUILD PIPELINE
-const region         = "ap-southeast-1";
+// ✅ DYNAMICALLY INJECTED BY CODEBUILD PIPELINE VIA TERRAFORM
+const PROFILE_API     = "__PROFILE_API_URL__"; // Target: https://api.${var.custom_domain_name}/profileimagetos3
+const region          = "ap-southeast-1";
 const identityPoolId = "__IDENTITY_POOL_ID__";
-const userPoolId     = "__USER_POOL_ID__";
+const userPoolId      = "__USER_POOL_ID__";
 const clientId       = "__COGNITO_CLIENT_ID__";
 const COGNITO_DOMAIN = "__CUSTOM_COGNITO_DOMAIN__";
 
@@ -116,12 +117,11 @@ async function handleFileUpload(file) {
         const payload = JSON.parse(atob(authToken.split('.')[1]));
         const username = payload['cognito:username'];
         const requestBody = { username };
-        const apiUrl = "https://api.baylenwebsite.xyz/profileimagetos3";
 
         showMessage("Uploading...", false);
 
-        // Step 1: Get presigned PUT URL
-        const response = await fetch(apiUrl, {
+        // Step 1: Get presigned PUT URL using dynamic PROFILE_API
+        const response = await fetch(PROFILE_API, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -160,8 +160,8 @@ async function handleFileUpload(file) {
 
 // Logout Handler
 document.getElementById("logoutBtn").addEventListener("click", () => {
-    const logoutUri = "https://baylenwebsite.xyz";
-    // ✅ FIXED: Cleans up session against dynamic identity stack
+    // ✅ DYNAMICALLY INJECTED BY CODEBUILD PIPELINE VIA TERRAFORM
+    const logoutUri = "__LOGOUT_URI__";
     window.location.href = `https://${COGNITO_DOMAIN}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
 });
 
@@ -213,9 +213,10 @@ async function fetchProfilePicture() {
             return;
         }
 
-        const apiUrl = `https://api.baylenwebsite.xyz/profileimagetos3?username=${encodeURIComponent(username)}`;
+        // ✅ Updated to cleanly append parameters onto dynamic PROFILE_API
+        const urlWithParams = `${PROFILE_API}?username=${encodeURIComponent(username)}`;
         
-        const response = await fetch(apiUrl, {
+        const response = await fetch(urlWithParams, {
             method: "GET",
             headers: {
                 "Authorization": authToken

@@ -1,5 +1,5 @@
 data "aws_route53_zone" "shared_domain" {
-  name         = "baylenwebsite.xyz"
+  name         = var.route53_domain_name
   private_zone = false
 }
 

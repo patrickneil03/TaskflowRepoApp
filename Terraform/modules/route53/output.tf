@@ -11,4 +11,3 @@ output "cert_validation_fqdns" {
 output "validation_fqdns" {
   value = [for record in aws_route53_record.cert_validation : record.fqdn]
 }
-

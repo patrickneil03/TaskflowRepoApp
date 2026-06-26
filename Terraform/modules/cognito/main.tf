@@ -36,8 +36,8 @@ resource "aws_cognito_user_pool_client" "my_user_pool_client" {
   allowed_oauth_flows                  = ["code"]
   allowed_oauth_scopes                 = ["email", "openid", "profile"]
   allowed_oauth_flows_user_pool_client = true
-  callback_urls                        = ["https://baylenwebsite.xyz/dashboard.html"]
-  logout_urls                         = ["https://baylenwebsite.xyz"]
+  callback_urls                        = ["https://${var.route53_domain_name}/dashboard.html"]
+  logout_urls                          = ["https://${var.route53_domain_name}"]
 
   # These strings must match the 'provider_name' in the resources below
   supported_identity_providers = ["COGNITO", "Facebook", "Google"]
@@ -117,4 +117,8 @@ resource "aws_cognito_user_pool_domain" "cognito_domain" {
   domain          = var.custom_cognito_domain
   user_pool_id    = aws_cognito_user_pool.my_user_pool.id
   certificate_arn = var.cognito_cert_validation_arn
+
+  depends_on = [
+    var.cognito_validation_dependency,
+  ]
 }

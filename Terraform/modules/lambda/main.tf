@@ -12,6 +12,7 @@ resource "aws_lambda_function" "TokenHandlerCognito" {
       CLIENT_ID             = var.cognito_client_id
       CLIENT_SECRET         = var.cognito_client_secret
       CUSTOM_COGNITO_DOMAIN = var.custom_cognito_domain
+      REDIRECT_URI          = "https://${var.route53_domain_name}/dashboard.html"
     }
   }
 }

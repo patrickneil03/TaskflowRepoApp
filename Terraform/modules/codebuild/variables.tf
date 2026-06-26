@@ -37,3 +37,8 @@ variable "user_pool_id" {
   description = "The ID of the Cognito User Pool."
   type        = string
 }
+
+variable "custom_domain_name" {
+  description = "The custom domain name for the API."
+  type        = string
+}

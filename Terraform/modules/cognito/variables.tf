@@ -62,3 +62,13 @@ variable "cognito_cert_validation_arn" {
   type        = string
 
 }
+
+variable "cognito_validation_dependency" {
+  description = "The dependency for the Cognito certificate validation"
+  type        = string
+}
+
+variable "route53_domain_name" {
+  description = "The main domain name managed in Route 53"
+  type        = string
+}

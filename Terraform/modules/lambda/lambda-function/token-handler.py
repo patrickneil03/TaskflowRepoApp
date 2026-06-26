@@ -3,42 +3,41 @@ import urllib.parse
 import urllib.request
 import os
 
-
 COGNITO_DOMAIN_ENV = os.environ.get("CUSTOM_COGNITO_DOMAIN", "").strip()
 COGNITO_DOMAIN = COGNITO_DOMAIN_ENV.replace("https://", "").replace("http://", "")
 
 CLIENT_ID = os.environ.get("CLIENT_ID")
 CLIENT_SECRET = os.environ.get("CLIENT_SECRET")
+# ✅ NEW: Fetch redirect URI dynamically from Lambda Environment Settings
+REDIRECT_URI = os.environ.get("REDIRECT_URI", "").strip()
 
 def lambda_handler(event, context):
     # Safety Check: Exit early if configuration variables are missing in AWS Console
-    if not COGNITO_DOMAIN:
-        print("CRITICAL ERROR: CUSTOM_COGNITO_DOMAIN environment variable is missing.")
+    if not COGNITO_DOMAIN or not REDIRECT_URI:
+        print("CRITICAL ERROR: Missing configuration environment variables (CUSTOM_COGNITO_DOMAIN or REDIRECT_URI).")
         return {
             "statusCode": 500,
             "headers": {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*"
             },
-            "body": json.dumps({"error": "Backend configuration error: Missing CUSTOM_COGNITO_DOMAIN."})
+            "body": json.dumps({"error": "Backend configuration error: Missing environment configurations."})
         }
 
     try:
         body = json.loads(event["body"])
         code = body["code"]
 
-        # ✅ FIXED: Correctly structures your dedicated token exchange URL
         token_url = f"https://{COGNITO_DOMAIN}/oauth2/token"
         
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
         data = {
             "grant_type": "authorization_code",
             "client_id": CLIENT_ID,
-            "redirect_uri": "https://baylenwebsite.xyz/dashboard.html",
+            "redirect_uri": REDIRECT_URI,
             "code": code,
         }
 
-        # ✅ FIXED: Only includes the client_secret parameter if it actually exists 
         if CLIENT_SECRET:
             data["client_secret"] = CLIENT_SECRET
 
@@ -60,7 +59,6 @@ def lambda_handler(event, context):
         }
 
     except Exception as e:
-        # Prints runtime crash traces explicitly to AWS CloudWatch Logs for debugging
         print(f"Token Exchange Failure Exception: {str(e)}")
         return {
             "statusCode": 500,

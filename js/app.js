@@ -1,17 +1,13 @@
-const apiUrl = 'https://api.baylenwebsite.xyz/taskhandler';
+// ✅ DYNAMICALLY INJECTED BY CODEBUILD PIPELINE VIA TERRAFORM
+const TASKHANDLER_API    = "__API_URL__";
+const TOKEN_EXCHANGE_URL = "__TOKEN_EXCHANGE_URL__";
+const REDIRECT_URI       = "__REDIRECT_URI__";
+const CLIENT_ID          = "__COGNITO_CLIENT_ID__";
+const COGNITO_DOMAIN     = "__CUSTOM_COGNITO_DOMAIN__";
+const LOGIN_PAGE         = "index.html";
 
 // Global variable to store the selected deadline
 let selectedDeadline = null;
-
-// ==================================================
-// Config & Constants
-// ==================================================
-// ✅ INJECTED BY CODEBUILD PIPELINE
-const CLIENT_ID          = "__COGNITO_CLIENT_ID__";
-const COGNITO_DOMAIN     = "__CUSTOM_COGNITO_DOMAIN__";
-const REDIRECT_URI       = "https://baylenwebsite.xyz/dashboard.html";
-const LOGIN_PAGE         = "index.html";
-const TOKEN_EXCHANGE_URL = "https://api.baylenwebsite.xyz/token";
 
 // ==================================================
 // 1) Federated login helper
@@ -67,14 +63,12 @@ async function refreshIdToken() {
   const provider     = localStorage.getItem("idpProvider") || "Cognito";
   const refreshToken = localStorage.getItem("refreshToken");
 
-  // Facebook never gets a refresh token via Cognito
   if (provider === "Facebook" || !refreshToken) {
     console.warn("No refresh token for Facebook – re-authenticating");
     federatedLogin("Facebook");
-    return null;  // bail out, redirect in progress
+    return null;
   }
 
-  // Perform standard refresh_token grant for Cognito/native & Google
   const form = new URLSearchParams({
     grant_type:    "refresh_token",
     client_id:     CLIENT_ID,
@@ -122,14 +116,12 @@ function toggleDeadlinePicker() {
     if (pickerContainer.style.display === 'block') {
         pickerContainer.style.display = 'none';
     } else {
-        // Position the picker near the button
         const button = document.getElementById('deadline-toggle');
         const rect = button.getBoundingClientRect();
         pickerContainer.style.top = `${rect.bottom + window.scrollY + 5}px`;
         pickerContainer.style.left = `${rect.left + window.scrollX}px`;
         pickerContainer.style.display = 'block';
         
-        // Set minimum date to today
         const now = new Date();
         const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
         document.getElementById('deadline-input').min = localDateTime;
@@ -141,12 +133,10 @@ function confirmDeadline() {
     selectedDeadline = deadlineInput.value;
     document.getElementById('deadline-picker-container').style.display = 'none';
     
-    // Visual feedback that deadline is set
     const deadlineToggle = document.getElementById('deadline-toggle');
     deadlineToggle.innerHTML = `<i class="far fa-calendar-check"></i> Deadline Set`;
     deadlineToggle.style.backgroundColor = '#28a745';
     
-    // Reset after 2 seconds
     setTimeout(() => {
         deadlineToggle.innerHTML = `<i class="far fa-calendar-alt"></i> Set Deadline`;
         deadlineToggle.style.backgroundColor = '';
@@ -159,7 +149,6 @@ function cancelDeadline() {
     document.getElementById('deadline-picker-container').style.display = 'none';
 }
 
-// Helper functions for deadline display
 function formatDeadline(isoString) {
     if (!isoString) return '';
     const date = new Date(isoString);
@@ -172,14 +161,23 @@ function getDeadlineClass(deadline) {
     const dueDate = new Date(deadline);
     const hoursUntilDeadline = (dueDate - now) / (1000 * 60 * 60);
     
-    if (hoursUntilDeadline < 0) return 'deadline-urgent'; // Past due
-    if (hoursUntilDeadline < 24) return 'deadline-warning'; // Due within 24 hours
+    if (hoursUntilDeadline < 0) return 'deadline-urgent';
+    if (hoursUntilDeadline < 24) return 'deadline-warning';
     return '';
 }
 
 function showInlineDeadlineEditor(taskId) {
   const editor = document.getElementById(`deadline-editor-${taskId}`);
   if (editor) editor.style.display = 'flex';
+}
+
+// Target elements inline per task error element
+function displayInlineErrorMessage(msg, id) {
+  const statusEl = document.getElementById(`todo-status-${id}`);
+  if (!statusEl) return;
+  statusEl.textContent = msg;
+  statusEl.style.color = 'red';
+  setTimeout(() => { statusEl.textContent = ''; }, 3000);
 }
 
 function hideInlineDeadlineEditor(taskId) {
@@ -190,7 +188,7 @@ function hideInlineDeadlineEditor(taskId) {
 function confirmUpdatedDeadline(taskId) {
   const input = document.getElementById(`deadline-dt-${taskId}`);
   if (input && input.value) {
-    updateDeadline(taskId, input.value); // Implement this to update DynamoDB
+    updateDeadline(taskId, input.value);
   }
   hideInlineDeadlineEditor(taskId);
 }
@@ -201,9 +199,10 @@ function cancelUpdatedDeadline(taskId) {
 
 async function fetchTodos() {
   const idToken = localStorage.getItem('authToken');
-  if (!idToken) return displayErrorMessage('ID token is missing');
+  if (!idToken) return displayGlobalErrorMessage('ID token is missing');
   try {
-    const response = await fetch(apiUrl, {
+    // ✅ Updated to use TASKHANDLER_API
+    const response = await fetch(TASKHANDLER_API, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${idToken}`,
@@ -277,7 +276,7 @@ async function fetchTodos() {
     });
   } catch (error) {
     console.error('Error fetching todos:', error);
-    displayErrorMessage(`Error: ${error.message}`);
+    displayGlobalErrorMessage(`Error: ${error.message}`);
   }
 }
 
@@ -289,37 +288,30 @@ function triggerDatePicker(taskId) {
 // Function to create a new todo
 async function createTodo() {
     let idToken = localStorage.getItem('authToken');
-    console.log('Fetched ID token:', idToken);
-
     if (!idToken) {
-        displayErrorMessage('ID token is missing. Please log in again.');
+        displayGlobalErrorMessage('ID token is missing. Please log in again.');
         return;
     }
 
     if (isTokenExpired(idToken)) {
         await refreshIdToken();
         idToken = localStorage.getItem('authToken');
-        console.log('Fetched new ID token after refresh:', idToken);
     }
 
     const text = document.getElementById('new-todo').value;
     if (!text) {
-        displayErrorMessage('Task text cannot be empty');
+        displayGlobalErrorMessage('Task text cannot be empty');
         return;
     }
 
-    const todoData = {
-        taskText: text
-    };
-
+    const todoData = { taskText: text };
     if (selectedDeadline) {
         todoData.deadline = selectedDeadline;
-        console.log('Creating todo with deadline:', selectedDeadline);
     }
 
     try {
-        console.log('Sending request to create todo:', todoData);
-        const response = await fetch(apiUrl, {
+        // ✅ Updated to use TASKHANDLER_API
+        const response = await fetch(TASKHANDLER_API, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -328,7 +320,6 @@ async function createTodo() {
             body: JSON.stringify(todoData)
         });
 
-        console.log('Response status:', response.status);
         if (!response.ok) {
             const errorData = await response.json();
             throw new Error(`Failed to create todo: ${errorData.message || response.statusText}`);
@@ -346,17 +337,18 @@ async function createTodo() {
         fetchTodos();
     } catch (error) {
         console.error('Error creating todo:', error);
-        displayErrorMessage(`Error creating todo: ${error.message || 'Unknown error'}`);
+        displayGlobalErrorMessage(`Error creating todo: ${error.message || 'Unknown error'}`);
     }
 }
 
-//function for update deadline for tasks
+// Function for update deadline for tasks
 async function updateDeadline(taskId, newDeadline) {
   try {
     const idToken = localStorage.getItem('authToken');
     if (!idToken) throw new Error('Missing auth token');
 
-    const response = await fetch(`${apiUrl}/${taskId}`, {
+    // ✅ Updated to use TASKHANDLER_API
+    const response = await fetch(`${TASKHANDLER_API}/${taskId}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -374,18 +366,16 @@ async function updateDeadline(taskId, newDeadline) {
     await fetchTodos();
   } catch (error) {
     console.error('Error updating deadline:', error);
-    displayErrorMessage(`Could not update deadline: ${error.message}`);
+    displayGlobalErrorMessage(`Could not update deadline: ${error.message}`);
   }
 }
 
 // Function to update an existing todo
 async function updateTodo(id) {
     let idToken = localStorage.getItem('authToken');
-    console.log('Fetched ID token:', idToken);
     if (isTokenExpired(idToken)) {
         await refreshIdToken();
         idToken = localStorage.getItem('authToken');
-        console.log('Fetched new ID token after refresh:', idToken);
     }
 
     const text = document.getElementById(`todo-text-${id}`).value;
@@ -403,10 +393,10 @@ async function updateTodo(id) {
         const updateData = { taskText: text };
         if (currentDeadline) {
             updateData.deadline = currentDeadline;
-            console.log('Updating todo with new deadline:', currentDeadline);
         }
 
-        const response = await fetch(`${apiUrl}/${id}`, {
+        // ✅ Updated to use TASKHANDLER_API
+        const response = await fetch(`${TASKHANDLER_API}/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -415,7 +405,6 @@ async function updateTodo(id) {
             body: JSON.stringify(updateData)
         });
         
-        console.log('Response status:', response.status);
         if (!response.ok) {
             const errorData = await response.json();
             throw new Error(`Failed to update todo: ${errorData.message || response.statusText}`);
@@ -432,7 +421,7 @@ async function updateTodo(id) {
         }, 3000);
     } catch (error) {
         console.error('Error updating todo:', error);
-        displayErrorMessage(`Error updating todo: ${error.message || 'Unknown error'}`);
+        displayInlineErrorMessage(`Error updating todo: ${error.message || 'Unknown error'}`, id);
         if (currentDeadline) {
             resetDeadlineUI();
         }
@@ -447,37 +436,41 @@ function displaySuccessMessage(msg, id) {
   setTimeout(() => { statusEl.textContent = ''; }, 5000);
 }
 
-function displayErrorMessage(msg, id) {
-  const statusEl = document.getElementById(`todo-status-${id}`);
-  if (!statusEl) return;
-  statusEl.textContent = msg;
-  statusEl.style.color = 'red';
-  setTimeout(() => { statusEl.textContent = ''; }, 3000);
+// Target the main application container error element (#error-message)
+function displayGlobalErrorMessage(message) {
+    const errorElement = document.getElementById('error-message');
+    if (errorElement) {
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+        setTimeout(() => {
+            errorElement.style.display = 'none';
+        }, 5000);
+    } else {
+        alert(message);
+    }
 }
 
 // Function to delete a todo
 async function deleteTodo(id) {
     let idToken = localStorage.getItem('authToken');
-    console.log('Fetched ID token:', idToken);
     if (isTokenExpired(idToken)) {
         await refreshIdToken();
         idToken = localStorage.getItem('authToken');
-        console.log('Fetched new ID token after refresh:', idToken);
     }
 
     try {
-        const response = await fetch(`${apiUrl}/${id}`, {
+        // ✅ Updated to use TASKHANDLER_API
+        const response = await fetch(`${TASKHANDLER_API}/${id}`, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${idToken}`
             }
         });
-        console.log('Response status:', response.status);
         if (!response.ok) throw new Error(`Failed to delete todo: ${response.statusText}`);
         fetchTodos();
     } catch (error) {
         console.error('Error deleting todo:', error);
-        displayErrorMessage(`Error deleting todo: ${error.message || 'Unknown error'}`);
+        displayGlobalErrorMessage(`Error deleting todo: ${error.message || 'Unknown error'}`);
     }
 }
 
@@ -495,8 +488,8 @@ function logout() {
         }
     });
 
-    const logoutUri = "https://baylenwebsite.xyz";
-    // ✅ FIXED: Federated logout logic matches dynamic deployment targets
+    // ✅ DYNAMICALLY INJECTED BY CODEBUILD PIPELINE VIA TERRAFORM
+    const logoutUri = "__LOGOUT_URI__";
     window.location.href = `https://${COGNITO_DOMAIN}/logout?client_id=${CLIENT_ID}&logout_uri=${encodeURIComponent(logoutUri)}`;
 }
 
@@ -531,16 +524,3 @@ window.onload = async () => {
     }
   }
 };
-
-function displayErrorMessage(message) {
-    const errorElement = document.getElementById('error-message');
-    if (errorElement) {
-        errorElement.textContent = message;
-        errorElement.style.display = 'block';
-        setTimeout(() => {
-            errorElement.style.display = 'none';
-        }, 5000);
-    } else {
-        alert(message);
-    }
-}

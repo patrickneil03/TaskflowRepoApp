@@ -85,3 +85,8 @@ variable "custom_cognito_domain" {
   type        = string
 
 }
+
+variable "route53_domain_name" {
+  description = "The domain name managed in Route 53"
+  type        = string
+}

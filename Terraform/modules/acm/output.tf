@@ -30,3 +30,7 @@ output "cognito_cert_validation_arn" {
   description = "The ARN of the ACM certificate validation resource for Cognito."
   value       = aws_acm_certificate.cognito_cert.arn
 }
+
+output "cognito_validation_dependency" {
+  value = aws_acm_certificate_validation.cognito_cert_validation.id
+}
