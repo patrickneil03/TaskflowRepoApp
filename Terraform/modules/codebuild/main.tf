@@ -92,6 +92,7 @@ phases:
       - echo "✏️ Injecting dynamic endpoints into index.html..."
       - sed -i "s/__CUSTOM_COGNITO_DOMAIN__/$CUSTOM_COGNITO_DOMAIN/g" index.html
       - sed -i "s/__COGNITO_CLIENT_ID__/$COGNITO_CLIENT_ID/g" index.html
+      - sed -i "s|__REDIRECT_URI__|$REDIRECT_URI|g" index.html
 
       - echo "✏️ Injecting dynamic endpoints into js/app.js..."
       - sed -i "s/__CUSTOM_COGNITO_DOMAIN__/$CUSTOM_COGNITO_DOMAIN/g" js/app.js
