@@ -197,12 +197,15 @@ uploadBtn.addEventListener("click", async () => {
 // Function to fetch the user's profile picture
 async function fetchProfilePicture() {
     const profilePic = document.getElementById("profilePic");
+    // Get a reference to your new navbar image element too
+    const navProfilePic = document.getElementById("navProfilePic"); 
     const defaultImage = "images/default-profile.png";
     
     try {
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
             profilePic.src = defaultImage;
+            if (navProfilePic) navProfilePic.src = defaultImage; // Set default
             return;
         }
         
@@ -210,10 +213,10 @@ async function fetchProfilePicture() {
         const username = payload['cognito:username'];
         if (!username) {
             profilePic.src = defaultImage;
+            if (navProfilePic) navProfilePic.src = defaultImage; // Set default
             return;
         }
 
-        // ✅ Updated to cleanly append parameters onto dynamic PROFILE_API
         const urlWithParams = `${PROFILE_API}?username=${encodeURIComponent(username)}`;
         
         const response = await fetch(urlWithParams, {
@@ -225,21 +228,32 @@ async function fetchProfilePicture() {
 
         if (response.status === 404) {
             profilePic.src = defaultImage;
+            if (navProfilePic) navProfilePic.src = defaultImage; // Set default
             return;
         }
 
         if (!response.ok) {
             console.error("Unexpected error:", response.status);
             profilePic.src = defaultImage;
+            if (navProfilePic) navProfilePic.src = defaultImage; // Set default
             return;
         }
 
         const data = await response.json();
-        profilePic.src = data.url || defaultImage;
+        const finalUrl = data.url || defaultImage;
+        
+        // Update the main big profile card image
+        profilePic.src = finalUrl; 
+        
+        // ✅ Update the small circular navbar dropdown image smoothly!
+        if (navProfilePic) {
+            navProfilePic.src = finalUrl;
+        }
         
     } catch (error) {
         console.error("Fetch error:", error);
         profilePic.src = defaultImage;
+        if (navProfilePic) navProfilePic.src = defaultImage; // Set default fallback
     }
 }
 

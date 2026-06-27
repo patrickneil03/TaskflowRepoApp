@@ -493,6 +493,8 @@ function logout() {
     window.location.href = `https://${COGNITO_DOMAIN}/logout?client_id=${CLIENT_ID}&logout_uri=${encodeURIComponent(logoutUri)}`;
 }
 
+
+//this function will load the tasks and profile pics in the naviagtion pane
 window.onload = async () => {
   const path   = window.location.pathname;
   const params = new URLSearchParams(window.location.search);
@@ -512,6 +514,7 @@ window.onload = async () => {
 
       if (token) {
         fetchTodos();
+		fetchNavbarProfilePicture();
       }
       return;
     }
@@ -524,3 +527,32 @@ window.onload = async () => {
     }
   }
 };
+
+
+// ✅ Add this function to the bottom of your app.js
+async function fetchNavbarProfilePicture() {
+    const navPic = document.getElementById("navProfilePic");
+    const defaultImage = "images/default-profile.png";
+    
+    try {
+        const authToken = localStorage.getItem('authToken');
+        if (!authToken) return;
+        
+        const payload = JSON.parse(atob(authToken.split('.')[1]));
+        const username = payload['cognito:username'];
+        if (!username) return;
+
+        // Using your dynamic PROFILE_API variable from your pipeline configuration
+        const response = await fetch(`__PROFILE_API_URL__?username=${encodeURIComponent(username)}`, {
+            method: "GET",
+            headers: { "Authorization": authToken }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            if (navPic) navPic.src = data.url || defaultImage;
+        }
+    } catch (error) {
+        console.error("Error loading navbar avatar:", error);
+    }
+}
