@@ -197,7 +197,7 @@ uploadBtn.addEventListener("click", async () => {
 // Function to fetch the user's profile picture
 async function fetchProfilePicture() {
     const profilePic = document.getElementById("profilePic");
-    const defaultImage = "default-profile.png";
+    const defaultImage = "images/default-profile.png";
     
     try {
         const authToken = localStorage.getItem('authToken');

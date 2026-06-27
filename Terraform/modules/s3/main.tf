@@ -33,7 +33,7 @@ resource "aws_s3_bucket_cors_configuration" "profile_bucket_cors" {
   cors_rule {
     allowed_headers = ["*"]
     allowed_methods = ["PUT", "GET", "POST", "HEAD"]
-    allowed_origins = ["https://baylenwebsite.xyz"]
+    allowed_origins = ["https://${var.route53_domain_name}"]
     expose_headers  = ["ETag"]
     max_age_seconds = 3000
   }

@@ -26,6 +26,7 @@ data "aws_route53_zone" "shared_domain" {
 module "s3" {
   source = "./modules/s3"
   cloudfront_distribution_arn = module.cloudfront.cloudfront_distribution_arn
+  route53_domain_name = var.route53_domain_name
 }
 
 module "cloudfront" {

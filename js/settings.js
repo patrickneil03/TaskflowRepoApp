@@ -4,51 +4,69 @@ function toggleDarkMode(e) {
     e.stopPropagation();
     
     const body = document.body;
-    const currentTheme = body.getAttribute("data-theme") || "light";
-    const newTheme = currentTheme === "dark" ? "light" : "dark";
+    // Check if dark mode class is currently active
+    const isDark = body.classList.contains("dark-mode");
     
-    body.setAttribute("data-theme", newTheme);
-    localStorage.setItem("theme", newTheme);
+    if (isDark) {
+        body.classList.remove("dark-mode");
+        localStorage.setItem("theme", "light");
+    } else {
+        body.classList.add("dark-mode");
+        localStorage.setItem("theme", "dark");
+    }
+    
     updateThemeIcon();
 }
 
 function updateThemeIcon() {
-    const isDarkMode = document.body.getAttribute("data-theme") === "dark";
+    const isDarkMode = document.body.classList.contains("dark-mode");
     const themeToggle = document.getElementById("theme-toggle");
     
     if (themeToggle) {
         const icon = themeToggle.querySelector("i");
-        const text = themeToggle.querySelector("span");
         
+        // Update font-awesome icons smoothly
         if (icon) {
-            icon.classList.toggle("fa-moon", !isDarkMode);
-            icon.classList.toggle("fa-sun", isDarkMode);
+            if (isDarkMode) {
+                icon.className = "fas fa-sun";
+            } else {
+                icon.className = "fas fa-moon";
+            }
         }
         
-        if (text) {
-            text.textContent = isDarkMode ? "Light Mode" : "Dark Mode";
-        }
+        // Safely update the button text without destroying the inner <i> tag
+        const baseText = isDarkMode ? " Light Mode" : " Dark Mode";
+        themeToggle.innerHTML = ""; // Clear
+        if (icon) themeToggle.appendChild(icon); // Re-attach icon
+        themeToggle.appendChild(document.createTextNode(baseText)); // Append text string
     }
 }
 
-// Initialize theme
+// Initialize theme state on layout render
 function initializeTheme() {
     const savedTheme = localStorage.getItem("theme") || "light";
-    document.body.setAttribute("data-theme", savedTheme);
+    
+    if (savedTheme === "dark") {
+        document.body.classList.add("dark-mode");
+    } else {
+        document.body.classList.remove("dark-mode");
+    }
+    
     updateThemeIcon();
     
-    // Add event listener
     const themeToggle = document.getElementById("theme-toggle");
     if (themeToggle) {
+        // Remove duplicate listeners if initialized multi-times
+        themeToggle.removeEventListener("click", toggleDarkMode);
         themeToggle.addEventListener("click", toggleDarkMode);
     }
 }
 
-// Initialize when DOM is loaded
+// Initialize when DOM content has finished downloading
 document.addEventListener("DOMContentLoaded", function() {
     initializeTheme();
     
-    // Your existing dropdown code
+    // Dropdown visibility routing interactions
     const dropdownToggle = document.getElementById("dropdown-toggle");
     const dropdownMenu = document.getElementById("dropdown-menu");
     
@@ -58,8 +76,11 @@ document.addEventListener("DOMContentLoaded", function() {
             dropdownMenu.classList.toggle("show");
         });
         
-        document.addEventListener("click", function() {
-            dropdownMenu.classList.remove("show");
+        // Close interactive dropdown pane if user clicks outside context area
+        document.addEventListener("click", function(e) {
+            if (!e.target.closest(".dropdown")) {
+                dropdownMenu.classList.remove("show");
+            }
         });
     }
 });

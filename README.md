@@ -130,41 +130,14 @@ google_client_secret = "your_google_client_secret"
 codestar_connection_arn ="your_codestarconnection_arn"
 ```
 
-### 3. Replace the parameters in app.js and profile.js file
-
-In app.js file, replace the line 1, 14,  with your custom domain.
-```javascript
-const apiUrl = 'https://your_custom_domain/taskhandler';
-const TOKEN_EXCHANGE_URL = "https://your_custom_domain/token";
-```
-
-In app.js file, replace the line 12, 498, with your domain name.
-```javascript
-const REDIRECT_URI    = "https://your_domain_name/dashboard.html";
-const logoutUri = "https://your_domain_name";
-```
-
-In profile.js file, replace the line 119, 216 with your custom domain name
-```javascript
-const apiUrl = "https://your_custom_domain/profileimagetos3";
-const apiUrl = `https://your_custom_domain/profileimagetos3?username=${encodeURIComponent(username)}`;
-```
-
-In profile.js file, replace the  line 8 with your aws region and 174 with your domain name.
-```javascript
-const logoutUri = "https://your_domain_name";
-const region         = "your_aws_region;
-```
-
-
-### 4. Create Google & Facebook Identity Providers for Cognito
+### 3. Create Google & Facebook Identity Providers for Cognito
 
 Follow the instructions in the official AWS documentation to set up your social identity providers:
 
 https://docs.aws.amazon.com/cognito/latest/developerguide/tutorial-create-user-pool-social-idp.html
 
 
-### 5. Deploy Infrastructure
+### 4. Deploy Infrastructure
 
 Go to your code editor and make sure you are in the project's directory inside of Terraform folder.
 
@@ -175,7 +148,7 @@ terraform plan   # Review planned changes
 terraform apply  # Provision infrastructure
 ```
 
-### 6. Push Frontend Code to GitHub
+### 5. Push Frontend Code to GitHub
 
 Run the following commands to push your code. This will trigger **AWS CodePipeline**, which builds and deploys the frontend via **CodeBuild**.
 
