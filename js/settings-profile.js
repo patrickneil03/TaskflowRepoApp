@@ -1,31 +1,50 @@
 function toggleDarkMode() {
     const body = document.body;
-    const isDarkMode = body.getAttribute("data-theme") === "dark";
+    const isDarkMode = body.classList.contains("dark-mode");
 
-    body.setAttribute("data-theme", isDarkMode ? "light" : "dark");
-    localStorage.setItem("theme", isDarkMode ? "light" : "dark");
+    if (isDarkMode) {
+        body.classList.remove("dark-mode");
+        localStorage.setItem("theme", "light");
+    } else {
+        body.classList.add("dark-mode");
+        localStorage.setItem("theme", "dark");
+    }
     updateThemeIcon();
 }
 
 function updateThemeIcon() {
-    const icons = document.querySelectorAll("#theme-toggle i, #theme-toggle-settings i");
-    const isDarkMode = document.body.getAttribute("data-theme") === "dark";
+    const themeToggle = document.getElementById("theme-toggle");
+    const isDarkMode = document.body.classList.contains("dark-mode");
     
-    icons.forEach(icon => {
-        if (icon.classList.contains("fa-moon")) {
-            icon.style.display = isDarkMode ? "none" : "inline-block";
+    if (themeToggle) {
+        const icon = themeToggle.querySelector("i");
+        
+        if (icon) {
+            if (isDarkMode) {
+                icon.className = "fas fa-sun";
+            } else {
+                icon.className = "fas fa-moon";
+            }
         }
-        if (icon.classList.contains("fa-sun")) {
-            icon.style.display = isDarkMode ? "inline-block" : "none";
-        }
-    });
+        
+        // Update text labels next to the button seamlessly
+        const baseText = isDarkMode ? " Light Mode" : " Dark Mode";
+        themeToggle.innerHTML = "";
+        if (icon) themeToggle.appendChild(icon);
+        themeToggle.appendChild(document.createTextNode(baseText));
+    }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    // Read the existing persistent client state cache
     const savedTheme = localStorage.getItem("theme") || "light";
-    document.body.setAttribute("data-theme", savedTheme);
+    if (savedTheme === "dark") {
+        document.body.classList.add("dark-mode");
+    } else {
+        document.body.classList.remove("dark-mode");
+    }
     updateThemeIcon();
     
+    // Bind active toggle execution triggers
     document.getElementById("theme-toggle")?.addEventListener("click", toggleDarkMode);
-    document.getElementById("theme-toggle-settings")?.addEventListener("click", toggleDarkMode);
 });

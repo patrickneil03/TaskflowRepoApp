@@ -251,6 +251,8 @@ body.dark-mode {
 /* Absolute Floating Deadline Picker Overlays */
 .deadline-picker-container {
     position: absolute;
+    top: calc(100% - 10px); /* Positions it perfectly flush right below the action bar */
+    right: 16px;            /* Aligns it neatly with the right-hand side buttons */
     background-color: var(--bg-surface);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);

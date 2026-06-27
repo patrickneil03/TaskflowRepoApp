@@ -113,15 +113,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function toggleDeadlinePicker() {
     const pickerContainer = document.getElementById('deadline-picker-container');
-    if (pickerContainer.style.display === 'block') {
+    
+    if (pickerContainer.style.display === 'block' || pickerContainer.style.display === 'flex') {
         pickerContainer.style.display = 'none';
     } else {
-        const button = document.getElementById('deadline-toggle');
-        const rect = button.getBoundingClientRect();
-        pickerContainer.style.top = `${rect.bottom + window.scrollY + 5}px`;
-        pickerContainer.style.left = `${rect.left + window.scrollX}px`;
-        pickerContainer.style.display = 'block';
+        // ✅ FIXED: Let CSS handle placement layout directly
+        pickerContainer.style.display = 'flex'; 
+        pickerContainer.style.alignItems = 'center';
         
+        // Keep your fallback time restrictions
         const now = new Date();
         const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
         document.getElementById('deadline-input').min = localDateTime;
