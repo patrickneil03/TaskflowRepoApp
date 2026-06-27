@@ -93,6 +93,7 @@ phases:
       - sed -i "s|__TOKEN_EXCHANGE_URL__|$TOKEN_EXCHANGE_URL|g" js/app.js
       - sed -i "s|__REDIRECT_URI__|$REDIRECT_URI|g" js/app.js
       - sed -i "s|__LOGOUT_URI__|$LOGOUT_URI|g" js/app.js
+      - sed -i "s|__PROFILE_API_URL__|$PROFILE_API_URL|g" js/app.js
 
       - echo "✏️ Injecting dynamic endpoints into js/profile.js..."
       - sed -i "s/__CUSTOM_COGNITO_DOMAIN__/$CUSTOM_COGNITO_DOMAIN/g" js/profile.js
