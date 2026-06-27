@@ -1,6 +1,6 @@
 /* ==========================================================================
    1. GLOBAL STYLES & ARCHITECTURAL VARIABLES
-   ========================================================================== */
+   ========================================================================== */ 
 :root {
     --bg-primary: #f8fafc;
     --bg-surface: #ffffff;
@@ -27,6 +27,17 @@
     --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
     --transition: all 0.2s ease-in-out;
 }
+
+
+   
+* {
+    box-sizing: border-box;
+}
+
+html {
+    overflow-y: scroll; /* Forces a scrollbar track to align element margins perfectly */
+}   
+  
 
 /* Base Light Theme Reset */
 body {
@@ -73,7 +84,6 @@ body.dark-mode {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-sizing: border-box;
 }
 
 .logo {

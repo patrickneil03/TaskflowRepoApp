@@ -27,6 +27,14 @@
     --transition: all 0.2s ease-in-out;
 }
 
+* {
+    box-sizing: border-box;
+}
+
+html {
+    overflow-y: scroll; /* Forces a scrollbar track even if empty to prevent layout jumping */
+}
+
 /* Base Light Reset */
 body {
     margin: 0;
