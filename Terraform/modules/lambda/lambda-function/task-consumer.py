@@ -8,18 +8,18 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 dynamodb = boto3.resource('dynamodb')
-# Use an environment variable for flexibility, defaulting to 'Todo'
 TABLE_NAME = os.environ.get('DYNAMODB_TABLE', 'Todo')
 table = dynamodb.Table(TABLE_NAME)
 
 def lambda_handler(event, context):
     logger.info(f"Received SQS event batch: {json.dumps(event)}")
 
+    # This list will keep track of any individual messages that fail processing
+    batch_item_failures = []
     success_count = 0
-    fail_count = 0
 
-    # SQS events always deliver batches wrapped inside a 'Records' list
     for record in event.get('Records', []):
+        message_id = record.get('messageId')
         try:
             # SQS stores your payload string inside the 'body' attribute
             task_item = json.loads(record['body'])
@@ -31,14 +31,13 @@ def lambda_handler(event, context):
             success_count += 1
 
         except Exception as e:
-            logger.error(f"Failed to process individual SQS record. Error: {str(e)}")
-            fail_count += 1
-            # Note: Letting an exception bubble up inside the loop allows you 
-            # to log it, but we catch it here so one bad message doesn't ruin the whole batch.
+            logger.error(f"Failed to process SQS record {message_id}. Error: {str(e)}")
+            # Append the failed message ID using the exact structural key expected by AWS
+            batch_item_failures.append({"itemIdentifier": message_id})
 
-    logger.info(f"Batch processing complete. Successes: {success_count}, Failures: {fail_count}")
+    logger.info(f"Batch processing complete. Successes: {success_count}, Failures: {len(batch_item_failures)}")
     
+    # Returning this exact schema allows SQS to know exactly which records to retry
     return {
-        'processedRecords': success_count,
-        'failedRecords': fail_count
+        "batchItemFailures": batch_item_failures
     }

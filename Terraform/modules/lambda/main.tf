@@ -13,6 +13,7 @@ resource "aws_lambda_function" "TokenHandlerCognito" {
       CLIENT_SECRET         = var.cognito_client_secret
       CUSTOM_COGNITO_DOMAIN = var.custom_cognito_domain
       REDIRECT_URI          = "https://${var.route53_domain_name}/dashboard.html"
+      ALLOWED_ORIGIN = "https://${var.route53_domain_name}"
     }
   }
 }
@@ -27,6 +28,7 @@ resource "aws_lambda_function" "TaskHandler" {
   environment {
     variables = {
       SQS_QUEUE_URL = var.sqs_queue_url
+      ALLOWED_ORIGIN = "https://${var.route53_domain_name}"
     }
   }
 }
@@ -53,6 +55,8 @@ resource "aws_lambda_event_source_mapping" "sqs_to_lambda_trigger" {
   function_name    = aws_lambda_function.TaskConsumer.arn
   batch_size       = 10   # Pulls up to 10 items at once from SQS for processing efficiency
   enabled          = true
+
+  function_response_types = ["ReportBatchItemFailures"]
 }
 
 resource "aws_lambda_function" "NotificationHandler" {
@@ -82,6 +86,7 @@ resource "aws_lambda_function" "ProfileImageToS3" {
   environment {
     variables = {
       PROFILE_BUCKET = var.s3_bucket_name_profile
+      ALLOWED_ORIGIN = "https://${var.route53_domain_name}"
     }
   }
 }

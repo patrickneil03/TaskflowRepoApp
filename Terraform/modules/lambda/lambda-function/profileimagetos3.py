@@ -4,10 +4,11 @@ import os
 
 s3 = boto3.client('s3')
 BUCKET = os.environ.get("PROFILE_BUCKET")
+ALLOWED_ORIGIN = os.environ.get("ALLOWED_ORIGIN")
 
 def lambda_handler(event, context):
     cors_headers = {
-        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
         "Access-Control-Allow-Methods": "OPTIONS, GET, POST",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
     }

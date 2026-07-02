@@ -6,9 +6,11 @@ resource "random_id" "bucket_suffix" {
   byte_length = 4
 }
 
+# ==============================================================================
+# 1. CORE TO-DO LIST DATA BUCKET
+# ==============================================================================
 resource "aws_s3_bucket" "my_bucket" {
-  # The final bucket name is now: <base_name>-<account_id>-<random_suffix>
-  bucket = "${var.aws_s3_bucket_name}-${data.aws_caller_identity.current.account_id}-${random_id.bucket_suffix.hex}"
+  bucket        = "${var.aws_s3_bucket_name}-${data.aws_caller_identity.current.account_id}-${random_id.bucket_suffix.hex}"
   force_destroy = true
   tags = {
     Name        = var.aws_s3_bucket_name
@@ -16,16 +18,17 @@ resource "aws_s3_bucket" "my_bucket" {
   }
 }
 
+# ==============================================================================
+# 2. PROFILE BUCKET & CONFIGURATIONS
+# ==============================================================================
 resource "aws_s3_bucket" "profile_bucket" {
-  # The final bucket name is now: <base_name>-<account_id>-<random_suffix>
-  bucket = "${var.s3_bucket_name_profile}-${data.aws_caller_identity.current.account_id}-${random_id.bucket_suffix.hex}"
+  bucket        = "${var.s3_bucket_name_profile}-${data.aws_caller_identity.current.account_id}-${random_id.bucket_suffix.hex}"
   force_destroy = true
   tags = {
     Name        = var.s3_bucket_name_profile
     Environment = "Dev"
   }
 }
-
 
 resource "aws_s3_bucket_cors_configuration" "profile_bucket_cors" {
   bucket = aws_s3_bucket.profile_bucket.id
@@ -39,18 +42,20 @@ resource "aws_s3_bucket_cors_configuration" "profile_bucket_cors" {
   }
 }
 
-
 resource "aws_s3_object" "profile_folder" {
-  bucket  = aws_s3_bucket.profile_bucket.bucket   # reference the bucket name
-  key     = "profile-pictures/"                           # note the trailing slash to indicate a folder
-  content = ""                                    # empty content for a folder marker
-  acl     = "private"                             # adjust ACL as needed
+  # ✅ FIXED: Changed .bucket to .id for modern best practices
+  bucket       = aws_s3_bucket.profile_bucket.id   
+  key          = "profile-pictures/"                
+  content      = ""                                 
+  
+  # ✅ FIXED: Removed 'acl = "private"' to comply with Provider v5 specifications
 }
 
-
-
+# ==============================================================================
+# 3. PIPELINE ARTIFACT BUCKET & CONFIGURATIONS
+# ==============================================================================
 resource "aws_s3_bucket" "artifact" {
-  bucket = "${var.aws_s3_bucket_name}-${data.aws_caller_identity.current.account_id}-artifacts-${random_id.bucket_suffix.hex}"
+  bucket        = "${var.aws_s3_bucket_name}-${data.aws_caller_identity.current.account_id}-artifacts-${random_id.bucket_suffix.hex}"
   force_destroy = true
 }
 
@@ -95,7 +100,3 @@ resource "aws_s3_bucket_lifecycle_configuration" "artifact" {
     }
   }
 }
-
-
-
-

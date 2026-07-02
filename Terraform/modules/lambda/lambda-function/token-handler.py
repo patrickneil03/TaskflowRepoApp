@@ -5,21 +5,20 @@ import os
 
 COGNITO_DOMAIN_ENV = os.environ.get("CUSTOM_COGNITO_DOMAIN", "").strip()
 COGNITO_DOMAIN = COGNITO_DOMAIN_ENV.replace("https://", "").replace("http://", "")
+ALLOWED_ORIGIN = os.environ.get("ALLOWED_ORIGIN")
 
 CLIENT_ID = os.environ.get("CLIENT_ID")
 CLIENT_SECRET = os.environ.get("CLIENT_SECRET")
-# ✅ NEW: Fetch redirect URI dynamically from Lambda Environment Settings
 REDIRECT_URI = os.environ.get("REDIRECT_URI", "").strip()
 
 def lambda_handler(event, context):
-    # Safety Check: Exit early if configuration variables are missing in AWS Console
     if not COGNITO_DOMAIN or not REDIRECT_URI:
         print("CRITICAL ERROR: Missing configuration environment variables (CUSTOM_COGNITO_DOMAIN or REDIRECT_URI).")
         return {
             "statusCode": 500,
             "headers": {
                 "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*"
+                "Access-Control-Allow-Origin": ALLOWED_ORIGIN
             },
             "body": json.dumps({"error": "Backend configuration error: Missing environment configurations."})
         }
@@ -51,7 +50,7 @@ def lambda_handler(event, context):
             "statusCode": 200,
             "headers": {
                 "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
                 "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
                 "Access-Control-Allow-Methods": "POST,OPTIONS"
             },
@@ -64,7 +63,7 @@ def lambda_handler(event, context):
             "statusCode": 500,
             "headers": {
                 "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*"
+                "Access-Control-Allow-Origin": ALLOWED_ORIGIN
             },
             "body": json.dumps({"error": str(e)}),
         }

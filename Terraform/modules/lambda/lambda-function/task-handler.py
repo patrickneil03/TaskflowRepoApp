@@ -4,6 +4,7 @@ import logging
 import os
 sqs = boto3.client('sqs')
 QUEUE_URL = os.environ.get('SQS_QUEUE_URL')
+ALLOWED_ORIGIN = os.environ.get("ALLOWED_ORIGIN")
 import uuid
 from boto3.dynamodb.conditions import Key
 from datetime import datetime
@@ -26,7 +27,7 @@ def lambda_handler(event, context):
 
     # CORS headers
     headers = {
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
         'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Amz-Date, X-Api-Key, X-Amz-Security-Token',
         'Access-Control-Allow-Methods': 'OPTIONS,POST,GET,PUT,DELETE',
         'Content-Type': 'application/json'
@@ -65,7 +66,7 @@ def lambda_handler(event, context):
             local_tz = ZoneInfo("Asia/Manila")
             created_at = datetime.now(local_tz).strftime('%m/%d/%y %H:%M')
             
-            # 1. Construct the payload exactly as you did before
+            
             item = {
                 'userId': user_id,
                 'taskId': task_id,
