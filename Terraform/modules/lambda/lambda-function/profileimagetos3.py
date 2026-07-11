@@ -9,7 +9,7 @@ ALLOWED_ORIGIN = os.environ.get("ALLOWED_ORIGIN")
 def lambda_handler(event, context):
     cors_headers = {
         "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
-        "Access-Control-Allow-Methods": "OPTIONS, GET, POST",
+        "Access-Control-Allow-Methods": "OPTIONS, POST",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
     }
 
@@ -24,8 +24,6 @@ def lambda_handler(event, context):
 
         if http_method == "POST":
             return handle_presigned_upload_url(event, cors_headers)
-        elif http_method == "GET":
-            return handle_get_presigned_url(event, cors_headers)
         else:
             return create_response(405, {"error": "Method not allowed"}, cors_headers)
     except Exception as e:
@@ -48,14 +46,15 @@ def handle_presigned_upload_url(event, headers):
         if username_from_token != username:
             return create_response(403, {"error": "Unauthorized. Username mismatch."}, headers)
 
-        key = f"profile-pictures/{username}/avatar.jpg"
+        # 🎯 ALIGNED PATH: Matches your CloudFront route pattern precisely
+        key = f"profiles/{username}.jpg"
+        
         presigned_url = s3.generate_presigned_url(
             'put_object',
             Params={
                 'Bucket': BUCKET,
                 'Key': key,
-                'ContentType': "image/jpeg",
-                'ACL': "private"
+                'ContentType': "image/jpeg"
             },
             ExpiresIn=300  # 5 minutes
         )
@@ -63,31 +62,3 @@ def handle_presigned_upload_url(event, headers):
     except Exception as e:
         print(f"Presigned Upload URL Error: {str(e)}")
         return create_response(500, {"error": "Failed to generate upload URL"}, headers)
-
-def handle_get_presigned_url(event, headers):
-    try:
-        query_params = event.get("queryStringParameters", {})
-        username = query_params.get("username")
-
-        if not username:
-            return create_response(400, {"error": "Username is required"}, headers)
-
-        key = f"profile-pictures/{username}/avatar.jpg"
-
-        try:
-            s3.head_object(Bucket=BUCKET, Key=key)
-        except s3.exceptions.ClientError as e:
-            error_code = e.response['Error']['Code']
-            if error_code in ("404", "NoSuchKey", "NotFound", "403", "AccessDenied"):
-                return create_response(200, {"url": "default-profile.png"}, headers)
-            raise
-
-        url = s3.generate_presigned_url(
-            'get_object',
-            Params={'Bucket': BUCKET, 'Key': key},
-            ExpiresIn=3600
-        )
-        return create_response(200, {"url": url}, headers)
-    except Exception as e:
-        print(f"Presigned GET URL Error: {str(e)}")
-        return create_response(500, {"error": "Failed to generate get URL"}, headers)

@@ -50,7 +50,6 @@ resource "aws_api_gateway_deployment" "zerefapi_deployment" {
       aws_api_gateway_integration.taskhandler_id_patch,
       aws_api_gateway_integration.taskhandler_id_options,
       aws_api_gateway_integration.profileimagetos3_post,
-      aws_api_gateway_integration.profileimagetos3_get,
       aws_api_gateway_integration.profileimagetos3_options,
     ]))
   }

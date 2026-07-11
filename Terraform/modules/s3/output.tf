@@ -13,6 +13,10 @@ output "bucket_regional_domain_name" {
   value = aws_s3_bucket.my_bucket.bucket_regional_domain_name
 }
 
+output "profile_bucket_regional_domain_name" {
+  value = aws_s3_bucket.profile_bucket.bucket_regional_domain_name
+}
+
 output "bucket_id" {
   description = "The bucket ID."
   value       = aws_s3_bucket.my_bucket.id

@@ -7,7 +7,7 @@ resource "random_id" "bucket_suffix" {
 }
 
 # ==============================================================================
-# 1. CORE TO-DO LIST DATA BUCKET
+# 1. Bucket for frontend files
 # ==============================================================================
 resource "aws_s3_bucket" "my_bucket" {
   bucket        = "${var.aws_s3_bucket_name}-${data.aws_caller_identity.current.account_id}-${random_id.bucket_suffix.hex}"
@@ -19,7 +19,7 @@ resource "aws_s3_bucket" "my_bucket" {
 }
 
 # ==============================================================================
-# 2. PROFILE BUCKET & CONFIGURATIONS
+# 2. Bucket for profile pictures
 # ==============================================================================
 resource "aws_s3_bucket" "profile_bucket" {
   bucket        = "${var.s3_bucket_name_profile}-${data.aws_caller_identity.current.account_id}-${random_id.bucket_suffix.hex}"
@@ -42,6 +42,7 @@ resource "aws_s3_bucket_cors_configuration" "profile_bucket_cors" {
   }
 }
 
+
 resource "aws_s3_object" "profile_folder" {
   # ✅ FIXED: Changed .bucket to .id for modern best practices
   bucket       = aws_s3_bucket.profile_bucket.id   
@@ -52,7 +53,7 @@ resource "aws_s3_object" "profile_folder" {
 }
 
 # ==============================================================================
-# 3. PIPELINE ARTIFACT BUCKET & CONFIGURATIONS
+# 3. Bucket for codebuild artifacts
 # ==============================================================================
 resource "aws_s3_bucket" "artifact" {
   bucket        = "${var.aws_s3_bucket_name}-${data.aws_caller_identity.current.account_id}-artifacts-${random_id.bucket_suffix.hex}"

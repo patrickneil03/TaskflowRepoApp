@@ -18,7 +18,10 @@ variable "cert_baylenwebsite_arn" {
 variable "route53_domain_name" {
   description = "The domain name for the Route 53 hosted zone"
   type        = string
-  default     = "baylenwebsite.xyz"  # Default value can be overridden
-  
+}
+
+variable "profile_bucket_regional_domain_name" {
+  description = "The S3 Bucket Regional Domain Name for the Profile Pictures Bucket to be used as CloudFront origin"
+  type        = string
 }
 

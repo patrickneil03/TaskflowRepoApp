@@ -34,6 +34,7 @@ module "cloudfront" {
   s3_bucket_regional_domain_name = module.s3.bucket_regional_domain_name
   cert_baylenwebsite_arn = module.acm.cert_baylenwebsite_arn
   route53_domain_name = var.route53_domain_name
+  profile_bucket_regional_domain_name = module.s3.profile_bucket_regional_domain_name
 }
 
 module "dynamodb" {
