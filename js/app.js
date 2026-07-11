@@ -530,30 +530,39 @@ window.onload = async () => {
 };
 
 
-// ✅ Add this function to the bottom of your app.js
+
+
 async function fetchNavbarProfilePicture() {
     const navPic = document.getElementById("navProfilePic");
     const defaultImage = "images/default-profile.png";
     
     try {
         const authToken = localStorage.getItem('authToken');
-        if (!authToken) return;
+        if (!authToken) {
+            if (navPic) navPic.src = defaultImage;
+            return;
+        }
         
         const payload = JSON.parse(atob(authToken.split('.')[1]));
         const username = payload['cognito:username'];
-        if (!username) return;
-
-        // Using your dynamic PROFILE_API variable from your pipeline configuration
-        const response = await fetch(`__PROFILE_API_URL__?username=${encodeURIComponent(username)}`, {
-            method: "GET",
-            headers: { "Authorization": authToken }
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            if (navPic) navPic.src = data.url || defaultImage;
+        if (!username) {
+            if (navPic) navPic.src = defaultImage;
+            return;
         }
+
+        const finalUrl = `https://baylenweb-app.xyz/profiles/${username}.jpg`;
+        
+        // 🎯 SILENT PRE-CHECK
+        const checkResponse = await fetch(finalUrl, { method: 'HEAD' });
+
+        if (checkResponse.ok) {
+            if (navPic) navPic.src = finalUrl;
+        } else {
+            if (navPic) navPic.src = defaultImage;
+        }
+        
     } catch (error) {
         console.error("Error loading navbar avatar:", error);
+        if (navPic) navPic.src = defaultImage;
     }
 }

@@ -129,7 +129,7 @@ async function handleFileUpload(file) {
     }
 }
 
-// 🎯 FIXED DESIGN: High-speed, network-decoupled Profile Picture Loading
+// 🎯 FIXED DESIGN: High-speed, network-decoupled Profile Picture Loading (Console Safe)
 async function fetchProfilePicture(isNewUpload = false) {
     const profilePic = document.getElementById("profilePic");
     const navProfilePic = document.getElementById("navProfilePic"); 
@@ -151,17 +151,24 @@ async function fetchProfilePicture(isNewUpload = false) {
             return;
         }
 
-        // 🚀 Point directly to CloudFront base path.
         let finalUrl = `https://baylenweb-app.xyz/profiles/${username}.jpg`;
         
-        // If they just uploaded a new image, append a query parameter to force the browser cache update
         if (isNewUpload) {
             finalUrl += `?t=${new Date().getTime()}`;
         }
         
-        // Update paths smoothly
-        if (profilePic) profilePic.src = finalUrl; 
-        if (navProfilePic) navProfilePic.src = finalUrl;
+        // 🎯 SILENT PRE-CHECK: Uses HEAD method so it doesn't download bytes or log a 403 error
+        const checkResponse = await fetch(finalUrl, { method: 'HEAD' });
+
+        if (checkResponse.ok) {
+            // File exists! Set the src safely
+            if (profilePic) profilePic.src = finalUrl; 
+            if (navProfilePic) navProfilePic.src = finalUrl;
+        } else {
+            // File doesn't exist yet, seamlessly use default without console errors
+            if (profilePic) profilePic.src = defaultImage;
+            if (navProfilePic) navProfilePic.src = defaultImage;
+        }
         
     } catch (error) {
         console.error("Fetch error:", error);

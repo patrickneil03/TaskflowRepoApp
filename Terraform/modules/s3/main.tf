@@ -46,7 +46,7 @@ resource "aws_s3_bucket_cors_configuration" "profile_bucket_cors" {
 resource "aws_s3_object" "profile_folder" {
   # ✅ FIXED: Changed .bucket to .id for modern best practices
   bucket       = aws_s3_bucket.profile_bucket.id   
-  key          = "profile-pictures/"                
+  key          = "profiles/"                
   content      = ""                                 
   
   # ✅ FIXED: Removed 'acl = "private"' to comply with Provider v5 specifications

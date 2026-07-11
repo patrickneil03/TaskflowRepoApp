@@ -15,9 +15,9 @@
             <div class="logo">Taskflow</div>
             <div class="dropdown">
                 <button class="dropdown-toggle" id="dropdown-toggle">
-					<img id="navProfilePic" src="images/default-profile.png" alt="Profile" class="nav-avatar">
-						<i class="fas fa-chevron-down dropdown-chevron"></i>
-				</button>
+                    <img id="navProfilePic" src="images/default-profile.png" alt="Profile" class="nav-avatar" onerror="this.onerror=null; this.src='images/default-profile.png';">
+                    <i class="fas fa-chevron-down dropdown-chevron"></i>
+                </button>
                 <div class="dropdown-menu" id="dropdown-menu">
                     <a href="dashboard.html"><i class="fas fa-home"></i> Home</a>
                     <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
@@ -39,37 +39,23 @@
             <button class="btn btn-primary" onclick="createTodo()">
                 <i class="fas fa-plus"></i> Add Todo
             </button>
-			<button class="btn btn-secondary" id="deadline-toggle">
-				<i class="far fa-calendar-alt"></i> Set Deadline
-			</button>
-			<!-- Add this date picker container (hidden by default) -->
-  <!-- HTML -->
-<div id="deadline-picker-container"
-     class="deadline-picker-container">
-  <input type="datetime-local" id="deadline-input" class="deadline-input">
-  <button
-  type="button"
-  class="deadline-btn deadline-btn-confirm"
-  onclick="confirmDeadline()"
->
-  OK
-</button>
-<button
-  type="button"
-  class="deadline-btn deadline-btn-cancel"
-  onclick="cancelDeadline()"
->
-  Cancel
-</button>
-
-</div>
-
-
+            <button class="btn btn-secondary" id="deadline-toggle">
+                <i class="far fa-calendar-alt"></i> Set Deadline
+            </button>
+            
+            <div id="deadline-picker-container" class="deadline-picker-container">
+                <input type="datetime-local" id="deadline-input" class="deadline-input">
+                <button type="button" class="deadline-btn deadline-btn-confirm" onclick="confirmDeadline()">
+                    OK
+                </button>
+                <button type="button" class="deadline-btn deadline-btn-cancel" onclick="cancelDeadline()">
+                    Cancel
+                </button>
+            </div>
         </div>
 
         <div id="dashboard-todo-list-container">
-            <div id="todo-list" class="auth-form">
-                </div>
+            <div id="todo-list" class="auth-form"></div>
         </div>
     </div>
 
