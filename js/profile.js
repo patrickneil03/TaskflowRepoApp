@@ -129,7 +129,7 @@ async function handleFileUpload(file) {
     }
 }
 
-// 🎯 NEW DESIGN: High-speed, network-decoupled Profile Picture Loading
+// 🎯 FIXED DESIGN: High-speed, network-decoupled Profile Picture Loading
 async function fetchProfilePicture(isNewUpload = false) {
     const profilePic = document.getElementById("profilePic");
     const navProfilePic = document.getElementById("navProfilePic"); 
@@ -138,7 +138,7 @@ async function fetchProfilePicture(isNewUpload = false) {
     try {
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
-            profilePic.src = defaultImage;
+            if (profilePic) profilePic.src = defaultImage;
             if (navProfilePic) navProfilePic.src = defaultImage;
             return;
         }
@@ -146,35 +146,26 @@ async function fetchProfilePicture(isNewUpload = false) {
         const payload = JSON.parse(atob(authToken.split('.')[1]));
         const username = payload['cognito:username'];
         if (!username) {
-            profilePic.src = defaultImage;
+            if (profilePic) profilePic.src = defaultImage;
             if (navProfilePic) navProfilePic.src = defaultImage;
             return;
         }
 
-        // 🚀 INSTANT STRING CONVERSIONS: Point directly to CloudFront base path.
-        // Falls back natively to error handlers if the user hasn't uploaded a photo yet.
+        // 🚀 Point directly to CloudFront base path.
         let finalUrl = `https://baylenweb-app.xyz/profiles/${username}.jpg`;
         
-        // If they just uploaded a new image, append a query parameter to force the browser to update it
+        // If they just uploaded a new image, append a query parameter to force the browser cache update
         if (isNewUpload) {
             finalUrl += `?t=${new Date().getTime()}`;
         }
         
-        profilePic.src = finalUrl; 
+        // Update paths smoothly
+        if (profilePic) profilePic.src = finalUrl; 
         if (navProfilePic) navProfilePic.src = finalUrl;
-
-        // Set up universal fallback triggers for missing records (404s)
-        const handleImageError = (e) => {
-            e.target.onerror = null;
-            e.target.src = defaultImage;
-        };
-
-        profilePic.onerror = handleImageError;
-        if (navProfilePic) navProfilePic.onerror = handleImageError;
         
     } catch (error) {
         console.error("Fetch error:", error);
-        profilePic.src = defaultImage;
+        if (profilePic) profilePic.src = defaultImage;
         if (navProfilePic) navProfilePic.src = defaultImage;
     }
 }
