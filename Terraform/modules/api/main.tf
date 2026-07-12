@@ -1,19 +1,37 @@
-# Create the High-Performance HTTP API resource
+# ==============================================================================
+# 1. CORE API GATEWAY HTTP API (v2) DEFINITION
+# ==============================================================================
 resource "aws_apigatewayv2_api" "zerefapi" {
   name          = "zerefapi"
   protocol_type = "HTTP"
   description   = "HTTP API for registration with Lambda integration"
 
-  # Natively manages your CORS rules directly at the AWS edge layer
+  # 🎯 Natively manages your CORS rules directly at the AWS edge layer
   cors_configuration {
-    allow_origins = [var.complete_domain_name] # Or explicit: ["https://baylenweb-app.xyz"]
+    allow_credentials = true 
+    
+    allow_origins = [
+      var.complete_domain_name 
+    ] 
+    
     allow_methods = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
-    allow_headers = ["content-type", "authorization", "x-amz-date", "x-api-key", "x-amz-security-token"]
-    max_age       = 300
+    
+    # ✅ FIXED: Swapped to standard Title-Case strings to satisfy browser preflight checklists
+    allow_headers = [
+      "Content-Type", 
+      "Authorization", 
+      "X-Amz-Date", 
+      "X-Api-Key", 
+      "X-Amz-Security-Token"
+    ]
+    
+    max_age = 300
   }
 }
 
-# The single default stage that updates instantly on changes
+# ==============================================================================
+# 2. DEPLOYMENT STAGE DEFINITION
+# ==============================================================================
 resource "aws_apigatewayv2_stage" "prod" {
   api_id      = aws_apigatewayv2_api.zerefapi.id
   name        = "$default" # Merges routes into a clean base path mapping root
@@ -26,10 +44,9 @@ resource "aws_apigatewayv2_stage" "prod" {
   }
 }
 
-#############################################
-# Grant API Gateway Permission to Invoke Lambda
-#############################################
-
+# ==============================================================================
+# 3. LAMBDA INVOKE PERMISSIONS GRANT
+# ==============================================================================
 resource "aws_lambda_permission" "allow_apigw_invoke_TokenHandler" {
   statement_id  = "AllowAPIGatewayInvokeTokenHandler"
   action        = "lambda:InvokeFunction"

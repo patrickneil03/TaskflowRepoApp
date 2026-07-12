@@ -45,7 +45,7 @@ resource "aws_codebuild_project" "frontend_sync" {
     # 🎯 UPDATED: Provide the base custom api domain URL without trailing paths
     environment_variable {
       name  = "API_URL"
-      value = "https://${var.custom_domain_name}"
+      value = "https://${var.custom_domain_name}/taskhandler"
     }
 
     # 🎯 UPDATED: Token handler location if configured on the same HTTP API base custom domain

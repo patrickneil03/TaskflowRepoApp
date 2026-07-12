@@ -12,6 +12,22 @@ let tasksState = [];
 let selectedDeadline = null;
 
 // ==================================================
+// 🛠️ URL SAFEGUARD ENGINE: Prevents naked domain 404/CORS errors
+// ==================================================
+function getCleanTaskUrl(id = null) {
+  // If the injected string is just a placeholder, fall back gracefully
+  if (TASKHANDLER_API.startsWith('__')) {
+    return id ? `/taskhandler/${id}` : '/taskhandler';
+  }
+  
+  // Strip trailing slashes, then ensure it hits the explicit /taskhandler route path
+  const baseClean = TASKHANDLER_API.replace(/\/$/, '');
+  const correctedBase = baseClean.endsWith('/taskhandler') ? baseClean : `${baseClean}/taskhandler`;
+  
+  return id ? `${correctedBase}/${id}` : correctedBase;
+}
+
+// ==================================================
 // 1) Federated login helper
 // ==================================================
 function federatedLogin(provider /* "Google" or "Facebook" */) {
@@ -269,22 +285,23 @@ function renderTasksUI() {
 async function fetchTodos() {
   const idToken = localStorage.getItem('authToken');
   if (!idToken) return displayGlobalErrorMessage('ID token is missing');
+  
+  const targetUrl = getCleanTaskUrl(); // 🎯 FIXED VIA SAFEGUARD ENGINE
+  
   try {
-    const response = await fetch(TASKHANDLER_API, {
+    const response = await fetch(targetUrl, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${idToken}`, // Aligned Bearer syntax
+        'Authorization': `Bearer ${idToken}`, 
         'Content-Type': 'application/json'
       }
     });
 
     const todos = await response.json();
     
-    // Update global memory state and persistent browser cache
     tasksState = todos;
     localStorage.setItem("cached_todo_list", JSON.stringify(todos));
     
-    // Draw UI smoothly from verified response
     renderTasksUI();
   } catch (error) {
     console.error('Error fetching todos:', error);
@@ -320,11 +337,9 @@ async function createTodo() {
         deadline: selectedDeadline
     };
 
-    // Prepend to current screen model array instantly
     tasksState.unshift(newTodoLocal);
     renderTasksUI();
 
-    // Clear input forms right away
     document.getElementById('new-todo').value = '';
     const savedDeadline = selectedDeadline;
     selectedDeadline = null;
@@ -335,15 +350,17 @@ async function createTodo() {
         deadlineToggle.style.backgroundColor = '';
     }
 
+    const targetUrl = getCleanTaskUrl(); // 🎯 FIXED VIA SAFEGUARD ENGINE
+
     try {
         const todoData = { taskText: text };
         if (savedDeadline) todoData.deadline = savedDeadline;
 
-        const response = await fetch(TASKHANDLER_API, {
+        const response = await fetch(targetUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${idToken}` // Aligned Bearer syntax
+                'Authorization': `Bearer ${idToken}` 
             },
             body: JSON.stringify(todoData)
         });
@@ -355,7 +372,6 @@ async function createTodo() {
 
         const resData = await response.json();
         
-        // Swap out client tempId placeholders for true backend SQS UUID
         const index = tasksState.findIndex(item => item.taskId === tempId);
         if (index !== -1) {
             tasksState[index].taskId = resData.taskId;
@@ -366,7 +382,6 @@ async function createTodo() {
         
     } catch (error) {
         console.error('Error creating todo:', error);
-        // Rollback state cleanly if backend transaction errors
         tasksState = tasksState.filter(item => item.taskId !== tempId);
         renderTasksUI();
         displayGlobalErrorMessage(`Error syncing task with server: ${error.message}`);
@@ -375,7 +390,6 @@ async function createTodo() {
 
 // Function for update deadline for tasks
 async function updateDeadline(taskId, newDeadline) {
-  // 🚀 OPTIMISTIC UI: Mutate the tracking array variable immediately
   const targetIndex = tasksState.findIndex(t => t.taskId === taskId);
   let oldDeadline = null;
   if (targetIndex !== -1) {
@@ -384,15 +398,17 @@ async function updateDeadline(taskId, newDeadline) {
       renderTasksUI();
   }
 
+  const targetUrl = getCleanTaskUrl(taskId); // 🎯 FIXED VIA SAFEGUARD ENGINE
+
   try {
     const idToken = localStorage.getItem('authToken');
     if (!idToken) throw new Error('Missing auth token');
 
-    const response = await fetch(`${TASKHANDLER_API}/${taskId}`, {
+    const response = await fetch(targetUrl, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${idToken}` // Aligned Bearer syntax
+        'Authorization': `Bearer ${idToken}` 
       },
      body: JSON.stringify({ deadline: newDeadline })
     });
@@ -402,7 +418,6 @@ async function updateDeadline(taskId, newDeadline) {
 
   } catch (error) {
     console.error('Error updating deadline:', error);
-    // Rollback if needed
     if (targetIndex !== -1) {
         tasksState[targetIndex].deadline = oldDeadline;
         renderTasksUI();
@@ -422,7 +437,6 @@ async function updateTodo(id) {
     const text = document.getElementById(`todo-text-${id}`).value;
     const currentDeadline = selectedDeadline;
     
-    // 🚀 OPTIMISTIC UI: Mutate textual representation in state array immediately
     const targetIndex = tasksState.findIndex(t => t.taskId === id);
     let oldText = "";
     if (targetIndex !== -1) {
@@ -441,15 +455,17 @@ async function updateTodo(id) {
         }
     };
 
+    const targetUrl = getCleanTaskUrl(id); // 🎯 FIXED VIA SAFEGUARD ENGINE
+
     try {
         const updateData = { taskText: text };
         if (currentDeadline) updateData.deadline = currentDeadline;
 
-        const response = await fetch(`${TASKHANDLER_API}/${id}`, {
+        const response = await fetch(targetUrl, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${idToken}` // Aligned Bearer syntax
+                'Authorization': `Bearer ${idToken}` 
             },
             body: JSON.stringify(updateData)
         });
@@ -462,7 +478,6 @@ async function updateTodo(id) {
         
     } catch (error) {
         console.error('Error updating todo:', error);
-        // Rollback state values
         if (targetIndex !== -1) {
             tasksState[targetIndex].taskText = oldText;
             renderTasksUI();
@@ -499,21 +514,21 @@ async function deleteTodo(id) {
         idToken = localStorage.getItem('authToken');
     }
 
-    // 🚀 OPTIMISTIC UI: Splice local tracking array data models instantly
     const backupTasks = [...tasksState];
     tasksState = tasksState.filter(item => item.taskId !== id);
     renderTasksUI();
 
+    const targetUrl = getCleanTaskUrl(id); // 🎯 FIXED VIA SAFEGUARD ENGINE
+
     try {
-        const response = await fetch(`${TASKHANDLER_API}/${id}`, {
+        const response = await fetch(targetUrl, {
             method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${idToken}` } // Aligned Bearer syntax
+            headers: { 'Authorization': `Bearer ${idToken}` } 
         });
         if (!response.ok) throw new Error(`Failed to delete todo`);
         localStorage.setItem("cached_todo_list", JSON.stringify(tasksState));
     } catch (error) {
         console.error('Error deleting todo:', error);
-        // Restoring array state values upon backend failure
         tasksState = backupTasks;
         renderTasksUI();
         displayGlobalErrorMessage(`Error deleting todo: ${error.message || 'Unknown error'}`);
@@ -550,7 +565,6 @@ window.onload = async () => {
 
   if (path.includes("dashboard.html")) {
     try {
-      // 🚀 STEP 1: Load from local cache immediately (0ms login delay!)
       const localCachedTasks = localStorage.getItem("cached_todo_list");
       if (localCachedTasks) {
           tasksState = JSON.parse(localCachedTasks);
@@ -564,7 +578,6 @@ window.onload = async () => {
       }
 
       if (token) {
-        // STEP 2: Silently update server side data lists in background paths
         fetchTodos();
         fetchNavbarProfilePicture();
       }
