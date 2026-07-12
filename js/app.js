@@ -7,7 +7,8 @@ const CLIENT_ID          = "__COGNITO_CLIENT_ID__";
 const COGNITO_DOMAIN     = "__CUSTOM_COGNITO_DOMAIN__";
 const LOGIN_PAGE         = "index.html";
 
-// Global variable to store the selected deadline
+// 🎯 GLOBAL STATE ENGINE: Keeps track of tasks locally for instantaneous UI updates
+let tasksState = [];
 let selectedDeadline = null;
 
 // ==================================================
@@ -19,8 +20,8 @@ function federatedLogin(provider /* "Google" or "Facebook" */) {
   url.searchParams.set("client_id", CLIENT_ID);
   url.searchParams.set("redirect_uri", REDIRECT_URI);
   url.searchParams.set("response_type", "code");
-  url.searchParams.set("scope", "openid email profile"); // no offline_access
-  url.searchParams.set("prompt", "login");               // force fresh auth
+  url.searchParams.set("scope", "openid email profile");
+  url.searchParams.set("prompt", "login");
   window.location.href = url.toString();
 }
 
@@ -118,11 +119,9 @@ function toggleDeadlinePicker() {
     if (pickerContainer.style.display === 'block' || pickerContainer.style.display === 'flex') {
         pickerContainer.style.display = 'none';
     } else {
-        // ✅ FIXED: Let CSS handle placement layout directly
         pickerContainer.style.display = 'flex'; 
         pickerContainer.style.alignItems = 'center';
         
-        // Keep your fallback time restrictions
         const now = new Date();
         const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
         document.getElementById('deadline-input').min = localDateTime;
@@ -172,7 +171,6 @@ function showInlineDeadlineEditor(taskId) {
   if (editor) editor.style.display = 'flex';
 }
 
-// Target elements inline per task error element
 function displayInlineErrorMessage(msg, id) {
   const statusEl = document.getElementById(`todo-status-${id}`);
   if (!statusEl) return;
@@ -198,24 +196,18 @@ function cancelUpdatedDeadline(taskId) {
   hideInlineDeadlineEditor(taskId);
 }
 
-async function fetchTodos() {
-  const idToken = localStorage.getItem('authToken');
-  if (!idToken) return displayGlobalErrorMessage('ID token is missing');
-  try {
-    // ✅ Updated to use TASKHANDLER_API
-    const response = await fetch(TASKHANDLER_API, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${idToken}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    const todos = await response.json();
+// 🎯 STATE RENDERING ENGINE: Draws UI out of local memory state arrays instantly
+function renderTasksUI() {
     const todoList = document.getElementById('todo-list');
+    if (!todoList) return;
     todoList.innerHTML = '';
 
-    todos.forEach(todo => {
+    if (tasksState.length === 0) {
+        todoList.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">No tasks found! Add one above.</div>';
+        return;
+    }
+
+    tasksState.forEach(todo => {
       const li = document.createElement('li');
       li.className = 'todo-item';
 
@@ -255,12 +247,8 @@ async function fetchTodos() {
             </button>
           </div>
         </div>
-		
-		<div
-    class="todo-status"
-    id="todo-status-${todo.taskId}"
-    style="min-height:1em; margin-top:4px; color:green; font-size:0.9rem;"
-  ></div>
+        
+        <div class="todo-status" id="todo-status-${todo.taskId}" style="min-height:1em; margin-top:4px; color:green; font-size:0.9rem;"></div>
       `;
 
       todoList.appendChild(li);
@@ -275,15 +263,33 @@ async function fetchTodos() {
         cancelUpdatedDeadline(todo.taskId);
       });
     });
+}
+
+// Get Data from Server
+async function fetchTodos() {
+  const idToken = localStorage.getItem('authToken');
+  if (!idToken) return displayGlobalErrorMessage('ID token is missing');
+  try {
+    const response = await fetch(TASKHANDLER_API, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${idToken}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const todos = await response.json();
+    
+    // Update global memory state and persistent browser cache
+    tasksState = todos;
+    localStorage.setItem("cached_todo_list", JSON.stringify(todos));
+    
+    // Draw UI smoothly from verified response
+    renderTasksUI();
   } catch (error) {
     console.error('Error fetching todos:', error);
     displayGlobalErrorMessage(`Error: ${error.message}`);
   }
-}
-
-function triggerDatePicker(taskId) {
-  const input = document.getElementById(`deadline-editor-${taskId}`);
-  if (input) input.showPicker?.() || input.focus();
 }
 
 // Function to create a new todo
@@ -305,13 +311,34 @@ async function createTodo() {
         return;
     }
 
-    const todoData = { taskText: text };
-    if (selectedDeadline) {
-        todoData.deadline = selectedDeadline;
+    // 🚀 OPTIMISTIC UI: Form temporary client model element
+    const tempId = "temp-" + Date.now();
+    const newTodoLocal = {
+        taskId: tempId,
+        taskText: text,
+        createdAt: "Pending synchronization...",
+        deadline: selectedDeadline
+    };
+
+    // Prepend to current screen model array instantly
+    tasksState.unshift(newTodoLocal);
+    renderTasksUI();
+
+    // Clear input forms right away
+    document.getElementById('new-todo').value = '';
+    const savedDeadline = selectedDeadline;
+    selectedDeadline = null;
+    
+    const deadlineToggle = document.getElementById('deadline-toggle');
+    if (deadlineToggle) {
+        deadlineToggle.innerHTML = `<i class="far fa-calendar-alt"></i> Set Deadline`;
+        deadlineToggle.style.backgroundColor = '';
     }
 
     try {
-        // ✅ Updated to use TASKHANDLER_API
+        const todoData = { taskText: text };
+        if (savedDeadline) todoData.deadline = savedDeadline;
+
         const response = await fetch(TASKHANDLER_API, {
             method: 'POST',
             headers: {
@@ -323,55 +350,68 @@ async function createTodo() {
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(`Failed to create todo: ${errorData.message || response.statusText}`);
+            throw new Error(errorData.message || response.statusText);
         }
 
-        document.getElementById('new-todo').value = '';
-        selectedDeadline = null;
+        const resData = await response.json();
         
-        const deadlineToggle = document.getElementById('deadline-toggle');
-        if (deadlineToggle) {
-            deadlineToggle.innerHTML = `<i class="far fa-calendar-alt"></i> Set Deadline`;
-            deadlineToggle.style.backgroundColor = '';
+        // Swap out client tempId placeholders for true backend SQS UUID
+        const index = tasksState.findIndex(item => item.taskId === tempId);
+        if (index !== -1) {
+            tasksState[index].taskId = resData.taskId;
+            tasksState[index].createdAt = new Date().toLocaleString([], {hour: '2-digit', minute:'2-digit'});
         }
+        localStorage.setItem("cached_todo_list", JSON.stringify(tasksState));
+        renderTasksUI();
         
-        fetchTodos();
     } catch (error) {
         console.error('Error creating todo:', error);
-        displayGlobalErrorMessage(`Error creating todo: ${error.message || 'Unknown error'}`);
+        // Rollback state cleanly if backend transaction errors
+        tasksState = tasksState.filter(item => item.taskId !== tempId);
+        renderTasksUI();
+        displayGlobalErrorMessage(`Error syncing task with server: ${error.message}`);
     }
 }
 
 // Function for update deadline for tasks
 async function updateDeadline(taskId, newDeadline) {
+  // 🚀 OPTIMISTIC UI: Mutate the tracking array variable immediately
+  const targetIndex = tasksState.findIndex(t => t.taskId === taskId);
+  let oldDeadline = null;
+  if (targetIndex !== -1) {
+      oldDeadline = tasksState[targetIndex].deadline;
+      tasksState[targetIndex].deadline = newDeadline;
+      renderTasksUI();
+  }
+
   try {
     const idToken = localStorage.getItem('authToken');
     if (!idToken) throw new Error('Missing auth token');
 
-    // ✅ Updated to use TASKHANDLER_API
     const response = await fetch(`${TASKHANDLER_API}/${taskId}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${idToken}`
       },
-     body: JSON.stringify({
-       deadline: newDeadline
-      })
+     body: JSON.stringify({ deadline: newDeadline })
     });
 
-    if (!response.ok) {
-      throw new Error(`Failed to update deadline: ${response.statusText}`);
-    }
+    if (!response.ok) throw new Error(`Failed to update deadline`);
+    localStorage.setItem("cached_todo_list", JSON.stringify(tasksState));
 
-    await fetchTodos();
   } catch (error) {
     console.error('Error updating deadline:', error);
+    // Rollback if needed
+    if (targetIndex !== -1) {
+        tasksState[targetIndex].deadline = oldDeadline;
+        renderTasksUI();
+    }
     displayGlobalErrorMessage(`Could not update deadline: ${error.message}`);
   }
 }
 
-// Function to update an existing todo
+// Function to update an existing todo text string
 async function updateTodo(id) {
     let idToken = localStorage.getItem('authToken');
     if (isTokenExpired(idToken)) {
@@ -381,6 +421,17 @@ async function updateTodo(id) {
 
     const text = document.getElementById(`todo-text-${id}`).value;
     const currentDeadline = selectedDeadline;
+    
+    // 🚀 OPTIMISTIC UI: Mutate textual representation in state array immediately
+    const targetIndex = tasksState.findIndex(t => t.taskId === id);
+    let oldText = "";
+    if (targetIndex !== -1) {
+        oldText = tasksState[targetIndex].taskText;
+        tasksState[targetIndex].taskText = text;
+        if (currentDeadline) tasksState[targetIndex].deadline = currentDeadline;
+        renderTasksUI();
+    }
+
     const resetDeadlineUI = () => {
         selectedDeadline = null;
         const deadlineToggle = document.getElementById('deadline-toggle');
@@ -392,11 +443,8 @@ async function updateTodo(id) {
 
     try {
         const updateData = { taskText: text };
-        if (currentDeadline) {
-            updateData.deadline = currentDeadline;
-        }
+        if (currentDeadline) updateData.deadline = currentDeadline;
 
-        // ✅ Updated to use TASKHANDLER_API
         const response = await fetch(`${TASKHANDLER_API}/${id}`, {
             method: 'PUT',
             headers: {
@@ -406,26 +454,21 @@ async function updateTodo(id) {
             body: JSON.stringify(updateData)
         });
         
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(`Failed to update todo: ${errorData.message || response.statusText}`);
-        }
+        if (!response.ok) throw new Error(`Failed to update todo`);
         
-        if (currentDeadline) {
-            resetDeadlineUI();
-        }
-		
+        if (currentDeadline) resetDeadlineUI();
+        localStorage.setItem("cached_todo_list", JSON.stringify(tasksState));
         displaySuccessMessage('Task updated successfully!', id);
         
-        setTimeout(() => {
-            fetchTodos();
-        }, 3000);
     } catch (error) {
         console.error('Error updating todo:', error);
-        displayInlineErrorMessage(`Error updating todo: ${error.message || 'Unknown error'}`, id);
-        if (currentDeadline) {
-            resetDeadlineUI();
+        // Rollback state values
+        if (targetIndex !== -1) {
+            tasksState[targetIndex].taskText = oldText;
+            renderTasksUI();
         }
+        displayInlineErrorMessage(`Error updating todo: ${error.message}`, id);
+        if (currentDeadline) resetDeadlineUI();
     }
 }
 
@@ -434,18 +477,15 @@ function displaySuccessMessage(msg, id) {
   if (!statusEl) return;
   statusEl.textContent = msg;
   statusEl.style.color = 'green';
-  setTimeout(() => { statusEl.textContent = ''; }, 5000);
+  setTimeout(() => { statusEl.textContent = ''; }, 3000);
 }
 
-// Target the main application container error element (#error-message)
 function displayGlobalErrorMessage(message) {
     const errorElement = document.getElementById('error-message');
     if (errorElement) {
         errorElement.textContent = message;
         errorElement.style.display = 'block';
-        setTimeout(() => {
-            errorElement.style.display = 'none';
-        }, 5000);
+        setTimeout(() => { errorElement.style.display = 'none'; }, 5000);
     } else {
         alert(message);
     }
@@ -459,18 +499,23 @@ async function deleteTodo(id) {
         idToken = localStorage.getItem('authToken');
     }
 
+    // 🚀 OPTIMISTIC UI: Splice local tracking array data models instantly
+    const backupTasks = [...tasksState];
+    tasksState = tasksState.filter(item => item.taskId !== id);
+    renderTasksUI();
+
     try {
-        // ✅ Updated to use TASKHANDLER_API
         const response = await fetch(`${TASKHANDLER_API}/${id}`, {
             method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${idToken}`
-            }
+            headers: { 'Authorization': `Bearer ${idToken}` }
         });
-        if (!response.ok) throw new Error(`Failed to delete todo: ${response.statusText}`);
-        fetchTodos();
+        if (!response.ok) throw new Error(`Failed to delete todo`);
+        localStorage.setItem("cached_todo_list", JSON.stringify(tasksState));
     } catch (error) {
         console.error('Error deleting todo:', error);
+        // Restoring array state values upon backend failure
+        tasksState = backupTasks;
+        renderTasksUI();
         displayGlobalErrorMessage(`Error deleting todo: ${error.message || 'Unknown error'}`);
     }
 }
@@ -489,13 +534,11 @@ function logout() {
         }
     });
 
-    // ✅ DYNAMICALLY INJECTED BY CODEBUILD PIPELINE VIA TERRAFORM
     const logoutUri = "__LOGOUT_URI__";
     window.location.href = `https://${COGNITO_DOMAIN}/logout?client_id=${CLIENT_ID}&logout_uri=${encodeURIComponent(logoutUri)}`;
 }
 
-
-//this function will load the tasks and profile pics in the naviagtion pane
+// Window init configurations
 window.onload = async () => {
   const path   = window.location.pathname;
   const params = new URLSearchParams(window.location.search);
@@ -507,6 +550,13 @@ window.onload = async () => {
 
   if (path.includes("dashboard.html")) {
     try {
+      // 🚀 STEP 1: Load from local cache immediately (0ms login delay!)
+      const localCachedTasks = localStorage.getItem("cached_todo_list");
+      if (localCachedTasks) {
+          tasksState = JSON.parse(localCachedTasks);
+          renderTasksUI();
+      }
+
       let token = localStorage.getItem("authToken") || "";
 
       if (!token || isTokenExpired(token)) {
@@ -514,8 +564,9 @@ window.onload = async () => {
       }
 
       if (token) {
+        // STEP 2: Silently update server side data lists in background paths
         fetchTodos();
-		fetchNavbarProfilePicture();
+        fetchNavbarProfilePicture();
       }
       return;
     }
@@ -528,9 +579,6 @@ window.onload = async () => {
     }
   }
 };
-
-
-
 
 async function fetchNavbarProfilePicture() {
     const navPic = document.getElementById("navProfilePic");
@@ -551,8 +599,6 @@ async function fetchNavbarProfilePicture() {
         }
 
         const finalUrl = `https://baylenweb-app.xyz/profiles/${username}.jpg`;
-        
-        // 🎯 SILENT PRE-CHECK
         const checkResponse = await fetch(finalUrl, { method: 'HEAD' });
 
         if (checkResponse.ok) {

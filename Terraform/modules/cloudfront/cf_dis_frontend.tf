@@ -54,6 +54,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     default_ttl            = 86400  # Cache profile pictures for 1 day by default
     max_ttl                = 31536000
     compress               = true
+    
   }
 
   # ----------------------------------------------------
