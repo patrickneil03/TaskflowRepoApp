@@ -273,7 +273,7 @@ async function fetchTodos() {
     const response = await fetch(TASKHANDLER_API, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${idToken}`,
+        'Authorization': `Bearer ${idToken}`, // Aligned Bearer syntax
         'Content-Type': 'application/json'
       }
     });
@@ -343,7 +343,7 @@ async function createTodo() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${idToken}`
+                'Authorization': `Bearer ${idToken}` // Aligned Bearer syntax
             },
             body: JSON.stringify(todoData)
         });
@@ -392,7 +392,7 @@ async function updateDeadline(taskId, newDeadline) {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${idToken}`
+        'Authorization': `Bearer ${idToken}` // Aligned Bearer syntax
       },
      body: JSON.stringify({ deadline: newDeadline })
     });
@@ -449,7 +449,7 @@ async function updateTodo(id) {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${idToken}`
+                'Authorization': `Bearer ${idToken}` // Aligned Bearer syntax
             },
             body: JSON.stringify(updateData)
         });
@@ -507,7 +507,7 @@ async function deleteTodo(id) {
     try {
         const response = await fetch(`${TASKHANDLER_API}/${id}`, {
             method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${idToken}` }
+            headers: { 'Authorization': `Bearer ${idToken}` } // Aligned Bearer syntax
         });
         if (!response.ok) throw new Error(`Failed to delete todo`);
         localStorage.setItem("cached_todo_list", JSON.stringify(tasksState));

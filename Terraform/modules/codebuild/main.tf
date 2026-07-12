@@ -42,28 +42,31 @@ resource "aws_codebuild_project" "frontend_sync" {
       value = var.user_pool_id
     }
 
+    # 🎯 UPDATED: Provide the base custom api domain URL without trailing paths
     environment_variable {
       name  = "API_URL"
-      value = "https://${var.custom_domain_name}/taskhandler"
+      value = "https://${var.custom_domain_name}"
     }
 
+    # 🎯 UPDATED: Token handler location if configured on the same HTTP API base custom domain
     environment_variable {
       name  = "TOKEN_EXCHANGE_URL"
       value = "https://${var.custom_domain_name}/token"
     }
 
-    # ✅ FIXED: Now targeting root domain instead of 'api.' subdomain
+    # ✅ FIXED: Redirect targets root dashboard domain
     environment_variable {
       name  = "REDIRECT_URI"
       value = "https://${var.route53_domain_name}/dashboard.html"
     }
 
-    # ✅ FIXED: Now targeting root domain instead of 'api.' subdomain
+    # ✅ FIXED: Logout targets root domain
     environment_variable {
       name  = "LOGOUT_URI"
       value = "https://${var.route53_domain_name}"
     }
 
+    # 🎯 UPDATED: Profile picture route aligned to HTTP API specifications
     environment_variable {
       name  = "PROFILE_API_URL"
       value = "https://${var.custom_domain_name}/profileimagetos3"

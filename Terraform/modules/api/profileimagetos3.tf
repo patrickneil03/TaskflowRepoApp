@@ -1,95 +1,16 @@
-resource "aws_api_gateway_resource" "profileimagetos3" {
-  rest_api_id = aws_api_gateway_rest_api.zerefapi.id
-  parent_id   = aws_api_gateway_rest_api.zerefapi.root_resource_id
-  path_part   = "profileimagetos3"
+# 1. Connect route path to the Profile Lambda handler integration
+resource "aws_apigatewayv2_integration" "profileimagetos3" {
+  api_id                 = aws_apigatewayv2_api.zerefapi.id
+  integration_type       = "AWS_PROXY"
+  integration_uri        = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${var.region}:${var.account_id}:function:${var.profileimagetos3_function_name}/invocations"
+  payload_format_version = "2.0"
 }
 
-# ==============================================================================
-# POST METHOD: For Requesting Upload URLs
-# ==============================================================================
-resource "aws_api_gateway_method" "profileimagetos3_post" {
-  rest_api_id   = aws_api_gateway_rest_api.zerefapi.id
-  resource_id   = aws_api_gateway_resource.profileimagetos3.id
-  http_method   = "POST"
-  authorization = "COGNITO_USER_POOLS"
-  authorizer_id = aws_api_gateway_authorizer.cognito_auth.id
-
-  request_parameters = {
-    "method.request.header.Authorization" = true
-  }
-}
-
-resource "aws_api_gateway_integration" "profileimagetos3_post" {
-  rest_api_id             = aws_api_gateway_rest_api.zerefapi.id
-  resource_id             = aws_api_gateway_resource.profileimagetos3.id
-  http_method             = aws_api_gateway_method.profileimagetos3_post.http_method
-  integration_http_method = "POST"
-  type                    = "AWS_PROXY"
-  uri                     = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${var.region}:${var.account_id}:function:${var.profileimagetos3_function_name}/invocations"
-}
-
-resource "aws_api_gateway_method_response" "profileimagetos3_post_response" {
-  rest_api_id = aws_api_gateway_rest_api.zerefapi.id
-  resource_id = aws_api_gateway_resource.profileimagetos3.id
-  http_method = aws_api_gateway_method.profileimagetos3_post.http_method
-  status_code = "200"
-
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin" = true
-  }
-
-  response_models = {
-    "application/json" = "Empty"
-  }
-}
-
-# ==============================================================================
-# OPTIONS METHOD: For Browser CORS Preflight
-# ==============================================================================
-resource "aws_api_gateway_method" "profileimagetos3_options" {
-  rest_api_id   = aws_api_gateway_rest_api.zerefapi.id
-  resource_id   = aws_api_gateway_resource.profileimagetos3.id
-  http_method   = "OPTIONS"
-  authorization = "NONE"
-}
-
-resource "aws_api_gateway_integration" "profileimagetos3_options" {
-  rest_api_id = aws_api_gateway_rest_api.zerefapi.id
-  resource_id = aws_api_gateway_resource.profileimagetos3.id
-  http_method = aws_api_gateway_method.profileimagetos3_options.http_method
-  type        = "MOCK"
-
-  request_templates = {
-    "application/json" = "{\"statusCode\": 200}"
-  }
-}
-
-resource "aws_api_gateway_method_response" "profileimagetos3_options_response" {
-  rest_api_id = aws_api_gateway_rest_api.zerefapi.id
-  resource_id = aws_api_gateway_resource.profileimagetos3.id
-  http_method = aws_api_gateway_method.profileimagetos3_options.http_method
-  status_code = "200"
-
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Headers" = true
-    "method.response.header.Access-Control-Allow-Methods" = true
-    "method.response.header.Access-Control-Allow-Origin"  = true
-  }
-
-  response_models = {
-    "application/json" = "Empty"
-  }
-}
-
-resource "aws_api_gateway_integration_response" "profileimagetos3_options_integration_response" {
-  rest_api_id = aws_api_gateway_rest_api.zerefapi.id
-  resource_id = aws_api_gateway_resource.profileimagetos3.id
-  http_method = aws_api_gateway_method.profileimagetos3_options.http_method
-  status_code = aws_api_gateway_method_response.profileimagetos3_options_response.status_code
-
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-    "method.response.header.Access-Control-Allow-Methods" = "'GET,OPTIONS,POST'"
-    "method.response.header.Access-Control-Allow-Origin"  = "'*'"
-  }
+# 2. Expose the protected route rule endpoint
+resource "aws_apigatewayv2_route" "profileimagetos3_post" {
+  api_id             = aws_apigatewayv2_api.zerefapi.id
+  route_key          = "POST /profileimagetos3"
+  authorization_type = "JWT"
+  authorizer_id      = aws_apigatewayv2_authorizer.cognito_auth.id
+  target             = "integrations/${aws_apigatewayv2_integration.profileimagetos3.id}"
 }

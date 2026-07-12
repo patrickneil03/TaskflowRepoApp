@@ -103,6 +103,9 @@ module "api" {
   profileimagetos3_function_name = module.lambda.profileimagetos3_function_name
   custom_domain_name = var.custom_domain_name
   api_cert_validation_arn = module.acm.api_cert_validation_arn
+  user_pool_id = module.cognito.user_pool_id
+  cognito_client_id = module.cognito.cognito_client_id
+  complete_domain_name = var.complete_domain_name
 }
 
 module "route53" {

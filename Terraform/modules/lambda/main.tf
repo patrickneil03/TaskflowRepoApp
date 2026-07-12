@@ -38,8 +38,8 @@ resource "aws_lambda_function" "TaskConsumer" {
   function_name    = "TaskConsumer"
   role             = var.taskconsumer_role_arn # Attaches your newly built consumer role
   handler          = "task-consumer.lambda_handler"  
-  runtime          = "python3.12"                      # Matches your python3.12 standard
-  timeout          = 30                                # Safe buffer for processing queue batches
+  runtime          = "python3.12"                      
+  timeout          = 30                                
   source_code_hash = filebase64sha256("${path.module}/lambda-function/task-consumer.zip")
 
   environment {

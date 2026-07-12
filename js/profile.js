@@ -97,7 +97,7 @@ async function handleFileUpload(file) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": authToken
+                "Authorization": `Bearer ${authToken}` // 🎯 FIXED: Appended Bearer Prefix for HTTP API Gateway v2 compatibility
             },
             body: JSON.stringify(requestBody)
         });

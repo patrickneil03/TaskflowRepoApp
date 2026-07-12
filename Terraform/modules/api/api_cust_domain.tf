@@ -7,9 +7,9 @@ resource "aws_api_gateway_domain_name" "api" {
   }
 }
 
-resource "aws_api_gateway_base_path_mapping" "mapping" {
-  api_id      = aws_api_gateway_rest_api.zerefapi.id
-  stage_name  = aws_api_gateway_stage.prod.stage_name
-  domain_name = aws_api_gateway_domain_name.api.domain_name
+# 🎯 THE UPDATE: Swap the legacy base path mapping for the HTTP API mapping
+resource "aws_apigatewayv2_api_mapping" "mapping" {
+  api_id      = aws_apigatewayv2_api.zerefapi.id
+  domain_name = aws_api_gateway_domain_name.api.id
+  stage       = aws_apigatewayv2_stage.prod.id
 }
-

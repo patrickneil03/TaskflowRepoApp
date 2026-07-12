@@ -1,9 +1,12 @@
-# Create the Cognito Authorizer in API Gateway
-resource "aws_api_gateway_authorizer" "cognito_auth" {
-  name                              = "TodoCognitoAuthorizer"
-  rest_api_id                       = aws_api_gateway_rest_api.zerefapi.id
-  identity_source                   = "method.request.header.Authorization"
-  provider_arns                     = [var.cognito_user_pool_arn]
-  type                              = "COGNITO_USER_POOLS"
-  authorizer_result_ttl_in_seconds  = 300
+# Create the Modern JWT Authorizer for the HTTP API
+resource "aws_apigatewayv2_authorizer" "cognito_auth" {
+  api_id           = aws_apigatewayv2_api.zerefapi.id
+  name             = "TodoCognitoAuthorizer"
+  authorizer_type  = "JWT"
+  identity_sources = ["$request.header.Authorization"]
+
+  jwt_configuration {
+    audience = [var.cognito_client_id] # Pass your Cognito client ID variable here
+    issuer   = "https://cognito-idp.${var.region}.amazonaws.com/${var.user_pool_id}"
+  }
 }

@@ -20,7 +20,7 @@ variable "profileimagetos3_function_name" {
 variable "region" {
   description = "The AWS region where the API Gateway and Lambda function will be deployed"
   type        = string
-  default     = "ap-southeast-1"  # Change this to your desired region
+  default     = "ap-southeast-1"
   
 }
 
@@ -49,4 +49,20 @@ variable "custom_domain_name" {
 
 variable "api_cert_validation_arn" {
   description = "The arn of cert validation for api custom domain name"
+}
+
+
+variable "cognito_client_id" {
+  description = "The client ID of the Cognito User Pool"
+  type        = string
+}
+
+variable "user_pool_id" {
+  description = "The ID of the Cognito User Pool"
+  type        = string
+}
+
+variable "complete_domain_name" {
+  description = "The complete domain name for the application"
+  type        = string
 }

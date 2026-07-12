@@ -1,68 +1,33 @@
-resource "aws_api_gateway_rest_api" "zerefapi" {
-  name        = "zerefapi"
-  description = "API for registration with Lambda integration"
+# Create the High-Performance HTTP API resource
+resource "aws_apigatewayv2_api" "zerefapi" {
+  name          = "zerefapi"
+  protocol_type = "HTTP"
+  description   = "HTTP API for registration with Lambda integration"
+
+  # Natively manages your CORS rules directly at the AWS edge layer
+  cors_configuration {
+    allow_origins = [var.complete_domain_name] # Or explicit: ["https://baylenweb-app.xyz"]
+    allow_methods = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+    allow_headers = ["content-type", "authorization", "x-amz-date", "x-api-key", "x-amz-security-token"]
+    max_age       = 300
+  }
 }
 
+# The single default stage that updates instantly on changes
+resource "aws_apigatewayv2_stage" "prod" {
+  api_id      = aws_apigatewayv2_api.zerefapi.id
+  name        = "$default" # Merges routes into a clean base path mapping root
+  auto_deploy = true
 
-resource "aws_api_gateway_stage" "prod" {
-  rest_api_id    = aws_api_gateway_rest_api.zerefapi.id
-  deployment_id  = aws_api_gateway_deployment.zerefapi_deployment.id
-  stage_name     = "prod"
-}
-
-
-#############################################
-# 6. API Throtlling
-#############################################
-resource "aws_api_gateway_method_settings" "throttling" {
-  rest_api_id = aws_api_gateway_rest_api.zerefapi.id
-  stage_name  = aws_api_gateway_stage.prod.stage_name
-
-  method_path = "*/*"
-
-  settings {
-    throttling_rate_limit  = 5
+  # Throttling configured cleanly right inside the stage parameters block
+  default_route_settings {
     throttling_burst_limit = 10
-    metrics_enabled        = true
-    logging_level          = "OFF"
-    data_trace_enabled     = false
+    throttling_rate_limit  = 5
   }
 }
 
 #############################################
-# 7. Automatically Re-Deploy the API
-#############################################
-
-resource "aws_api_gateway_deployment" "zerefapi_deployment" {
-  rest_api_id = aws_api_gateway_rest_api.zerefapi.id
-
-  triggers = {
-    # Hashing the IDs/Attributes of your integrations ensures 
-    # that if any of them change, a new deployment is triggered.
-    redeployment = sha1(jsonencode([
-      aws_api_gateway_integration.token_post,
-      aws_api_gateway_integration.token_options,
-      aws_api_gateway_integration.taskhandler_post,
-      aws_api_gateway_integration.taskhandler_get,
-      aws_api_gateway_integration.taskhandler_options,
-      aws_api_gateway_integration.taskhandler_id_delete,
-      aws_api_gateway_integration.taskhandler_id_put,
-      aws_api_gateway_integration.taskhandler_id_patch,
-      aws_api_gateway_integration.taskhandler_id_options,
-      aws_api_gateway_integration.profileimagetos3_post,
-      aws_api_gateway_integration.profileimagetos3_options,
-    ]))
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-
-
-#############################################
-# 8. Grant API Gateway Permission to Invoke Lambda
+# Grant API Gateway Permission to Invoke Lambda
 #############################################
 
 resource "aws_lambda_permission" "allow_apigw_invoke_TokenHandler" {
@@ -70,25 +35,21 @@ resource "aws_lambda_permission" "allow_apigw_invoke_TokenHandler" {
   action        = "lambda:InvokeFunction"
   function_name = var.TokenHandlerCognito_function_name
   principal     = "apigateway.amazonaws.com"
-  # The source ARN includes the API deployment stage and supports all methods
-  source_arn = "arn:aws:execute-api:${var.region}:${var.account_id}:${aws_api_gateway_rest_api.zerefapi.id}/*/*"
+  source_arn    = "${aws_apigatewayv2_api.zerefapi.execution_arn}/*/*"
 }
-
 
 resource "aws_lambda_permission" "allow_apigw_invoke_TaskHandler" {
   statement_id  = "AllowAPIGatewayInvokeTaskHandler"
   action        = "lambda:InvokeFunction"
   function_name = var.TaskHandler_function_name
   principal     = "apigateway.amazonaws.com"
-  # The source ARN includes the API deployment stage and supports all methods
-  source_arn = "arn:aws:execute-api:${var.region}:${var.account_id}:${aws_api_gateway_rest_api.zerefapi.id}/*/*"
+  source_arn    = "${aws_apigatewayv2_api.zerefapi.execution_arn}/*/*"
 }
 
 resource "aws_lambda_permission" "allow_apigw_invoke_profileimagetos3" {
-  statement_id  = "AllowAPIGatewayInvokeprofileimagetos3"
+  statement_id  = "AllowAPIGatewayInvoprofileimagetos3"
   action        = "lambda:InvokeFunction"
   function_name = var.profileimagetos3_function_name
   principal     = "apigateway.amazonaws.com"
-  # The source ARN includes the API deployment stage and supports all methods
-  source_arn = "arn:aws:execute-api:${var.region}:${var.account_id}:${aws_api_gateway_rest_api.zerefapi.id}/*/*"
+  source_arn    = "${aws_apigatewayv2_api.zerefapi.execution_arn}/*/*"
 }
