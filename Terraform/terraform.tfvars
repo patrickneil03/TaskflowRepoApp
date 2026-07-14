@@ -6,4 +6,6 @@ route53_domain_name = "baylenweb-app.xyz"
 custom_domain_name = "api.baylenweb-app.xyz"
 custom_cognito_domain = "auth.baylenweb-app.xyz"
 complete_domain_name = "https://baylenweb-app.xyz"
+region = "ap-southeast-1"
+ses_email_address = "patrickbaylen3@gmail.com"
 

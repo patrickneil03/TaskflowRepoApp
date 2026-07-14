@@ -146,7 +146,14 @@ function toggleDeadlinePicker() {
 
 function confirmDeadline() {
     const deadlineInput = document.getElementById('deadline-input');
-    selectedDeadline = deadlineInput.value;
+    
+    // ✅ CHANGED: Convert naive local time to true UTC ISO string
+    if (deadlineInput && deadlineInput.value) {
+        selectedDeadline = new Date(deadlineInput.value).toISOString();
+    } else {
+        selectedDeadline = null;
+    }
+
     document.getElementById('deadline-picker-container').style.display = 'none';
     
     const deadlineToggle = document.getElementById('deadline-toggle');
@@ -184,7 +191,18 @@ function getDeadlineClass(deadline) {
 
 function showInlineDeadlineEditor(taskId) {
   const editor = document.getElementById(`deadline-editor-${taskId}`);
-  if (editor) editor.style.display = 'flex';
+  if (editor) {
+    editor.style.display = 'flex';
+    
+    // ✅ CHANGED: Convert saved UTC deadline back to naive local time so the edit picker populates correctly
+    const input = document.getElementById(`deadline-dt-${taskId}`);
+    const task = tasksState.find(t => t.taskId === taskId);
+    if (input && task && task.deadline) {
+      const utcDate = new Date(task.deadline);
+      const offset = utcDate.getTimezoneOffset() * 60000;
+      input.value = new Date(utcDate.getTime() - offset).toISOString().slice(0, 16);
+    }
+  }
 }
 
 function displayInlineErrorMessage(msg, id) {
@@ -203,7 +221,8 @@ function hideInlineDeadlineEditor(taskId) {
 function confirmUpdatedDeadline(taskId) {
   const input = document.getElementById(`deadline-dt-${taskId}`);
   if (input && input.value) {
-    updateDeadline(taskId, input.value);
+    const utcDeadline = new Date(input.value).toISOString();
+    updateDeadline(taskId, utcDeadline);
   }
   hideInlineDeadlineEditor(taskId);
 }

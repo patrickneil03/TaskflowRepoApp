@@ -39,7 +39,8 @@ def send_ses_notification(task, recipient_email):
     """Send deadline alert via SES"""
     try:
         timezone = ZoneInfo(os.getenv('TIMEZONE', 'Asia/Manila'))
-        deadline = datetime.fromisoformat(task['deadline']).replace(tzinfo=timezone)
+        # Parse UTC ISO string from frontend (ending in 'Z')
+        deadline = datetime.fromisoformat(task['deadline'].replace('Z', '+00:00')).astimezone(timezone)
         hours_left = (deadline - datetime.now(timezone)).total_seconds() / 3600
         
         if hours_left <= 0:
@@ -56,7 +57,7 @@ def send_ses_notification(task, recipient_email):
                         'Data': (
                             f"Task: {task['taskText']}\n"
                             f"Due in: {max(0, hours_left):.1f} hours\n"
-                            f"Deadline: {deadline.astimezone(timezone).strftime('%b %d, %Y at %I:%M %p')}\n"
+                            f"Deadline: {deadline.strftime('%b %d, %Y at %I:%M %p')}\n"
                             f"Task ID: {task['taskId']}"
                         )
                     },
@@ -66,7 +67,7 @@ def send_ses_notification(task, recipient_email):
                                 <h2>Task Deadline Alert</h2>
                                 <p><b>Task:</b> {task['taskText']}</p>
                                 <p><b>Due in:</b> {max(0, hours_left):.1f} hours</p>
-                                <p><b>Deadline:</b> {deadline.astimezone(timezone).strftime('%b %d, %Y at %I:%M %p')}</p>
+                                <p><b>Deadline:</b> {deadline.strftime('%b %d, %Y at %I:%M %p')}</p>
                                 <p><small>Task ID: {task['taskId']}</small></p>
                             </body>
                         </html>"""
@@ -83,76 +84,48 @@ def send_ses_notification(task, recipient_email):
         logger.error(f"SES API error: {e.response['Error']['Message']}")
         return False
 
-def get_tasks_nearing_deadline():
-    """Scan DynamoDB table for tasks with deadlines in the next 24 hours"""
-    now = datetime.now(ZoneInfo(os.getenv('TIMEZONE', 'Asia/Manila')))
-    deadline_cutoff = now + timedelta(hours=24)
-
-    scan_kwargs = {
-        'FilterExpression': (
-            'deadline BETWEEN :now AND :future AND '
-            '(attribute_not_exists(notificationSent) OR notificationSent = :false)'
-        ),
-        'ExpressionAttributeValues': {
-            ':now': now.isoformat(),
-            ':future': deadline_cutoff.isoformat(),
-            ':false': False
-        }
-    }
-
-    tasks = []
-    start_key = None
-
-    while True:
-        if start_key:
-            scan_kwargs['ExclusiveStartKey'] = start_key
-
-        response = table.scan(**scan_kwargs)
-        tasks.extend(response.get('Items', []))
-
-        start_key = response.get('LastEvaluatedKey', None)
-        if not start_key:
-            break
-
-    return tasks
-
-
 def lambda_handler(event, context):
-    try:
-        tasks = get_tasks_nearing_deadline()
-        logger.info(f"Processing {len(tasks)} tasks")
-        
-        results = {'success': 0, 'failed': 0, 'skipped': 0}
-        for task in tasks:
-            try:
-                email = get_user_email(task['userId'])
-                if not email:
-                    results['skipped'] += 1
-                    continue
-                
-                if send_ses_notification(task, email):
-                    table.update_item(
-                        Key={'userId': task['userId'], 'taskId': task['taskId']},
-                        UpdateExpression='SET notificationSent = :true',
-                        ExpressionAttributeValues={':true': True}
-                    )
-                    results['success'] += 1
-                else:
-                    results['failed'] += 1
-                    
-            except Exception as e:
-                logger.error(f"Failed processing task {task.get('taskId')}: {str(e)}")
-                results['failed'] += 1
+    logger.info(f"Processing SQS batch: {len(event.get('Records', []))} items.")
+    
+    batch_item_failures = []
+    success_count = 0
+    
+    # ⚡ OPTIMIZATION: Cache emails during this execution batch
+    email_cache = {}
 
-        logger.info(f"Completed: {json.dumps(results)}")
-        return {
-            'statusCode': 200,
-            'body': results
-        }
-        
-    except Exception as e:
-        logger.error(f"Fatal error: {str(e)}", exc_info=True)
-        return {
-            'statusCode': 500,
-            'body': {'error': 'Internal server error'}
-        }
+    for record in event.get('Records', []):
+        message_id = record.get('messageId')
+        try:
+            task = json.loads(record['body'])
+            user_id = task['userId']
+            
+            # Use local cache to skip redundant Cognito API calls
+            if user_id not in email_cache:
+                email_cache[user_id] = get_user_email(user_id)
+                
+            email = email_cache[user_id]
+            if not email:
+                logger.warning(f"Skipping task {task['taskId']} - No email found for user {user_id}")
+                continue
+
+            # Send email
+            if send_ses_notification(task, email):
+                # 🔄 Remove taskStatus to drop it from GSI, and flag notificationSent
+                table.update_item(
+                    Key={'userId': task['userId'], 'taskId': task['taskId']},
+                    UpdateExpression='SET notificationSent = :true REMOVE taskStatus',
+                    ExpressionAttributeValues={':true': True}
+                )
+                success_count += 1
+            else:
+                # If SES fails, report it to allow SQS retry
+                batch_item_failures.append({"itemIdentifier": message_id})
+
+        except Exception as e:
+            logger.error(f"Failed to process record {message_id}. Error: {str(e)}")
+            batch_item_failures.append({"itemIdentifier": message_id})
+
+    logger.info(f"Batch completed. Success: {success_count}, Failures: {len(batch_item_failures)}")
+    return {
+        "batchItemFailures": batch_item_failures
+    }

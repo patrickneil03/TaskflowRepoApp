@@ -42,7 +42,9 @@ resource "aws_iam_role_policy" "consumer_inline_policy" {
       {
         Effect   = "Allow",
         Action   = [
-          "dynamodb:PutItem"
+          "dynamodb:PutItem",
+          "dynamodb:UpdateItem",
+          "dynamodb:DeleteItem"
         ],
         Resource = var.dynamodb_table_arn
       }

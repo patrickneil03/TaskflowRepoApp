@@ -70,6 +70,8 @@ module "iam" {
   codestar_connection_arn = var.codestar_connection_arn
   sqs_queue_arn = module.sqs.sqs_queue_arn
   dynamodb_table_arn = module.dynamodb.dynamodb_table_arn
+  notification_sqs_arn = module.sqs.notification_sqs_arn
+  notification_dlq_arn = module.sqs.notification_dlq_arn
  
 }
 
@@ -90,6 +92,8 @@ module "lambda" {
   sqs_queue_arn = module.sqs.sqs_queue_arn
   custom_cognito_domain = var.custom_cognito_domain
   route53_domain_name = var.route53_domain_name
+  notification_sqs_arn = module.sqs.notification_sqs_arn
+  notification_sqs_url = module.sqs.notification_sqs_url
 }
 
 data "aws_caller_identity" "current" {}
@@ -106,6 +110,7 @@ module "api" {
   user_pool_id = module.cognito.user_pool_id
   cognito_client_id = module.cognito.cognito_client_id
   complete_domain_name = var.complete_domain_name
+  region = var.region
 }
 
 module "route53" {
@@ -155,7 +160,8 @@ module "cloudwatch" {
 
 module "ses" {
   source = "./modules/ses"
-  
+  route53_domain_name = var.route53_domain_name
+  ses_email_address = var.ses_email_address
 }
 
 module "codepipeline" {

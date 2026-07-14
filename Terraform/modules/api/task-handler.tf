@@ -5,7 +5,7 @@ resource "aws_apigatewayv2_integration" "taskhandler" {
   payload_format_version = "2.0"
 }
 
-# Protected POST /taskhandler
+# Protected POST /taskhandler (Create)
 resource "aws_apigatewayv2_route" "taskhandler_post" {
   api_id             = aws_apigatewayv2_api.zerefapi.id
   route_key          = "POST /taskhandler"
@@ -14,7 +14,7 @@ resource "aws_apigatewayv2_route" "taskhandler_post" {
   target             = "integrations/${aws_apigatewayv2_integration.taskhandler.id}"
 }
 
-# Protected GET /taskhandler
+# Protected GET /taskhandler (Read List)
 resource "aws_apigatewayv2_route" "taskhandler_get" {
   api_id             = aws_apigatewayv2_api.zerefapi.id
   route_key          = "GET /taskhandler"
@@ -23,10 +23,28 @@ resource "aws_apigatewayv2_route" "taskhandler_get" {
   target             = "integrations/${aws_apigatewayv2_integration.taskhandler.id}"
 }
 
-# Protected routes parsing the explicit path parameters element block: /taskhandler/{id}
-resource "aws_apigatewayv2_route" "taskhandler_id" {
+# Protected PUT /taskhandler/{id} (Update Text/Full)
+resource "aws_apigatewayv2_route" "taskhandler_put" {
   api_id             = aws_apigatewayv2_api.zerefapi.id
-  route_key          = "ANY /taskhandler/{id}"
+  route_key          = "PUT /taskhandler/{id}"
+  authorization_type = "JWT"
+  authorizer_id      = aws_apigatewayv2_authorizer.cognito_auth.id
+  target             = "integrations/${aws_apigatewayv2_integration.taskhandler.id}"
+}
+
+# Protected PATCH /taskhandler/{id} (Update Deadline Only)
+resource "aws_apigatewayv2_route" "taskhandler_patch" {
+  api_id             = aws_apigatewayv2_api.zerefapi.id
+  route_key          = "PATCH /taskhandler/{id}"
+  authorization_type = "JWT"
+  authorizer_id      = aws_apigatewayv2_authorizer.cognito_auth.id
+  target             = "integrations/${aws_apigatewayv2_integration.taskhandler.id}"
+}
+
+# Protected DELETE /taskhandler/{id} (Delete)
+resource "aws_apigatewayv2_route" "taskhandler_delete" {
+  api_id             = aws_apigatewayv2_api.zerefapi.id
+  route_key          = "DELETE /taskhandler/{id}"
   authorization_type = "JWT"
   authorizer_id      = aws_apigatewayv2_authorizer.cognito_auth.id
   target             = "integrations/${aws_apigatewayv2_integration.taskhandler.id}"

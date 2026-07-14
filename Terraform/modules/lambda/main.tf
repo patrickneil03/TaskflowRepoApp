@@ -60,20 +60,50 @@ resource "aws_lambda_event_source_mapping" "sqs_to_lambda_trigger" {
 }
 
 resource "aws_lambda_function" "NotificationHandler" {
-  filename         = "${path.module}/lambda-function/notif-handler.zip"
+  filename         = "${path.module}/lambda-function/notification-handler.zip"
   function_name    = "NotificationHandler"
-  role             = var.notifications_role_arn
-  handler          = "notif-handler.lambda_handler"  
+  role             = var.notifications_role_arn # Ensure this IAM role has permission to Write to the SQS queue!
+  handler          = "notification-handler.lambda_handler"
   runtime          = "python3.12"
-  source_code_hash = filebase64sha256("${path.module}/lambda-function/notif-handler.zip")
-   environment {
+  source_code_hash = filebase64sha256("${path.module}/lambda-function/notification-handler.zip")
+
+  environment {
     variables = {
-      COGNITO_USER_POOL_ID = var.cognito_user_pool_id
-      DYNAMODB_TABLE = var.dynamodb_table_name
-      SES_SENDER_EMAIL = var.sender_email
-      TIMEZONE = var.timezone
+      DYNAMODB_TABLE  = var.dynamodb_table_name
+      SQS_QUEUE_URL   = var.notification_sqs_url
+      TIMEZONE        = var.timezone
     }
   }
+}
+
+
+
+resource "aws_lambda_function" "notification_consumer" {
+  filename         = "${path.module}/lambda-function/notification-consumer.zip"
+  function_name    = "NotificationConsumer"
+  role             = var.notifications_role_arn # Ensure this role can read SQS, query Cognito, and send via SES
+  handler          = "notification-consumer.lambda_handler"
+  runtime          = "python3.12"
+  source_code_hash = filebase64sha256("${path.module}/lambda-function/notification-consumer.zip")
+
+  environment {
+    variables = {
+      COGNITO_USER_POOL_ID = var.cognito_user_pool_id
+      DYNAMODB_TABLE       = var.dynamodb_table_name
+      SES_SENDER_EMAIL     = var.sender_email
+      TIMEZONE             = var.timezone
+    }
+  }
+}
+
+# This resource links the Queue to your Consumer Lambda, making it wake up automatically
+resource "aws_lambda_event_source_mapping" "notification_queue_trigger" {
+  event_source_arn = var.notification_sqs_arn
+  function_name    = aws_lambda_function.notification_consumer.arn
+  batch_size       = 10 # Process up to 10 email notification tasks concurrently
+  
+  # Crucial for returning batchItemFailures properly:
+  function_response_types = ["ReportBatchItemFailures"] 
 }
 
 resource "aws_lambda_function" "ProfileImageToS3" {

@@ -1,7 +1,6 @@
 variable "region" {
   description = "The AWS region to deploy resources in"
   type        = string
-  default     = "ap-southeast-1"
   
 }
 
@@ -78,4 +77,9 @@ variable "custom_cognito_domain" {
 variable "complete_domain_name" {
   type = string
   description = "The complete domain name for the application"
+}
+
+variable "ses_email_address" {
+  type = string
+  description = "The email address to be used for SES"
 }

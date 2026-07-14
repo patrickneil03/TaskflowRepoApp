@@ -4,6 +4,7 @@ resource "aws_dynamodb_table" "todolist_dynamodb_table" {
   hash_key     = "userId"
   range_key    = "taskId"
 
+  # 1. Declare the physical attributes used in keys
   attribute {
     name = "userId"
     type = "S"
@@ -19,13 +20,18 @@ resource "aws_dynamodb_table" "todolist_dynamodb_table" {
     type = "S"
   }
 
-  # Global Secondary Index for deadline queries
+  # ADDED: Attribute for the GSI Partition Key
+  attribute {
+    name = "taskStatus"
+    type = "S"
+  }
+
+  # 2. Configure the GSI optimized for system-wide sweeps
   global_secondary_index {
     name            = "DeadlineIndex"
-    hash_key        = "userId"
-    range_key       = "deadline"
+    hash_key        = "taskStatus" # Querying "PENDING" returns tasks across ALL users
+    range_key       = "deadline"   # Sorted chronologically
     projection_type = "ALL"
-    # REMOVED: write_capacity and read_capacity
   }
 
   tags = {
@@ -33,8 +39,6 @@ resource "aws_dynamodb_table" "todolist_dynamodb_table" {
     Environment = var.environment
   }
 
-  # You can keep ignore_changes as a safety net, 
-  # but removing the lines above is the real fix.
   lifecycle {
     ignore_changes = [read_capacity, write_capacity]
   }

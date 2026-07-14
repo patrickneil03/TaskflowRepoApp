@@ -19,9 +19,7 @@ variable "profileimagetos3_function_name" {
 
 variable "region" {
   description = "The AWS region where the API Gateway and Lambda function will be deployed"
-  type        = string
-  default     = "ap-southeast-1"
-  
+  type        = string 
 }
 
 variable "account_id" {

@@ -95,3 +95,14 @@ variable "dynamodb_table_arn" {
   type        = string
 
 }
+
+variable "notification_sqs_arn" {
+  description = "The ARN of the Notification SQS queue"
+  type        = string
+}
+
+variable "notification_dlq_arn" {
+  description = "The ARN of the Notification Dead Letter Queue"
+  type        = string
+
+}

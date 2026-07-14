@@ -22,6 +22,11 @@ variable "sqs_queue_arn" {
 
 }
 
+variable "notification_sqs_arn" {
+  description = "The ARN of the Notification SQS queue"
+  type        = string
+}
+
 variable "uploadimagetos3_role_arn" {
   description = "ARN of the UploadImageToS3 role"
   type        = string
@@ -78,6 +83,11 @@ variable "sqs_queue_url" {
   description = "The URL of the SQS queue for task processing"
   type        = string
   
+}
+
+variable "notification_sqs_url" {
+  description = "The URL of the Notification SQS queue"
+  type        = string
 }
 
 variable "custom_cognito_domain" {

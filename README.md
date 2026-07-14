@@ -67,6 +67,7 @@ This project demonstrates a real-world, production-grade cloud application with:
 
 ---
 
+
 ## 🚀 Deployment
 
 You can deploy this project in your own AWS account:
@@ -117,6 +118,7 @@ sender_email        = "your_email"
 route53_domain_name = "your_domain"
 custom_domain_name = "your_custom_domain"
 custom_cognito_domain = "your_custom_cognito_domain"
+complete_domain_name = "https://your_custom_domain"
 ```
 
 secrets.auth.tfvars should contain sensitive auth secrets such as:
