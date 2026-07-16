@@ -41,7 +41,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     target_origin_id = "s3-profile-origin"
 
     forwarded_values {
-      query_string = false
+      query_string = true
       # Profiles might leverage CORS headers if fetched via JS fetch api
       headers      = ["Origin", "Access-Control-Request-Headers", "Access-Control-Request-Method"]
       cookies {
