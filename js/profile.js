@@ -35,20 +35,31 @@ const uploadBtn = document.getElementById('uploadBtn');
 
 let selectedFile = null;
 
-const showMessage = (message, isError = false) => {
-  uploadStatus.style.display = 'block';
-  uploadStatus.className = 'status-message show';
-  uploadStatus.style.backgroundColor = 'transparent'; 
-  uploadStatus.style.color = isError ? 'red' : 'green';
-  uploadStatus.textContent = message;
+// ==============================================================================
+// 🛠️ URL SAFEGUARD ENGINE: Prevents naked domain 404/CORS/405 errors
+// ==============================================================================
+function getCleanProfileUrl() {
+    if (PROFILE_API.startsWith('__')) {
+        return '/profileimagetos3';
+    }
+    const baseClean = PROFILE_API.replace(/\/$/, '');
+    return baseClean.endsWith('/profileimagetos3') ? baseClean : `${baseClean}/profileimagetos3`;
+}
 
-  setTimeout(() => {
-    uploadStatus.classList.remove('show');
+const showMessage = (message, isError = false) => {
+    uploadStatus.style.display = 'block';
+    uploadStatus.className = 'status-message show';
+    uploadStatus.style.backgroundColor = 'transparent'; 
+    uploadStatus.style.color = isError ? 'red' : 'green';
+    uploadStatus.textContent = message;
+
     setTimeout(() => {
-      uploadStatus.textContent = '';
-      uploadStatus.style.display = ''; 
-    }, 300); 
-  }, 3000);
+        uploadStatus.classList.remove('show');
+        setTimeout(() => {
+            uploadStatus.textContent = '';
+            uploadStatus.style.display = ''; 
+        }, 300); 
+    }, 3000);
 };
 
 function displayImagePreview(file) {
@@ -93,11 +104,14 @@ async function handleFileUpload(file) {
 
         showMessage("Uploading...", false);
 
-        const response = await fetch(PROFILE_API, {
+        // 🎯 SAFEGUARD ENGINE: Dynamically maps request targets
+        const targetUrl = getCleanProfileUrl();
+
+        const response = await fetch(targetUrl, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${authToken}` // 🎯 FIXED: Appended Bearer Prefix for HTTP API Gateway v2 compatibility
+                "Authorization": `Bearer ${authToken}` // Aligned for API Gateway v2 compatibility
             },
             body: JSON.stringify(requestBody)
         });
@@ -108,9 +122,13 @@ async function handleFileUpload(file) {
             return;
         }
 
+        // 🎯 FIXED: Header matching for the Cache-Control bypass strategy
         const uploadRes = await fetch(data.uploadUrl, {
             method: "PUT",
-            headers: { "Content-Type": "image/jpeg" },
+            headers: { 
+                "Content-Type": "image/jpeg",
+                "Cache-Control": "max-age=0, must-revalidate, no-cache" // 🎯 Tell S3 to mark this file as non-cacheable
+            },
             body: file
         });
 
@@ -121,7 +139,7 @@ async function handleFileUpload(file) {
 
         showMessage("Profile Picture uploaded successfully!", false);
         
-        // 🎯 Pass true to bypass local storage cache instantly upon a new upload write action
+        // 🎯 Pass true to bypass cache instantly upon new upload write action
         await fetchProfilePicture(true); 
     } catch (error) {
         console.error("Upload Error:", error);
@@ -153,8 +171,12 @@ async function fetchProfilePicture(isNewUpload = false) {
 
         let finalUrl = `https://baylenweb-app.xyz/profiles/${username}.jpg`;
         
+        // Always append cache busting query string to bypass CloudFront routing delays
         if (isNewUpload) {
             finalUrl += `?t=${new Date().getTime()}`;
+        } else {
+            // Also add standard daily cache busting on initial load
+            finalUrl += `?t=${new Date().getUTCDate()}`;
         }
         
         // 🎯 SILENT PRE-CHECK: Uses HEAD method so it doesn't download bytes or log a 403 error

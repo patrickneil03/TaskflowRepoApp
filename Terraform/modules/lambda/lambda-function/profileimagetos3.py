@@ -14,7 +14,7 @@ def lambda_handler(event, context):
     }
 
     try:
-        # 🎯 FIXED: Read HTTP Method safely from HTTP API v2 payload format
+        # Read HTTP Method safely from HTTP API v2 payload format
         http_method = event.get("requestContext", {}).get("http", {}).get("method", "GET")
         
         if http_method == "OPTIONS":
@@ -45,27 +45,29 @@ def handle_presigned_upload_url(event, headers):
         body = json.loads(event.get("body", "{}"))
         username = body.get("username")
 
-        # 🎯 FIXED: Access authorizer claims safely from HTTP API v2 format (nested under 'jwt')
+        # Access authorizer claims safely from HTTP API v2 format
         authorizer = event.get("requestContext", {}).get("authorizer", {})
         jwt_claims = authorizer.get("jwt", {}).get("claims", {})
         username_from_token = jwt_claims.get("cognito:username")
 
-        # Fallback to older v1 structure just in case of formatting adjustments
+        # Fallback to older v1 structure just in case
         if not username_from_token:
             username_from_token = authorizer.get("claims", {}).get("cognito:username")
 
         if not username_from_token or username_from_token != username:
             return create_response(403, {"error": "Unauthorized. Username mismatch."}, headers)
 
-        # 🎯 ALIGNED PATH: Matches your CloudFront route pattern precisely
+        # Aligned path pattern
         key = f"profiles/{username}.jpg"
         
+        # 🎯 FIXED: Appended CacheControl parameter to the signature logic
         presigned_url = s3.generate_presigned_url(
             'put_object',
             Params={
                 'Bucket': BUCKET,
                 'Key': key,
-                'ContentType': "image/jpeg"
+                'ContentType': "image/jpeg",
+                'CacheControl': 'max-age=0, must-revalidate, no-cache' # ⚠️ Must strictly match frontend's PUT request headers!
             },
             ExpiresIn=300  # 5 minutes
         )
