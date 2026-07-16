@@ -18,3 +18,18 @@ output "notification_handler_arn" {
   value = aws_lambda_function.NotificationHandler.arn
   
 }
+
+output "task_consumer_function_name" {
+  value = aws_lambda_function.TaskConsumer.function_name
+
+}
+
+output "notification_consumer_function_name" {
+  value = aws_lambda_function.notification_consumer.function_name
+
+}
+
+output "notification_handler_function_name" {
+  value = aws_lambda_function.NotificationHandler.function_name
+
+}

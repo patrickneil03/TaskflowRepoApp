@@ -7,7 +7,7 @@ resource "aws_scheduler_schedule" "deadline_check" {
   }
 
   
-  schedule_expression          = "rate(23 hours)"  
+  schedule_expression          = "rate(23 hours)"
   schedule_expression_timezone = "Asia/Manila"  # Match your Lambda's timezone
 
   target {

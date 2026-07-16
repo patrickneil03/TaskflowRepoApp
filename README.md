@@ -119,6 +119,8 @@ route53_domain_name = "your_domain"
 custom_domain_name = "your_custom_domain"
 custom_cognito_domain = "your_custom_cognito_domain"
 complete_domain_name = "https://your_custom_domain"
+region = "your_aws_region"
+ses_email_address = "your_email_address"
 ```
 
 secrets.auth.tfvars should contain sensitive auth secrets such as:

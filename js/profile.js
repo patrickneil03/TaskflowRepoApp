@@ -35,20 +35,34 @@ const uploadBtn = document.getElementById('uploadBtn');
 
 let selectedFile = null;
 
-const showMessage = (message, isError = false) => {
-  uploadStatus.style.display = 'block';
-  uploadStatus.className = 'status-message show';
-  uploadStatus.style.backgroundColor = 'transparent'; 
-  uploadStatus.style.color = isError ? 'red' : 'green';
-  uploadStatus.textContent = message;
+// ==============================================================================
+// 🛠️ URL SAFEGUARD ENGINE: Prevents naked domain 404/CORS/405 errors
+// ==============================================================================
+function getCleanProfileUrl() {
+    // If the injected string is just a placeholder, fall back gracefully
+    if (PROFILE_API.startsWith('__')) {
+        return '/profileimagetos3';
+    }
+    
+    // Strip trailing slashes, then ensure it hits the explicit /profileimagetos3 route path
+    const baseClean = PROFILE_API.replace(/\/$/, '');
+    return baseClean.endsWith('/profileimagetos3') ? baseClean : `${baseClean}/profileimagetos3`;
+}
 
-  setTimeout(() => {
-    uploadStatus.classList.remove('show');
+const showMessage = (message, isError = false) => {
+    uploadStatus.style.display = 'block';
+    uploadStatus.className = 'status-message show';
+    uploadStatus.style.backgroundColor = 'transparent'; 
+    uploadStatus.style.color = isError ? 'red' : 'green';
+    uploadStatus.textContent = message;
+
     setTimeout(() => {
-      uploadStatus.textContent = '';
-      uploadStatus.style.display = ''; 
-    }, 300); 
-  }, 3000);
+        uploadStatus.classList.remove('show');
+        setTimeout(() => {
+            uploadStatus.textContent = '';
+            uploadStatus.style.display = ''; 
+        }, 300); 
+    }, 3000);
 };
 
 function displayImagePreview(file) {
@@ -78,7 +92,7 @@ async function fetchUserProfile() {
     }
 }
 
-// Updated Upload Handler
+// Updated Upload Handler with Safeguard Engine Integration
 async function handleFileUpload(file) {
     try {
         const authToken = localStorage.getItem('authToken');
@@ -93,11 +107,14 @@ async function handleFileUpload(file) {
 
         showMessage("Uploading...", false);
 
-        const response = await fetch(PROFILE_API, {
+        // 🎯 FIXED VIA SAFEGUARD ENGINE: Dynamically points request to /profileimagetos3 
+        const targetUrl = getCleanProfileUrl();
+
+        const response = await fetch(targetUrl, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${authToken}` // 🎯 FIXED: Appended Bearer Prefix for HTTP API Gateway v2 compatibility
+                "Authorization": `Bearer ${authToken}` // 🎯 Appended Bearer Prefix for HTTP API Gateway v2 compatibility
             },
             body: JSON.stringify(requestBody)
         });

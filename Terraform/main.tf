@@ -156,6 +156,14 @@ module "eventbridge" {
 module "cloudwatch" {
   source = "./modules/cloudwatch"
   notification_handler_arn = module.lambda.notification_handler_arn
+  zerefapi_id = module.api.zerefapi_id
+  api_stage_name = module.api.api_stage_name
+  task_consumer_function_name = module.lambda.task_consumer_function_name
+  notification_consumer_function_name = module.lambda.notification_consumer_function_name
+  notification_handler_function_name = module.lambda.notification_handler_function_name
+  TaskHandler_function_name = module.lambda.TaskHandler_function_name
+  profileimagetos3_function_name = module.lambda.profileimagetos3_function_name
+  TokenHandlerCognito_function_name = module.lambda.TokenHandlerCognito_function_name
 }
 
 module "ses" {
