@@ -139,8 +139,12 @@ async function handleFileUpload(file) {
 
         showMessage("Profile Picture uploaded successfully!", false);
         
-        // 🎯 Pass true to bypass cache instantly upon new upload write action
-        await fetchProfilePicture(true); 
+        // 🎯 1. Set a persistent update flag in localStorage with a unique timestamp
+        const uploadTimestamp = new Date().getTime();
+        localStorage.setItem(`profile_update_${username}`, uploadTimestamp);
+
+        // 🎯 2. Force load the new image instantly using the fresh timestamp
+        await fetchProfilePicture(uploadTimestamp); 
     } catch (error) {
         console.error("Upload Error:", error);
         showMessage("Upload failed", true);
@@ -148,7 +152,7 @@ async function handleFileUpload(file) {
 }
 
 // 🎯 FIXED DESIGN: High-speed, network-decoupled Profile Picture Loading (Console Safe)
-async function fetchProfilePicture(isNewUpload = false) {
+async function fetchProfilePicture(forcedTimestamp = null) {
     const profilePic = document.getElementById("profilePic");
     const navProfilePic = document.getElementById("navProfilePic"); 
     const defaultImage = "images/default-profile.png";
@@ -171,25 +175,35 @@ async function fetchProfilePicture(isNewUpload = false) {
 
         let finalUrl = `https://baylenweb-app.xyz/profiles/${username}.jpg`;
         
-        // Always append cache busting query string to bypass CloudFront routing delays
-        if (isNewUpload) {
-            finalUrl += `?t=${new Date().getTime()}`;
+        // 🎯 Smart Cache Buster Engine
+        if (forcedTimestamp) {
+            // Case A: Just completed a new upload write action. Grab it immediately.
+            finalUrl += `?t=${forcedTimestamp}`;
         } else {
-            // Also add standard daily cache busting on initial load
-            finalUrl += `?t=${new Date().getUTCDate()}`;
+            // Case B: Regular Page Initial load. Check if user updated their picture in a previous session.
+            const lastUpdate = localStorage.getItem(`profile_update_${username}`);
+            if (lastUpdate) {
+                finalUrl += `?t=${lastUpdate}`; // Keeps loading the updated image securely from CDN cache
+            } else {
+                // Case C: Absolute first load. Use a stable hour-based cache key so CloudFront caches it cleanly.
+                const hourlyKey = new Date().getHours(); 
+                finalUrl += `?t=${hourlyKey}`;
+            }
         }
         
-        // 🎯 SILENT PRE-CHECK: Uses HEAD method so it doesn't download bytes or log a 403 error
-        const checkResponse = await fetch(finalUrl, { method: 'HEAD' });
+        // Setup Native Fallbacks (Bypasses slow, round-trip JavaScript HEAD request pre-checks)
+        if (profilePic) {
+            profilePic.onerror = function() {
+                profilePic.src = defaultImage; // Fail silently over to fallback image without logging console errors
+            };
+            profilePic.src = finalUrl;
+        }
 
-        if (checkResponse.ok) {
-            // File exists! Set the src safely
-            if (profilePic) profilePic.src = finalUrl; 
-            if (navProfilePic) navProfilePic.src = finalUrl;
-        } else {
-            // File doesn't exist yet, seamlessly use default without console errors
-            if (profilePic) profilePic.src = defaultImage;
-            if (navProfilePic) navProfilePic.src = defaultImage;
+        if (navProfilePic) {
+            navProfilePic.onerror = function() {
+                navProfilePic.src = defaultImage;
+            };
+            navProfilePic.src = finalUrl;
         }
         
     } catch (error) {
