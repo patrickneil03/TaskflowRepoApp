@@ -6,7 +6,7 @@ resource "aws_apigatewayv2_integration" "profileimagetos3" {
   payload_format_version = "2.0"
 }
 
-# 2. Expose the protected route rule endpoint
+# 2.Expose the protected route rule endpoint
 resource "aws_apigatewayv2_route" "profileimagetos3_post" {
   api_id             = aws_apigatewayv2_api.zerefapi.id
   route_key          = "POST /profileimagetos3"
