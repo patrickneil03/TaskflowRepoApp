@@ -8,13 +8,15 @@ ALLOWED_ORIGIN = os.environ.get("ALLOWED_ORIGIN")
 
 def lambda_handler(event, context):
     cors_headers = {
-        "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
+        "Access-Control-Allow-Origin": ALLOWED_ORIGIN if ALLOWED_ORIGIN else "*",
         "Access-Control-Allow-Methods": "OPTIONS, POST",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
     }
 
     try:
-        http_method = event.get("httpMethod", "GET")
+        # 🎯 FIXED: Read HTTP Method safely from HTTP API v2 payload format
+        http_method = event.get("requestContext", {}).get("http", {}).get("method", "GET")
+        
         if http_method == "OPTIONS":
             return {
                 "statusCode": 200,
@@ -26,9 +28,10 @@ def lambda_handler(event, context):
             return handle_presigned_upload_url(event, cors_headers)
         else:
             return create_response(405, {"error": "Method not allowed"}, cors_headers)
+            
     except Exception as e:
-        print(f"Error: {str(e)}")
-        return create_response(500, {"error": "Internal Server Error"}, cors_headers)
+        print(f"Error in handler: {str(e)}")
+        return create_response(500, {"error": f"Internal Server Error: {str(e)}"}, cors_headers)
 
 def create_response(status_code, body, headers):
     return {
@@ -40,10 +43,18 @@ def create_response(status_code, body, headers):
 def handle_presigned_upload_url(event, headers):
     try:
         body = json.loads(event.get("body", "{}"))
-        username_from_token = event["requestContext"]["authorizer"]["claims"]["cognito:username"]
         username = body.get("username")
 
-        if username_from_token != username:
+        # 🎯 FIXED: Access authorizer claims safely from HTTP API v2 format (nested under 'jwt')
+        authorizer = event.get("requestContext", {}).get("authorizer", {})
+        jwt_claims = authorizer.get("jwt", {}).get("claims", {})
+        username_from_token = jwt_claims.get("cognito:username")
+
+        # Fallback to older v1 structure just in case of formatting adjustments
+        if not username_from_token:
+            username_from_token = authorizer.get("claims", {}).get("cognito:username")
+
+        if not username_from_token or username_from_token != username:
             return create_response(403, {"error": "Unauthorized. Username mismatch."}, headers)
 
         # 🎯 ALIGNED PATH: Matches your CloudFront route pattern precisely
@@ -59,6 +70,7 @@ def handle_presigned_upload_url(event, headers):
             ExpiresIn=300  # 5 minutes
         )
         return create_response(200, {"uploadUrl": presigned_url}, headers)
+        
     except Exception as e:
         print(f"Presigned Upload URL Error: {str(e)}")
-        return create_response(500, {"error": "Failed to generate upload URL"}, headers)
+        return create_response(500, {"error": f"Failed to generate upload URL: {str(e)}"}, headers)
