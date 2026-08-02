@@ -67,7 +67,7 @@ module "iam" {
   codebuild_project_name = module.codebuild.codebuild_project_name
   s3_bucket_name_artifact = module.s3.s3_bucket_name_artifact
   cloudfront_distribution_id = module.cloudfront.cloudfront_distribution_id
-  codestar_connection_arn = var.codestar_connection_arn
+  github_connection_arn = module.codepipeline.github_connection_arn
   sqs_queue_arn = module.sqs.sqs_queue_arn
   dynamodb_table_arn = module.dynamodb.dynamodb_table_arn
   notification_sqs_arn = module.sqs.notification_sqs_arn
@@ -182,7 +182,7 @@ module "codepipeline" {
   s3_bucket_name_artifact = module.s3.s3_bucket_name_artifact
   s3_bucket_my_bucket = module.s3.s3_bucket_my_bucket
   codebuild_project_name = module.codebuild.codebuild_project_name
-  codestar_connection_arn = var.codestar_connection_arn
+  github_connection_arn = module.codepipeline.github_connection_arn
 }
 
 

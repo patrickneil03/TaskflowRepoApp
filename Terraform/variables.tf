@@ -53,11 +53,11 @@ variable "github_branch" {
   type        = string 
 }
 
-variable "codestar_connection_arn" {
-  description = "ARN of the CodeStar connection for GitHub"
-  type        = string
-  sensitive   = true
-}
+# variable "codestar_connection_arn" {
+#   description = "ARN of the CodeStar connection for GitHub"
+#   type        = string
+#   sensitive   = true
+# }
 
 variable "route53_domain_name" {
   type = string

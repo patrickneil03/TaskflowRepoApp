@@ -49,7 +49,7 @@ variable "codebuild_project_name" {
   
 }
 
-variable "codestar_connection_arn" {
+variable "github_connection_arn" {
   description = "ARN of the CodeStar connection for GitHub"
   type        = string
   sensitive   = true

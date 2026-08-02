@@ -84,7 +84,7 @@ resource "aws_iam_policy" "codepipeline_policy" {
         Action = [
           "codestar-connections:UseConnection"
         ]
-        Resource = var.codestar_connection_arn
+        Resource = var.github_connection_arn
       }
     ]
   })

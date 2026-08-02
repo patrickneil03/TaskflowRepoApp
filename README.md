@@ -131,7 +131,6 @@ facebook_app_id     = "your_facebook_app_id"
 facebook_app_secret = "your_facebook_app_secret"
 google_client_id    = "your_google_client_id"
 google_client_secret = "your_google_client_secret"
-codestar_connection_arn ="your_codestarconnection_arn"
 ```
 
 ### 3. Create Google & Facebook Identity Providers for Cognito
