@@ -123,7 +123,7 @@ region = "your_aws_region"
 ses_email_address = "your_email_address"
 ```
 
-secrets.auth.tfvars should contain sensitive auth secrets such as:
+secrets.auth.tfvars should contain sensitive information such as:
 
 **secrets.auth.tfvars**
 ```hcl
